@@ -1,7 +1,7 @@
 # OpenSec Lab Setup Script
 
 ## Descripción
-El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script comnsidera la instalación de WebGOAT, DVWA y Juice-Shop en contenedores de Docker, y haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
+El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de WebGOAT, DVWA y Juice-Shop en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
 
 ## Prerrequisitos
 
