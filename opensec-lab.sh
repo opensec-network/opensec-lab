@@ -70,7 +70,6 @@ cleanup_previous_installation() {
 
     # Eliminar las imágenes Docker descargadas
     echo -e "${GREEN}Eliminando las imágenes Docker utilizadas...${NC}"
-    sudo docker image rm webgoat/webgoat-8.0 -f > /dev/null 2>&1
     sudo docker image rm bkimminich/juice-shop -f > /dev/null 2>&1
     sudo docker image rm howiehowerton/dvwa-howie:v3 -f > /dev/null 2>&1
     
@@ -148,14 +147,6 @@ echo -e "${GREEN}Generando archivo docker-compose.yml...${NC}"
 cat <<EOF > $DC_FILE
 version: '3.7'
 services:
-  webgoat:
-    image: webgoat/webgoat-desktop
-    container_name: webgoat
-    ports:
-      - "4000:3000"
-    networks:
-      $NETWORK_NAME:
-        ipv4_address: 172.18.0.2
 
   dvwa:
     image: howiehowerton/dvwa-howie:v3
