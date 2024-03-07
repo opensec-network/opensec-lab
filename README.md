@@ -43,7 +43,7 @@ local     2462967684fa0fb6554662e28599ada4860a08c54d488f2e30bf82befc2bd9e0
 local     docker_dvwa_data
 ```
 
-- Buscar el "Mountpoint" para saber exactamente en cual carpeta dentro del host se encuentra manpeado el volumen
+- Buscar el "Mountpoint" para saber exactamente en cual carpeta dentro del host se encuentra mapeado el volumen
 
 ```bash
 ┌──(opsn㉿kali)-[~]
