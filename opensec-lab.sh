@@ -150,7 +150,7 @@ services:
 
   dvwa:
     image: howiehowerton/dvwa-howie:v3
-    container_name: dvwa
+    container_name: opsn-dvwa
     volumes:
       - dvwa_data:/var
     networks:
@@ -161,7 +161,7 @@ services:
 
   juice-shop:
     image: bkimminich/juice-shop
-    container_name: juice-shop
+    container_name: opsn-juice-shop
     networks:
       $NETWORK_NAME:
         ipv4_address: 172.18.0.4
