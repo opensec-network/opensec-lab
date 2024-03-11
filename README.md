@@ -1,7 +1,9 @@
 # OpenSec Lab Setup Script
 
 ## Descripción
-El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA y Juice-Shop en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
+El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA y Juice-Shop en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática. 
+
+**IMPORTANTE: Esta versión del OpenSec Lab automaticamente expone la aplicación Juice Shop a internet lo que permite realizar pruebas de protección  de la aplicación como por ejemplo ponerlas detrás de un Cloud WAF, si no va a realizar pruebas para proteger el app no use esta versión del script, puede poner en riesgo su equipo** 
 
 ## Prerrequisitos
 
@@ -18,7 +20,7 @@ Para una instalación sencilla recomendamos copiar y pegar el siguiente comando 
 ```
 Siga las instrucciones en pantalla para completar la instalación.
 
-**NOTA: No es necesario ejecutarlo con sudo, el script ya incluye los comandos de sudo</span>**
+**NOTA: No es necesario ejecutarlo con sudo, el script ya incluye los comandos de sudo**
 
 ## Reinstalación / Desinstalación
 
