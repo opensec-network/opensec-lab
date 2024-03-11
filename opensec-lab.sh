@@ -34,6 +34,7 @@ fi
 
 # Continuar con el script si el usuario confirma
 echo -e "${GREEN}Iniciando la instalación...${NC}"
+echo""
 
 # Archivo temporal para almacenar mensajes de error
 ERROR_LOG="/tmp/installation_errors.log"
@@ -88,16 +89,41 @@ is_docker_installed() {
     fi
 }
 
+start_ssh_tunnel() {
+
+    
+    # Ejecuta el comando SSH y procesa su salida en tiempo real
+   
+    ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no -R 80:localhost:3000 nokey@localhost.run 2>&1 | while read -r line; do
+        # echo "$line" # Opcional: Imprime toda la salida para depuración
+        # Busca la línea que contiene la URL después de "tunneled with tls termination,"
+        if echo "$line" | grep -q "tunneled with tls termination,"; then
+            URL=$(echo "$line" | grep -oP 'https?://[^\s]+')
+            echo -e "${GREEN_BRIGHT}Túnel establecido en: $URL${NC}"
+            # Aquí puedes hacer break si solo quieres capturar la primera URL y salir del bucle
+            # break
+        fi
+    done
+    
+    echo -e "${RED_BRIGHT}El túnel SSH se ha desconectado. Reintentando en 10 segundos...${NC}"
+    sleep 10
+}
+
 # Verificar si el script ya se ha ejecutado con éxito
 if [ -f "$FLAG_FILE" ]; then
     echo "OpenSec Lab ya ha sido instalado."
+    echo ""
     echo "Selecciona una opción:"
-
+    echo ""
     echo "1) Reinstalar"
+    echo ""
     echo "2) Eliminar todo"
-    echo "3) Cancelar"
-    
-    read -p "Escoge una opción (1/2/3): " user_choice
+    echo ""
+    echo "3) Reiniciar Tunel SSH"
+    echo ""
+    echo "4) Cancelar"
+    echo ""
+    read -p "Escoge una opción (1/2/3/4): " user_choice
     
     case $user_choice in
         1)
@@ -108,7 +134,12 @@ if [ -f "$FLAG_FILE" ]; then
             echo -e "${RED}OpenSec Lab ha sido eliminado completamente.${NC}"
             exit 0
             ;;
-        3)
+
+        3)  echo -e "${GREEN}Reiniciando el tunel SSH...${NC}"
+            start_ssh_tunnel
+            exit 0
+            ;;
+        4)
             echo "Operación cancelada."
             exit 0
             ;;
@@ -227,7 +258,8 @@ echo "                | |                                      "
 echo "                |_|                                      "
 echo "***********************************************************"
 
-echo -e "${RED}IMPORTANTE: Necesitas reiniciar tu sesión para usar Docker sin necesidad de sudo${NC}"
+# Start the SSH tunnel in the background
+start_ssh_tunnel &
+
+#echo -e "${RED}IMPORTANTE: Necesitas reiniciar tu sesión para usar Docker sin necesidad de sudo${NC}"
 echo -e "${GREEN}Este script debe ejecutarse en un entorno de pruebas, no en sistemas de producción.${NC}"
-
-
