@@ -14,7 +14,7 @@ El script opensec-lab.sh automatiza la configuración de un entorno de laborator
 
 Para una instalación sencilla recomendamos copiar y pegar el siguiente comando en la terminal de Kali Linux. Este script es compatible con arquitecturas ARM64 / AMD64 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/opensec-network/opensec-lab/main/opensec-lab.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/opensec-network/opensec-lab/dev/opensec-lab.sh)"
 ```
 Siga las instrucciones en pantalla para completar la instalación.
 
