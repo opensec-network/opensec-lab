@@ -78,6 +78,7 @@ cleanup_previous_installation() {
     rm -f "$FLAG_FILE"
     echo -e "${GREEN}Limpieza completa.${NC}"
 }
+X=U2NyaXB0IGRlc2Fycm9sbGFkbyBwb3IgT3BlblNlYw==
 
 # Verificar si Docker está instalado
 is_docker_installed() {
@@ -133,7 +134,7 @@ if [ "$(is_docker_installed)" -eq "0" ]; then
 else
     echo -e "${GREEN}Docker ya está instalado, continuando con el resto de la instalación...${NC}"
 fi
-
+Y=YWxlamFuZHJvQG9wZW5zZWMubmV0d29yaw==
 # Crear estructura de carpetas
 echo -e "${GREEN}Creando estructura de carpetas...${NC}"
 mkdir -p $LAB_DIR/docker
@@ -212,7 +213,7 @@ fi
 
 # Limpieza: Borrar el archivo de log de errores al finalizar
 rm "$ERROR_LOG"
-
+z=T3BlbiBTZWN1cml0eSBOZXR3b3Jr
 # Instrucciones finales al usuario
 
 echo -e "${YELLOW_BRIGHT}"
