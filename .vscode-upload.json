@@ -1,9 +1,0 @@
-[{
-        "host": "kalipg.araque.co",
-        "port": 22,
-        "username": "cesar",
-        "password": "NoDebts2012",
-        "remotePath": "/home/cesar",
-        "localPath": "/Users/cesar/dev/OpenSec/opensec-lab",
-        "disable": false 
-}]
