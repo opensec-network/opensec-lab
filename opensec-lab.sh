@@ -520,18 +520,12 @@ instalar_contenedores(){
     contenedores_instalados
 
     # Validar que todos los contenedores estén corriendo
-#    echo -e "${GREEN}Validando el estado de los contenedores...${NC}"
-
-#    validate_containers
 
     if [ $RECENT_ERROR ]; then
         handle_error 0 "La instalación ha finalizado con éxito."
     else
         handle_error -1 "Se encontraron errores durante la instalación. Considera corregir los errores y volver a ejecutar el script."
     fi
-
-    # Limpieza: Borrar el archivo de log de errores al finalizar
-    # rm "$ERROR_LOG"
 }
 
 # Función para seleccionar contenedores de una lista
@@ -587,7 +581,6 @@ instrucciones_finales(){
     echo "***********************************************************"
 
     echo -e "${RED}IMPORTANTE: Necesitas reiniciar tu sesión para usar Docker sin necesidad de sudo${NC}"
-    # echo -e "${GREEN}Este script debe ejecutarse en un entorno de pruebas, no en sistemas de producción.${NC}"
 
 }
 
