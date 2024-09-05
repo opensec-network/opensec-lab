@@ -1,7 +1,7 @@
 # OpenSec Lab Setup Script
 
 ## Descripción
-El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA y Juice-Shop en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
+El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA, Juice-Shop y Gophish en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
 
 ## Prerrequisitos
 
@@ -26,12 +26,13 @@ El script está diseñado para poder desinstalar o reinstalar los componentes en
 
 ## Uso
 
-Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar. Si no hiciste cambios al script los tres contenedores (WebGOAT, DVWA, Juice-Shop) estarán instalados y ejecutandose automaticamente.
+Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar. Si no hiciste cambios al script los tres contenedores (DVWA, Juice-Shop, Goph ish) estarán instalados y ejecutandose automaticamente.
   
 **Juice-Shop** -> http://localhost:3000   
 **DVWA** -> http://localhost:8080  
+**Gophish** -> http://localhost:3333 
 
-Para poder tener persistencia de las configuraciones del contenedor **DVWA** el script genera un volumen de docker llamado **docker_dvwa_data**, para poder encontrar la ruta de donde se encuentra el volumen y poder editar sus archivos se debe ejecutar los siguientes comandos:
+Para poder tener persistencia de las configuraciones del contenedor **DVWA** y **Gophish** el script genera un volumen de docker llamado **docker_dvwa_data** y **docker_gophish** respectivamente, para poder encontrar la ruta de donde se encuentra el volumen y poder editar sus archivos se debe ejecutar los siguientes comandos:
 
 - Validar que el volumen existe en la máquina
 ```bash
@@ -40,6 +41,7 @@ Para poder tener persistencia de las configuraciones del contenedor **DVWA** el 
 DRIVER    VOLUME NAME
 local     2462967684fa0fb6554662e28599ada4860a08c54d488f2e30bf82befc2bd9e0
 local     docker_dvwa_data
+local     docker_gophish
 ```
 
 - Buscar el "Mountpoint" para saber exactamente en cual carpeta dentro del host se encuentra mapeado el volumen
@@ -62,10 +64,32 @@ local     docker_dvwa_data
         "Scope": "local"
     }
 ]
- ```                                                                                                                                                                
-En el ejemplo anterior el volumen está mapeado a la carpeta `/var/lib/docker/volumes/docker_dvwa_data/_data`
+ ```
 
-- Para poder editar los archivos dentro de esa carpeta se necesitar tener permisos de root, esto se puede hacer usando `sudo su` como se muestra en el ejemplo a continuación.
+```bash
+┌──(opsn㉿kali)-[~]
+└─$ sudo docker inspect docker_gophish
+[
+    {
+        "CreatedAt": "2024-03-03T08:33:59-05:00",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.compose.project": "docker",
+            "com.docker.compose.version": "2.24.6",
+            "com.docker.compose.volume": "gophish"
+        },
+        "Mountpoint": "/var/lib/docker/volumes/docker_gophish/_data",
+        "Name": "docker_gophish",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+ ```
+
+                                                                                                                                                           
+En el ejemplo anterior el volumen de el contenedor DVWA está mapeado a la carpeta `/var/lib/docker/volumes/docker_dvwa_data/_data` y el de Gophish está mapeado a `/var/lib/docker/volumes/docker_gophish/_data`
+
+- Para poder editar los archivos dentro de esa carpeta para cualquier de los contenedores se necesita tener permisos de root, esto se puede hacer usando `sudo su` como se muestra en el ejemplo a continuación.
 
 ```bash
 ┌──(opsn㉿kali)-[~]
