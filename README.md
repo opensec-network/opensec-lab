@@ -26,7 +26,7 @@ El script está diseñado para poder desinstalar o reinstalar los componentes en
 
 ## Uso
 
-Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar. Si no hiciste cambios al script los tres contenedores (DVWA, Juice-Shop, Goph ish) estarán instalados y ejecutandose automaticamente.
+Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar.
   
 **Juice-Shop** -> http://localhost:3000   
 **DVWA** -> http://localhost:8080  
