@@ -541,7 +541,7 @@ preparar_contenedores() {
     echo "status code" $status_code
     if [[ "$status_code" -eq 200 ]]; then
         echo "a descargar el arhcivo" $PREPARE_FILE
-        /bin/bash -c "$(curl -fsSL $PREPARE_FILE)"
+        /bin/bash -c "$(curl -H "Pragma: no-cache" -fsSL $PREPARE_FILE)"
     fi
   done
   sleep 10
