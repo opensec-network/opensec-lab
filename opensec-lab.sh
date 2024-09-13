@@ -246,13 +246,16 @@ services:
             - TZ=Etc/UTC
             - TITLE=OPSN Desktop
         volumes:
-            - ./init.sh:/etc/cont-init.d/99-init-and-install.sh
-            - ./custom-init.sh:/custom-cont-init.d/custom-init.sh
-            - ./opsn-background.jpg:/config/opsn-background.jpg:ro
+            - $LAB_DIR/opsn-desktop/init.sh:/etc/cont-init.d/99-init-and-install.sh
+            - $LAB_DIR/opsn-desktop/custom-init.sh:/custom-cont-init.d/custom-init.sh
+            - $LAB_DIR/opsn-desktop/opsn-background.jpg:/config/opsn-background.jpg:ro
             - webtop_data:/config
+        networks:
+            $NETWORK_NAME:
+                ipv4_address: 172.18.0.6
         ports:
-            - 3000:3000
-            - 3001:3001
+            - 3100:3000
+            - 3101:3001
         shm_size: "1gb" #opcional
         restart: unless-stopped
 volumes:
@@ -526,13 +529,33 @@ instalar_binarios(){
     fi
 }
 
+# Función para preparar los contenedores
+preparar_contenedores() {
+  # Iterar sobre cada container_name proporcionado como argumento
+  for CONTAINER_NAME in "$@"; do
+    PREPARE_FILE="https://raw.githubusercontent.com/opensec-network/opensec-lab/refs/heads/main/$CONTAINER_NAME/prepare.sh"
+    echo "prepare file " $PREPARE_FILE
+    mkdir -p $LAB_DIR/$CONTAINER_NAME
+    cd $LAB_DIR/$CONTAINER_NAME
+    status_code=$(curl -o /dev/null --silent --head --write-out '%{http_code}' "$PREPARE_FILE")
+    echo "status code" $status_code
+    if [[ "$status_code" -eq 200 ]]; then
+        echo "a descargar el arhcivo" $PREPARE_FILE
+        /bin/bash -c "$(curl -fsSL $PREPARE_FILE)"
+    fi
+  done
+  sleep 10
+}
+
 instalar_contenedores(){
     RECENT_ERROR=0
     local containers_to_install="$@"
     update_profiles "toinstall" $containers_to_install
+    preparar_contenedores $containers_to_install
 
     # Ejecutar docker compose
     handle_error 0 "Levantando contenedores Docker con docker compose..."
+
     $SUDO_CMD docker compose -f $DC_FILE --profile toinstall up -d
     exit_code=$?
     handle_error $exit_code '$SUDO_CMD docker compose -f $DC_FILE --profile toinstall up -d' true
