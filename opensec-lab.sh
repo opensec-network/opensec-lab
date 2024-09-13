@@ -7,7 +7,7 @@
 # Variables de release
 # Version
 VERSION="2.0"
-OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish"
+OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish opsn-desktop"
 INSTALLED_CONTAINERS=""
 NON_INSTALLED_CONTAINERS=""
 SELECTED_CONTAINERS=""
@@ -235,9 +235,30 @@ services:
             - "80:80"
         profiles:
             - disabled
+    opsn-desktop:
+        image: lscr.io/linuxserver/webtop:ubuntu-kde
+        container_name: opsn-desktop
+        security_opt:
+            - seccomp:unconfined
+        environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ=Etc/UTC
+            - TITLE=OPSN Desktop
+        volumes:
+            - ./init.sh:/etc/cont-init.d/99-init-and-install.sh
+            - ./custom-init.sh:/custom-cont-init.d/custom-init.sh
+            - ./opsn-background.jpg:/config/opsn-background.jpg:ro
+            - webtop_data:/config
+        ports:
+            - 3000:3000
+            - 3001:3001
+        shm_size: "1gb" #opcional
+        restart: unless-stopped
 volumes:
     dvwa_data:
     gophish:
+    webtop_data:
 networks:
     $NETWORK_NAME:
         external: true
