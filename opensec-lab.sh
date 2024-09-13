@@ -534,17 +534,13 @@ preparar_contenedores() {
   # Iterar sobre cada container_name proporcionado como argumento
   for CONTAINER_NAME in "$@"; do
     PREPARE_FILE="https://raw.githubusercontent.com/opensec-network/opensec-lab/refs/heads/main/$CONTAINER_NAME/prepare.sh"
-    echo "prepare file " $PREPARE_FILE
     mkdir -p $LAB_DIR/$CONTAINER_NAME
     cd $LAB_DIR/$CONTAINER_NAME
     status_code=$(curl -o /dev/null --silent --head --write-out '%{http_code}' "$PREPARE_FILE")
-    echo "status code" $status_code
     if [[ "$status_code" -eq 200 ]]; then
-        echo "a descargar el arhcivo" $PREPARE_FILE
         /bin/bash -c "$(curl -H "Pragma: no-cache" -fsSL $PREPARE_FILE)"
     fi
   done
-  sleep 10
 }
 
 instalar_contenedores(){
