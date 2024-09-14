@@ -305,7 +305,7 @@ services:
         restart: unless-stopped
         networks:
             $NETWORK_NAME:
-                ipv4_address: 172.18.0.7
+                ipv4_address: 172.18.0.2
         sysctls:
             - net.ipv4.ip_local_port_range=1024 65000
 volumes:
@@ -382,7 +382,7 @@ update_profiles() {
 }
 
 inicio(){
-    # clear
+    clear
     # Arte ASCII con colores y signos de dólar escapados
     echo -e "${BLUE_BRIGHT}"'  ______                                  ______                      '"${NC}"
     echo -e "${RED_BRIGHT}"' /      \                                /      \                     '"${NC}"
@@ -450,7 +450,8 @@ menu(){
     echo "2) Eliminar contenedores"
     echo "3) Reinstalar contenedores (Por que quiero una instalación fresca)"
     echo "4) Eliminar todo"
-    echo "5) Salir"
+    echo "5) Actualizar definiciones (yaml)"
+    echo "q) Salir"
     echo 
 
     read -p "Escoge una opción: " user_choice
@@ -492,6 +493,10 @@ menu(){
                 return 0;
                 ;;
             5)
+                generate_docker_compose
+                update_profiles "enabled" $INSTALLED_CONTAINERS
+                ;;
+            q)
                 return 0
                 ;;
             *)
