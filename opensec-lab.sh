@@ -256,6 +256,8 @@ services:
         ports:
             - 3100:3000
             - 3101:3001
+        profiles:
+            - disabled
         shm_size: "1gb" #opcional
         restart: unless-stopped
     opsn-dns-server:
@@ -264,6 +266,8 @@ services:
         image: technitium/dns-server:latest
         # For DHCP deployments, use "host" network mode and remove all the port mappings, including the ports array by commenting them
         # network_mode: "host"
+        profiles:
+            - disabled
         ports:
             - "5380:5380/tcp" #DNS web console (HTTP)
             # - "53443:53443/tcp" #DNS web console (HTTPS)
