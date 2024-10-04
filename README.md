@@ -41,19 +41,9 @@ Tras completar la instalación, su entorno de laboratorio de seguridad estará l
   <ul>
     <li>La contraseña de Gophish se genera aleatoriamente al momento de la instalación, el script te mostrará la contraseña tan pronto se instale el contenedor.</li>
     <li>Obtener acceso a una cuenta de Juice Shop es parte de los retos que se deben completar.</li>
-  </ul>
-</div>
-
-<br>
-
-<div style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;">
-  <strong>Nota:</strong>
-  <ul>
     <li>Para acceder a las interfaces web de las aplicaciones debes usar la dirección IP de la máquina donde esta instalado docker y los contenedores ejecutandose en lugar de localhost.</li>
   </ul>
 </div>
-
-<br>
 
 Para poder tener persistencia de las configuraciones del contenedor **DVWA** y **Gophish** el script genera un volumen de docker llamado **docker_dvwa_data** y **docker_gophish** respectivamente, para poder encontrar la ruta de donde se encuentra el volumen y poder editar sus archivos se debe ejecutar los siguientes comandos:
 
