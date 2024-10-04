@@ -41,7 +41,7 @@ Tras completar la instalación, su entorno de laboratorio de seguridad estará l
   <ul>
     <li>La contraseña de Gophish se genera aleatoriamente al momento de la instalación, el script te mostrará la contraseña tan pronto se instale el contenedor.</li>
     <li>Obtener acceso a una cuenta de Juice Shop es parte de los retos que se deben completar.</li>
-    <li>Para acceder a las interfaces web de las aplicaciones debes usar la dirección IP de la máquina donde esta instalado docker y los contenedores ejecutandose en lugar de localhost.</li>
+    <li>Para acceder a las interfaces web de las aplicaciones debes usar la dirección IP de la máquina donde está instalado docker en lugar de localhost.</li>
   </ul>
 </div>
 
