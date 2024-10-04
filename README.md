@@ -1,7 +1,7 @@
 # OpenSec Lab Setup Script
 
 ## Descripción
-El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA, Juice-Shop y Gophish en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
+El script opensec-lab.sh automatiza la configuración de un entorno de laboratorio para la seguridad informática especificamente para pruebas de aplicaciones web vulnerables, este script considera la instalación de DVWA, Juice-Shop, Gophish, Technitium y un sistema operativo de escritorio en contenedores de Docker, haciendo un uso eficiente de los recursos de la maquina host. Este entorno está diseñado para ser utilizado para pruebas y aprendizaje en el ámbito de la seguridad informática.
 
 ## Prerrequisitos
 
@@ -26,11 +26,34 @@ El script está diseñado para poder desinstalar o reinstalar los componentes en
 
 ## Uso
 
-Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar.
+Tras completar la instalación, su entorno de laboratorio de seguridad estará listo para usar. Puede iniciar los contenedores Docker configurados ejecutando comandos específicos de Docker, dependiendo de las herramientas que haya elegido instalar. A continuación las contraseñas por defecto, toma en cuenta que algunos contenedores como DVWA requerirán un cambio de contraseña al primer inicio de sesión.
   
-**Juice-Shop** -> http://localhost:3000   
-**DVWA** -> http://localhost:8080  
-**Gophish** -> http://localhost:3333 
+| Aplicación    | Usuario   | Contraseña| URL                 
+|---------------|-----------|-----------|---------------------------|
+| Juice Shop    | N/A       | Ver Nota  | http://localhost:3000     |
+| DVWA          | admin     | admin     | http://localhost:8080     |
+| Gophish       | admin     | Ver Nota  | http://localhost:3333     |
+| OPSN DNS      | admin     | admin     | http://localhost:5380     |
+| OPSN Desktop  | abc       | abc       | http://localhost:3100     |
+
+<div style="background-color: #d4edda; border-left: 5px solid #28a745; padding: 10px;">
+  <strong>Nota:</strong>
+  <ul>
+    <li>La contraseña de Gophish se genera aleatoriamente al momento de la instalación, el script te mostrará la contraseña tan pronto se instale el contenedor.</li>
+    <li>Obtener acceso a una cuenta de Juice Shop es parte de los retos que se deben completar.</li>
+  </ul>
+</div>
+
+<br>
+
+<div style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 10px;">
+  <strong>Nota:</strong>
+  <ul>
+    <li>Para acceder a las interfaces web de las aplicaciones debes usar la dirección IP de la máquina donde esta instalado docker y los contenedores ejecutandose en lugar de localhost.</li>
+  </ul>
+</div>
+
+<br>
 
 Para poder tener persistencia de las configuraciones del contenedor **DVWA** y **Gophish** el script genera un volumen de docker llamado **docker_dvwa_data** y **docker_gophish** respectivamente, para poder encontrar la ruta de donde se encuentra el volumen y poder editar sus archivos se debe ejecutar los siguientes comandos:
 
@@ -104,9 +127,9 @@ backups  cache  lib  local  lock  log  mail  opt  run  spool  tmp  www
 
 ## Contribuir
 
-Las contribuciones son lo que hace que la comunidad de código abierto sea un lugar increíble para aprender, inspirar y crear. **Cualquier contribución que haga es muy apreciada.**
+Las contribuciones son lo que hace que la comunidad de código abierto sea un lugar increíble para aprender, inspirar y crear. **Cualquier contribución que hagas es muy apreciada.**
 
-Si tiene una sugerencia para mejorar esto, por favor fork el repositorio y cree un pull request. También puede simplemente abrir un issue con el tag "mejora". No olvide darle una estrella al proyecto. ¡Gracias de nuevo!
+Si tiene una sugerencia para mejorar esto, por favor fork el repositorio y cree un pull request. También puede simplemente abrir un issue con el tag "mejora". No olvides darle una estrella al proyecto. ¡Gracias de nuevo!
 
 ## Licencia
 
