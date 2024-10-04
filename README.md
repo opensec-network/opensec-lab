@@ -5,8 +5,8 @@ El script opensec-lab.sh automatiza la configuración de un entorno de laborator
 
 ## Prerrequisitos
 
-- El script está diseñado para ejecutarse dentro de una máquina de Kali Linux.
-- Tener curl instalado    
+- El script está diseñado para ejecutarse dentro de una máquina de Kali Linux con al menos 6GB de RAM y 20GB de disco duro para el funcionamiento de los contenedores.
+- Tener curl instalado.  
 - Permisos de superusuario (sudo).    
 - Conexión a internet.    
 
@@ -39,9 +39,9 @@ Tras completar la instalación, su entorno de laboratorio de seguridad estará l
 <div style="background-color: #d4edda; border-left: 5px solid #28a745; padding: 10px;">
   <strong>Nota:</strong>
   <ul>
-    <li>La contraseña de Gophish se genera aleatoriamente al momento de la instalación, el script te mostrará la contraseña tan pronto se instale el contenedor.</li>
-    <li>Obtener acceso a una cuenta de Juice Shop es parte de los retos que se deben completar.</li>
     <li>Para acceder a las interfaces web de las aplicaciones debes usar la dirección IP de la máquina donde está instalado docker en lugar de localhost.</li>
+    <li>La contraseña de Gophish se genera aleatoriamente al momento de la instalación, el script te mostrará la contraseña tan pronto se instale el contenedor.</li>
+    <li>Obtener acceso a una cuenta de Juice Shop es parte de los retos que se deben completar, puedes conseguir mas información en https://help.owasp-juice.shop/appendix/solutions.html.</li>
   </ul>
 </div>
 
@@ -119,7 +119,7 @@ backups  cache  lib  local  lock  log  mail  opt  run  spool  tmp  www
 
 Las contribuciones son lo que hace que la comunidad de código abierto sea un lugar increíble para aprender, inspirar y crear. **Cualquier contribución que hagas es muy apreciada.**
 
-Si tiene una sugerencia para mejorar esto, por favor fork el repositorio y cree un pull request. También puede simplemente abrir un issue con el tag "mejora". No olvides darle una estrella al proyecto. ¡Gracias de nuevo!
+Si tienes una sugerencia para que podamos mejorar puedes abrir un issue con el tag "mejora". No olvides darle una estrella al proyecto. ¡Gracias de nuevo!
 
 ## Licencia
 
