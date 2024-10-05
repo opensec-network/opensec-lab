@@ -119,7 +119,8 @@ backups  cache  lib  local  lock  log  mail  opt  run  spool  tmp  www
 
 Las contribuciones son lo que hace que la comunidad de código abierto sea un lugar increíble para aprender, inspirar y crear. **Cualquier contribución que hagas es muy apreciada.**
 
-Si tienes una sugerencia para que podamos mejorar puedes abrir un issue con el tag "mejora". No olvides darle una estrella al proyecto. ¡Gracias de nuevo!
+Si tienes una sugerencia para que podamos mejorar puedes abrir un issue [aquí](https://github.com/opensec-network/opensec-lab/issues)
+con el tag "mejora". No olvides darle una estrella al proyecto. ¡Gracias de nuevo!
 
 ## Licencia
 
