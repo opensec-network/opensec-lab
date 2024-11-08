@@ -268,6 +268,8 @@ services:
             - "5380:5380"
             - "53:53/udp"
             - "53:53/tcp"
+        profiles:
+            - disabled
         environment:
             - DNS_SERVER_DOMAIN=dns.opensec.lab
             - DNS_SERVER_ADMIN_PASSWORD=admin
