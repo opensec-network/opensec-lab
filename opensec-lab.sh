@@ -7,7 +7,7 @@
 # Variables de release
 # Version
 VERSION="2.0"
-OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish opsn-desktop opsn-dns-server"
+OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish opsn-desktop opsn-dns"
 INSTALLED_CONTAINERS=""
 NON_INSTALLED_CONTAINERS=""
 SELECTED_CONTAINERS=""
