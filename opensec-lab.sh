@@ -272,7 +272,7 @@ services:
             - disabled
         environment:
             - DNS_SERVER_DOMAIN=dns.opensec.lab
-            - DNS_SERVER_ADMIN_PASSWORD=admin
+            - DNS_SERVER_ADMIN_PASSWORD=Password
             - DNS_SERVER_FORWARDERS=172.18.0.1
         volumes:
             - opsn_dns_config:/etc/dns/config
@@ -291,7 +291,7 @@ services:
         volumes:
             - ./configure_dns.sh:/configure_dns.sh
         environment:
-            - ADMIN_PASSWORD=admin
+            - ADMIN_PASSWORD=Password
         command: >
             /bin/sh -c "
             apk add --no-cache curl jq &&
