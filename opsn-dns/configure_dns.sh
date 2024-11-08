@@ -9,7 +9,7 @@ ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="Password"
 
 # Dirección y puerto del servidor Technitium DNS
-TECHNITIUM_DNS_HOST="opsn-dns"
+TECHNITIUM_DNS_HOST="172.18.0.2"
 TECHNITIUM_DNS_PORT="5380"
 
 # Nombre de la zona a crear
