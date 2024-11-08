@@ -265,15 +265,15 @@ services:
         container_name: opsn-dns
         hostname: opsn-dns
         ports:
-        - "5380:5380"
-        - "53:53/udp"
-        - "53:53/tcp"
+            - "5380:5380"
+            - "53:53/udp"
+            - "53:53/tcp"
         environment:
-        - DNS_SERVER_DOMAIN=dns.opensec.lab
-        - DNS_SERVER_ADMIN_PASSWORD=admin
-        - DNS_SERVER_FORWARDERS=172.18.0.1
+            - DNS_SERVER_DOMAIN=dns.opensec.lab
+            - DNS_SERVER_ADMIN_PASSWORD=admin
+            - DNS_SERVER_FORWARDERS=172.18.0.1
         volumes:
-        - opsn_dns_config:/etc/dns/config
+            - opsn_dns_config:/etc/dns/config
         restart: unless-stopped
         networks:
             $NETWORK_NAME:
@@ -283,11 +283,11 @@ services:
         image: alpine:latest
         container_name: dns-configurator
         depends_on:
-        - opsn-dns
+            - opsn-dns
         volumes:
-        - ./configure_dns.sh:/configure_dns.sh
+            - ./configure_dns.sh:/configure_dns.sh
         environment:
-        - ADMIN_PASSWORD=admin
+            - ADMIN_PASSWORD=admin
         command: >
             /bin/sh -c "
             apk add --no-cache curl jq &&
@@ -296,7 +296,7 @@ services:
             exit
             "
         networks:
-        - default
+        - openseclab
 
 volumes:
     dvwa_data:
