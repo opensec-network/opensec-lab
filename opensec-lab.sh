@@ -289,12 +289,12 @@ services:
         environment:
         - ADMIN_PASSWORD=admin
         command: >
-        /bin/sh -c "
-        apk add --no-cache curl jq &&
-        chmod +x /configure_dns.sh &&
-        /bin/sh /configure_dns.sh &&
-        exit
-        "
+            /bin/sh -c "
+            apk add --no-cache curl jq &&
+            chmod +x /configure_dns.sh &&
+            /bin/sh /configure_dns.sh &&
+            exit
+            "
         networks:
         - default
 
