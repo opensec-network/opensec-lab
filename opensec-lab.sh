@@ -286,6 +286,8 @@ services:
         container_name: dns-configurator
         depends_on:
             - opsn-dns
+        profiles:
+            - disabled
         volumes:
             - ./configure_dns.sh:/configure_dns.sh
         environment:
