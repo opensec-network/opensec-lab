@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ============================================
 # Configuración Inicial
@@ -9,7 +9,7 @@ ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="Password"
 
 # Dirección y puerto del servidor Technitium DNS
-TECHNITIUM_DNS_HOST="172.18.0.2"
+TECHNITIUM_DNS_HOST="opsn-dns"
 TECHNITIUM_DNS_PORT="5380"
 
 # Nombre de la zona a crear
@@ -27,6 +27,12 @@ TTL=3600
 # Prioridad para el registro MX
 MX_PRIORITY=10
 
+if ! command -v curl &> /dev/null || ! command -v jq &> /dev/null; then
+    apt-get update
+    apt-get -y install curl jq
+fi
+
+
 # ============================================
 # Función para manejar errores
 # ============================================
@@ -38,14 +44,13 @@ handle_error() {
 # ============================================
 # Esperar a que el servidor esté disponible
 # ============================================
-echo "Esperando a que Technitium DNS Server esté disponible..."
+echo "Esperando a que Technitium DNS Server esté disponible..." >> /proc/1/fd/1
 until $(curl --output /dev/null --silent --head --fail http://$TECHNITIUM_DNS_HOST:$TECHNITIUM_DNS_PORT); do
-    printf '.'
-    sleep 5
+    echo '.' >> /proc/1/fd/1
+    sleep 2
 done
-echo ""
-echo "Servidor disponible. Esperando 10 segundos para que el servidor esté listo..."
-sleep 10
+echo "Servidor listo" >> /proc/1/fd/1
+
 
 # ============================================
 # Obtener token de autenticación
@@ -71,8 +76,10 @@ echo "Token de autenticación obtenido: $TOKEN"
 # ============================================
 echo "Verificando si la zona '$ZONE' ya existe..."
 
-ZONE_EXISTS=$(curl -s -X GET "http://$TECHNITIUM_DNS_HOST:$TECHNITIUM_DNS_PORT/api/zones?token=$TOKEN" | \
-  jq -r --arg ZONE "$ZONE" '.response.zones[]? | select(.zone == $ZONE) | .zone')
+ZONE_EXISTS=$(curl -s -X GET "http://$TECHNITIUM_DNS_HOST:$TECHNITIUM_DNS_PORT/api/zones/list?token=$TOKEN" | \
+  jq -r --arg ZONE "$ZONE" '.response.zones[]? | select(.name == $ZONE) | .name')
+
+
 
 if [ "$ZONE_EXISTS" = "$ZONE" ]; then
     echo "La zona '$ZONE' ya existe. No se realizará ninguna acción."
@@ -87,7 +94,7 @@ echo "La zona '$ZONE' no existe. Procediendo a crearla..."
 CREATE_ZONE_URL="http://$TECHNITIUM_DNS_HOST:$TECHNITIUM_DNS_PORT/api/zones/create"
 RESPONSE_CREATE_ZONE=$(curl -s -X GET "$CREATE_ZONE_URL?token=$TOKEN&zone=$ZONE&type=$ZONE_TYPE")
 
-# Verificar si la creación de la zona fue exitosa
+# Verificar si la creación de la zona fue exitosa"
 ZONE_CREATION_STATUS=$(echo "$RESPONSE_CREATE_ZONE" | jq -r '.status')
 
 if [ "$ZONE_CREATION_STATUS" != "ok" ]; then
@@ -142,33 +149,5 @@ add_dns_record "A" "mail" "$SERVER_IP" "" "$TTL"
 add_dns_record "MX" "opensec.lab" "mail.$ZONE" "$MX_PRIORITY" "$TTL"
 
 echo "Todos los registros DNS han sido agregados exitosamente."
-
-add_settings() {
-    forwarderIP="172.18.0.1"
-    dnsServerDomain="dns.opensec.lab"
-
-    # Validacion de URL
-    ADD_FORWARDER_URL="http://$TECHNITIUM_DNS_HOST:$TECHNITIUM_DNS_PORT/api/settings/set"
-    FORWARDER_URL="$ADD_FORWARDER_URL?token=$TOKEN&dnsServerDomain=$dnsServerDomain&forwarders=$forwarderIP"
-
-    # echo "URL construida para agregar forwarder: $FORWARDER_URL"
-
-    # # Realizar la llamada a la API y capturar la respuesta
-    RESPONSE=$(curl -s -X POST "$FORWARDER_URL")
-
-    # # Imprimir la respuesta de la API para depuración
-    # echo "Respuesta de la API al intentar agregar el forwarder: $RESPONSE"
-
-    # Verificar si la respuesta fue exitosa
-    FORWARDER_STATUS=$(echo "$RESPONSE" | jq -r '.status')
-
-    if [ "$FORWARDER_STATUS" != "ok" ]; then
-        handle_error "No se pudo agregar el forwarder. Respuesta de la API: $RESPONSE"
-    else
-        echo "Settings agregados exitosamente."
-    fi
-}
-
-add_settings
 
 exit 0

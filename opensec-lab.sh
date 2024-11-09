@@ -260,48 +260,27 @@ services:
             - disabled
         shm_size: "1gb" #opcional
         restart: unless-stopped
+    
     opsn-dns:
         image: technitium/dns-server:latest
         container_name: opsn-dns
-        hostname: opsn-dns
         ports:
             - "5380:5380"
             - "53:53/udp"
             - "53:53/tcp"
-        profiles:
-            - disabled
         environment:
             - DNS_SERVER_DOMAIN=dns.opensec.lab
             - DNS_SERVER_ADMIN_PASSWORD=Password
             - DNS_SERVER_FORWARDERS=172.18.0.1
         volumes:
+            - ./configure_dns.sh:/configure_dns.sh
             - opsn_dns_config:/etc/dns/config
+        entrypoint: sh -c "/opt/technitium/dns/start.sh & /configure_dns.sh & wait"
         restart: unless-stopped
+        volumes:
         networks:
             $NETWORK_NAME:
                 ipv4_address: 172.18.0.2
-
-    dns-configurator:
-        image: alpine:latest
-        container_name: dns-configurator
-        depends_on:
-            - opsn-dns
-        profiles:
-            - disabled
-        volumes:
-            - ./configure_dns.sh:/configure_dns.sh
-        environment:
-            - ADMIN_PASSWORD=Password
-        command: >
-            /bin/sh -c "
-            apk add --no-cache curl jq &&
-            chmod +x /configure_dns.sh &&
-            /bin/sh /configure_dns.sh &&
-            exit
-            "
-        networks:
-        - openseclab
-
 volumes:
     dvwa_data:
     gophish:
