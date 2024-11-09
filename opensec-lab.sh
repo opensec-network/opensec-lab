@@ -663,4 +663,4 @@ while true; do
     fi
 done
 
-handle_error 0 "Hasta pronto."
+handle_error 0 "Hasta pronto. V2"
