@@ -274,7 +274,7 @@ services:
         volumes:
             - ./configure_dns.sh:/configure_dns.sh
             - opsn_dns_config:/etc/dns/config
-        entrypoint: sh -c "/opt/technitium/dns/start.sh & /configure_dns.sh & wait"
+        entrypoint: sh -c "/opt/technitium/dns/start.sh & chmod +x /configure_dns.sh && /configure_dns.sh & wait"
         restart: unless-stopped
         networks:
             $NETWORK_NAME:
