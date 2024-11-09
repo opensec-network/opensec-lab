@@ -260,7 +260,6 @@ services:
             - disabled
         shm_size: "1gb" #opcional
         restart: unless-stopped
-    
     opsn-dns:
         image: technitium/dns-server:latest
         container_name: opsn-dns
@@ -277,7 +276,6 @@ services:
             - opsn_dns_config:/etc/dns/config
         entrypoint: sh -c "/opt/technitium/dns/start.sh & /configure_dns.sh & wait"
         restart: unless-stopped
-        volumes:
         networks:
             $NETWORK_NAME:
                 ipv4_address: 172.18.0.2
