@@ -726,6 +726,28 @@ instrucciones_finales(){
 
 }
 
+start_ssh_tunnel() {
+    
+    # Ejecuta el comando SSH y procesa su salida en tiempo real
+   
+    ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no -R 80:localhost:3000 nokey@localhost.run 2>&1 | while read -r line; do
+        # echo "$line" # Opcional: Imprime toda la salida para depuración
+        # Busca la línea que contiene la URL después de "tunneled with tls termination,"
+        if echo "$line" | grep -q "tunneled with tls termination,"; then
+            URL=$(echo "$line" | grep -oP 'https?://[^\s]+')
+            echo -e "${GREEN_BRIGHT}Túnel establecido en: $URL${NC}"
+            # Aquí puedes hacer break si solo quieres capturar la primera URL y salir del bucle
+            # break
+        fi
+    done
+    
+    echo -e "${RED_BRIGHT}El túnel SSH se ha desconectado. Reintentando en 10 segundos...${NC}"
+    sleep 10
+}
+
+# Start the SSH tunnel in the background
+start_ssh_tunnel &
+
 ######################
 ## Logica Principal ##
 ######################
