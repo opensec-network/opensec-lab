@@ -272,7 +272,7 @@ services:
             - DNS_SERVER_ADMIN_PASSWORD=Password
             - DNS_SERVER_FORWARDERS=172.18.0.1
         volumes:
-            - ./configure_dns.sh:/configure_dns.sh
+            - $LAB_DIR/opsn-dns/configure_dns.sh:/configure_dns.sh
             - opsn_dns_config:/etc/dns/config
         entrypoint: sh -c "/opt/technitium/dns/start.sh & chmod +x /configure_dns.sh && /configure_dns.sh & wait"
         restart: unless-stopped
