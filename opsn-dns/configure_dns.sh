@@ -21,6 +21,9 @@ ZONE_TYPE="Primary"
 # Dirección IP del servidor de correo
 SERVER_IP="172.18.0.7" 
 
+# Dirección IP del servidor de DNS
+DNS_SERVER_IP="172.18.0.2" 
+
 # TTL para los registros DNS
 TTL=3600
 
@@ -145,7 +148,10 @@ echo "Agregando registros DNS necesarios..."
 # a. Agregar registro A para mail.opsn.mail
 add_dns_record "A" "mail" "$SERVER_IP" "" "$TTL"
 
-# b. Agregar registro MX para opsn.mail
+# b. Agregar registro A para dns.opsn.mail
+add_dns_record "A" "dns" "$DNS_SERVER_IP" "" "$TTL"
+
+# c. Agregar registro MX para opsn.mail
 add_dns_record "MX" "opensec.lab" "mail.$ZONE" "$MX_PRIORITY" "$TTL"
 
 echo "Todos los registros DNS han sido agregados exitosamente."
