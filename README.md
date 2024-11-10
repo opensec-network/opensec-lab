@@ -33,7 +33,7 @@ Tras completar la instalación, su entorno de laboratorio de seguridad estará l
 | Juice Shop    | N/A       | Ver Nota  | http://localhost:3000     |
 | DVWA          | admin     | admin     | http://localhost:8080     |
 | Gophish       | admin     | Ver Nota  | http://localhost:3333     |
-| OPSN DNS      | admin     | admin     | http://localhost:5380     |
+| OPSN DNS      | admin     | Password  | http://localhost:5380     |
 | OPSN Desktop  | abc       | abc       | http://localhost:3100     |
 
 <div style="background-color: #d4edda; border-left: 5px solid #28a745; padding: 10px;">
