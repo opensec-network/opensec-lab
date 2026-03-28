@@ -7,7 +7,7 @@
 # Variables de release
 # Version
 VERSION="2.0"
-OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish opsn-desktop opsn-dns"
+OPSN_CONTAINERS="opsn-dvwa opsn-juice-shop opsn-gophish opsn-desktop opsn-dns opsn-mail"
 INSTALLED_CONTAINERS=""
 NON_INSTALLED_CONTAINERS=""
 SELECTED_CONTAINERS=""
@@ -82,11 +82,10 @@ handle_error() {
 #Funcion para validar si el usuario puede ejecutar docker sin la necesidad de sudo
 sudo_docker() {
   # Verificar si se pueden ejecutar comandos Docker sin sudo
-  if ! docker info &>/dev/null; then
-    # Verificar si el usuario actual ya está en el grupo docker
-    exit_code=$?
+  docker info &>/dev/null
+  if [ $? -ne 0 ]; then
     #echo -e "${RED}El usuario $USER no puede ejecutar comandos de Docker sin sudo, usando sudo...${NC}"
-    handle_error $exit_code "El usuario $USER no puede ejecutar comandos de Docker sin sudo, usando sudo..." true
+    handle_error 0 "El usuario $USER no puede ejecutar comandos de Docker sin sudo, usando sudo..." true
     SUDO_CMD="sudo"
     if id -nG "$USER" | grep -qw docker; then
       #echo -e "${RED}El usuario $USER ya está en el grupo docker, pero necesita reiniciar la sesión para aplicar los cambios.${NC}"
@@ -109,7 +108,7 @@ borrar_todo() {
     ERROR_LOG=$UNINSTALL_LOG
     handle_error 0 "Limpiando instalación previa..."
     
-    eliminar_contenedores $INSTALLED_CONTAINERS;
+    eliminar_contenedores $INSTALLED_CONTAINERS
 
     echo
 
@@ -121,17 +120,10 @@ borrar_todo() {
         fi
     done
     
-    $SUDO_CMD docker network rm $NETWORK_NAME > /dev/null 2>&1
+    $SUDO_CMD docker network rm "$NETWORK_NAME" > /dev/null 2>&1
     exit_code=$?
-    handle_error $exit_code "$SUDO_CMD docker network rm $NETWORK_NAME > /dev/null 2>&1"  true
+    handle_error $exit_code "$SUDO_CMD docker network rm $NETWORK_NAME" true
     
-    handle_error 0 "Removiendo usuario de grupo docker: $USER"
-    sudo gpasswd -d $USER docker 
-
-    exit_code=$?
-    handle_error $exit_code "sudo gpasswd -d $USER docker" true
-
-
     rm -rf "$LAB_DIR"
     exit_code=$?
     handle_error $exit_code "rm -rf '$LAB_DIR'"  true
@@ -225,6 +217,8 @@ services:
         image: opensecnetwork/gophish:multi-arch
         container_name: opsn-gophish
         restart: unless-stopped
+        depends_on:
+            - opsn-dns
         volumes:
             - gophish:/opt/gophish
         networks:
@@ -279,11 +273,35 @@ services:
         networks:
             $NETWORK_NAME:
                 ipv4_address: 172.18.0.2
+        profiles:
+            - disabled
+    opsn-mail:
+        build:
+            context: $LAB_DIR/opsn-mail
+            dockerfile: Dockerfile
+        container_name: opsn-mail
+        hostname: mail.opensec.lab
+        restart: unless-stopped
+        depends_on:
+            - opsn-dns
+        volumes:
+            - mail_data:/var/mail
+        networks:
+            $NETWORK_NAME:
+                ipv4_address: 172.18.0.7
+        ports:
+            - "25:25"
+            - "143:143"
+            - "587:587"
+            - "8888:80"
+        profiles:
+            - disabled
 volumes:
     dvwa_data:
     gophish:
     webtop_data:
     opsn_dns_config:
+    mail_data:
 networks:
     $NETWORK_NAME:
         external: true
@@ -295,9 +313,9 @@ eliminar_contenedores() {
     handle_error 0 "Eliminando contenedores seleccionados...${NC}"
     local containers_to_remove="$@"
     update_profiles "todelete" $containers_to_remove
-    $SUDO_CMD docker compose -f $DC_FILE --profile "todelete" down --volumes --rmi all
+    $SUDO_CMD docker compose -f "$DC_FILE" --profile "todelete" down --volumes --rmi all
     exit_code=$?
-    handle_error $exit_code '$SUDO_CMD docker compose -f $DC_FILE --profile "todelete" down --volumes --rmi all' true
+    handle_error $exit_code '$SUDO_CMD docker compose -f "$DC_FILE" --profile "todelete" down --volumes --rmi all' true
     update_profiles "disabled" $containers_to_remove
     contenedores_instalados
     handle_error 0 "Proceso de eliminación de contenedores completado.${NC}"
@@ -305,10 +323,10 @@ eliminar_contenedores() {
 
 validate_containers() {
     handle_error 0 "Validando el estado de los contenedores...${NC}"
-    CONTAINERS=$($SUDO_CMD docker compose -f $DC_FILE --profile enabled config --services)
+    CONTAINERS=$($SUDO_CMD docker compose -f "$DC_FILE" --profile enabled config --services)
     ALL_UP=true
     for CONTAINER in $CONTAINERS; do
-        STATE=$($SUDO_CMD docker inspect --format="{{.State.Running}}" $($SUDO_CMD docker compose -f $DC_FILE ps -q $CONTAINER) 2>/dev/null)
+        STATE=$($SUDO_CMD docker inspect --format="{{.State.Running}}" $($SUDO_CMD docker compose -f "$DC_FILE" ps -q $CONTAINER) 2>/dev/null)
         if [ "$STATE" != "true" ]; then
             handle_error -1 "El contenedor $CONTAINER no se ha levantado correctamente."
             ALL_UP=false
@@ -335,20 +353,15 @@ update_profiles() {
   local NEW_PROFILES=$1
   shift
 
-  # Verificar si se proporcionaron los argumentos necesarios
   if [ $# -lt 1 ]; then
-    handle_error -1 "Uso: update_profiles NEW_PROFILES YAML_FILE service_name1 [service_name2 ...]"
+    handle_error -1 "Uso: update_profiles NEW_PROFILES service_name1 [service_name2 ...]"
     return 1
   fi
 
- # Convertir NEW_PROFILES a JSON array
-  local NEW_PROFILES_JSON=$(printf '[\"%s\"]' "$NEW_PROFILES")
-
-  # Iterar sobre cada container_name proporcionado como argumento
   for CONTAINER_NAME in "$@"; do
-    yq -y --in-place --argjson new_profiles "$NEW_PROFILES_JSON" '
-      (.services[] | select(.container_name == "'$CONTAINER_NAME'") | .profiles) = $new_profiles
-    ' "$DC_FILE"
+    $SUDO_CMD yq -i "
+      (.services.[] | select(.container_name == \"$CONTAINER_NAME\") | .profiles) = [\"$NEW_PROFILES\"]
+    " "$DC_FILE"
   done
 }
 
@@ -367,9 +380,10 @@ inicio(){
     echo -e "${RED_BRIGHT}"'          $$ |                                                         '"${NC}"
     echo -e "${YELLOW_BRIGHT}"'          $$ |                                                         '"${NC}"
     echo -e "${GREEN_BRIGHT}"'          $$/                                                          '"${NC}"
-    echo 
+    echo
     echo
     echo -e "${GREEN}Este script debe ejecutarse en un entorno de pruebas, no en sistemas de producción.${NC}"
+    echo -e "${BLUE_BRIGHT}                                                      v${VERSION}${NC}"
     echo
     echo
     inicializar_carpeta
@@ -503,36 +517,26 @@ instalar_binarios(){
     exit_code=$?
     handle_error $exit_code 'sudo apt-get update' true
 
-    if  type yq > /dev/null; then
-        handle_error 0 true
+    # Instalar yq (versión Go de Mike Farah — requerida para manipular YAML)
+    if yq --version 2>&1 | grep -q "mikefarah"; then
+        handle_error 0 "yq (Go) ya está instalado."
     else
-        sudo apt-get install -y yq 
+        handle_error 0 "Instalando yq..."
+        YQ_VERSION="v4.44.3"
+        YQ_ARCH=$(dpkg --print-architecture)
+        sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${YQ_ARCH}"
         exit_code=$?
-        handle_error $exit_code 'sudo apt-get install -y yq ' true
+        handle_error $exit_code "Descargando yq" true
+        sudo chmod +x /usr/local/bin/yq
     fi
     
 
     # Instalar Docker si no está instalado
     if ! type docker > /dev/null; then
         handle_error 0 "Instalando Docker..."
-        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+        curl -fsSL https://get.docker.com | sudo sh
         exit_code=$?
-        handle_error $exit_code 'sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release' true
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo sh -c 'gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'
-        exit_code=$?
-        handle_error $exit_code 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo sh -c 'gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'' true
-
-        #Añadir el repositorio para docker
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bullseye stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        exit_code=$?
-        handle_error $exit_code 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bullseye stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null' true
-        sudo apt-get update
-        exit_code=$?
-        handle_error $exit_code 'sudo apt-get update' true
-        sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-        exit_code=$?
-        handle_error $exit_code 'sudo apt-get install -y docker-ce docker-ce-cli containerd.io' true
-        # instrucciones_finales
+        handle_error $exit_code 'curl -fsSL https://get.docker.com | sudo sh' true
     else
         handle_error 0 "Docker ya está instalado, continuando con el resto de la instalación..."
     fi
@@ -546,14 +550,35 @@ instalar_binarios(){
     generate_docker_compose
 
     # Crear y configurar la red Docker personalizada
-    if [ "$( $SUDO_CMD docker network ls -f name=$NETWORK_NAME|grep $NETWORK_NAME |wc -l )" -eq "0" ]; then
+    if [ "$( $SUDO_CMD docker network ls -f "name=$NETWORK_NAME" | grep "$NETWORK_NAME" | wc -l )" -eq "0" ]; then
         echo -e "${GREEN}Creando red Docker personalizada...${NC}"
-        $SUDO_CMD docker network create --subnet=$SUBNET $NETWORK_NAME
+        $SUDO_CMD docker network create --subnet="$SUBNET" "$NETWORK_NAME"
         exit_code=$?
         handle_error $exit_code '' true
     else   
         echo -e "Red ya existente, reusando..."
     fi
+}
+
+# Verificar si el puerto 53 está ocupado (conflicto con systemd-resolved)
+verificar_puerto_53() {
+    if ss -tulpn 2>/dev/null | grep -q ':53 '; then
+        echo
+        echo -e "${YELLOW_BRIGHT}ADVERTENCIA: El puerto 53 está en uso en este sistema.${NC}"
+        echo -e "${YELLOW_BRIGHT}Esto puede impedir que opsn-dns funcione correctamente.${NC}"
+        echo
+        echo -e "Si usas systemd-resolved, puedes liberarlo con:"
+        echo -e "  sudo systemctl stop systemd-resolved"
+        echo -e "  sudo systemctl disable systemd-resolved"
+        echo
+        echo -n "¿Deseas continuar de todas formas? [s/N]: "
+        read -r port_response
+        if [[ ! "$port_response" =~ ^([yY]|[sS])$ ]]; then
+            handle_error -1 "Instalación cancelada. Libera el puerto 53 e intenta de nuevo."
+            return 1
+        fi
+    fi
+    return 0
 }
 
 # Función para preparar los contenedores
@@ -573,22 +598,28 @@ preparar_contenedores() {
 instalar_contenedores(){
     RECENT_ERROR=0
     local containers_to_install="$@"
+
+    # Verificar puerto 53 si se va a instalar opsn-dns
+    if echo "$containers_to_install" | grep -q "opsn-dns"; then
+        verificar_puerto_53 || return 1
+    fi
+
     update_profiles "toinstall" $containers_to_install
     preparar_contenedores $containers_to_install
 
     # Ejecutar docker compose
     handle_error 0 "Levantando contenedores Docker con docker compose..."
 
-    $SUDO_CMD docker compose -f $DC_FILE --profile toinstall up -d
+    $SUDO_CMD docker compose -f "$DC_FILE" --profile toinstall up -d
     exit_code=$?
-    handle_error $exit_code '$SUDO_CMD docker compose -f $DC_FILE --profile toinstall up -d' true
+    handle_error $exit_code '$SUDO_CMD docker compose -f "$DC_FILE" --profile toinstall up -d' true
     update_profiles "enabled" $containers_to_install
 
     contenedores_instalados
 
     # Validar que todos los contenedores estén corriendo
 
-    if [ $RECENT_ERROR ]; then
+    if [ "$RECENT_ERROR" -eq 0 ]; then
         handle_error 0 "La instalación ha finalizado con éxito."
     else
         handle_error -1 "Se encontraron errores durante la instalación. Considera corregir los errores y volver a ejecutar el script."
@@ -621,7 +652,9 @@ seleccionar_contenedores() {
   else
     # Mapear los índices seleccionados a los contenedores correspondientes
     for index in "${selected_indices[@]}"; do
-      selected_containers+=("${containers_list[$((index - 1))]}")
+      if [[ "$index" =~ ^[0-9]+$ ]] && (( index >= 1 && index <= ${#containers_list[@]} )); then
+        selected_containers+=("${containers_list[$((index - 1))]}")
+      fi
     done
   fi
 

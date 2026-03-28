@@ -154,6 +154,9 @@ add_dns_record "A" "dns" "$DNS_SERVER_IP" "" "$TTL"
 # c. Agregar registro MX para opsn.mail
 add_dns_record "MX" "opensec.lab" "mail.$ZONE" "$MX_PRIORITY" "$TTL"
 
+# c. Agregar registro A para webmail.opensec.lab
+add_dns_record "A" "webmail" "$SERVER_IP" "" "$TTL"
+
 echo "Todos los registros DNS han sido agregados exitosamente."
 
 exit 0
