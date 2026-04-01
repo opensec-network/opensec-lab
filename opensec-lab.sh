@@ -158,31 +158,6 @@ contenedores_instalados(){
     echo
 }
 
-# Función para extraer la contraseña de Gophish de los logs
-extract_gophish_password() {
-    local container_name="opsn-gophish"
-    local password=""
-    local max_attempts=30
-    local attempt=0
-
-    # echo -e "${YELLOW_BRIGHT}Esperando a que Gophish genere la contraseña...${NC}"
-
-    while [ $attempt -lt $max_attempts ]; do
-        password=$($SUDO_CMD docker logs $container_name 2>&1 | grep "Please login with the username admin and the password" | awk '{print $NF}' | tr -d '"')
-        if [ ! -z "$password" ]; then
-            echo 
-            handle_error 0 "Contraseña inicial de Gophish: ${RED_BRIGHT}$password"
-            handle_error 10 "Ignora este mensaje si ya la cambiaste"
-            return 0
-        fi
-        sleep 1
-        ((attempt++))
-    done
-
-    handle_error -1 "No se pudo obtener la contraseña de Gophish después de $max_attempts intentos."
-    return 1
-}
-
 # Crear archivo docker-compose.yml basado en la selección del usuario
 generate_docker_compose() {
 handle_error 0 "Generando archivo docker-compose.yml..."
@@ -333,7 +308,7 @@ validate_containers() {
         else
             # echo -e "${GREEN}El contenedor $CONTAINER está corriendo.${NC}"
             if [ "$CONTAINER" = "opsn-gophish" ]; then
-                extract_gophish_password
+                # extract_gophish_password
                 echo
             fi
         fi
@@ -595,6 +570,20 @@ preparar_contenedores() {
   done
 }
 
+
+# Función para proceso final de los contenedores
+post_contenedores() {
+  # Iterar sobre cada container_name proporcionado como argumento
+  for CONTAINER_NAME in "$@"; do
+    POST_FILE="https://raw.githubusercontent.com/opensec-network/opensec-lab/refs/heads/main/$CONTAINER_NAME/post.sh"
+    cd $LAB_DIR/$CONTAINER_NAME
+    status_code=$(curl -o /dev/null --silent --head --write-out '%{http_code}' "$POST_FILE")
+    if [[ "$status_code" -eq 200 ]]; then
+        /bin/bash -c "$(curl -H "Pragma: no-cache" -fsSL $POST_FILE)"
+    fi
+  done
+}
+
 instalar_contenedores(){
     RECENT_ERROR=0
     local containers_to_install="$@"
@@ -612,7 +601,14 @@ instalar_contenedores(){
 
     $SUDO_CMD docker compose -f "$DC_FILE" --profile toinstall up -d
     exit_code=$?
+<<<<<<< Updated upstream
     handle_error $exit_code '$SUDO_CMD docker compose -f "$DC_FILE" --profile toinstall up -d' true
+=======
+    handle_error $exit_code '$SUDO_CMD docker compose -f $DC_FILE --profile toinstall up -d' true
+
+    post_contenedores $containers_to_install
+
+>>>>>>> Stashed changes
     update_profiles "enabled" $containers_to_install
 
     contenedores_instalados
