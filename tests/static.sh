@@ -42,6 +42,12 @@ assert_file_exists "services/portal/generate_portal.sh"           "services/port
 assert_file_exists "services/portal/nginx.conf"                   "services/portal/nginx.conf"
 assert_file_exists ".github/workflows/release.yml"             ".github/workflows/release.yml"
 assert_file_exists ".github/workflows/build-mail.yml"          ".github/workflows/build-mail.yml"
+assert_file_exists "services/api/Dockerfile"                   "services/api/Dockerfile"
+assert_file_exists "services/api/app.py"                       "services/api/app.py"
+assert_file_exists "services/api/requirements.txt"             "services/api/requirements.txt"
+assert_file_exists "services/docs/mkdocs.yml"                  "services/docs/mkdocs.yml"
+assert_file_exists "services/docs/nginx.conf"                  "services/docs/nginx.conf"
+assert_file_exists "services/docs/docs/index.md"               "services/docs/docs/index.md"
 
 # ─────────────────────────────────────────────────────────────────────────────
 section "Sintaxis de scripts shell"
