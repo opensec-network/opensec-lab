@@ -40,7 +40,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
 # ══ OWASP Juice Shop ════════════════════════════════════════════════
 
 alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
-    msg:"OpenSecLab - Acceso al Score Board de Juice Shop (CTF discovery)"; \
+    msg:"OpenSecLab - Acceso al Score Board de Juice Shop (descubrimiento de ruta oculta)"; \
     flow:established,to_server; \
     http.uri; content:"/score-board"; \
     classtype:policy-violation; \
@@ -61,22 +61,6 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:policy-violation; \
     sid:9000012; rev:1;)
 
-# ══ crAPI ═══════════════════════════════════════════════════════════
-
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
-    msg:"OpenSecLab - Posible BOLA/IDOR en crAPI (vehiculos)"; \
-    flow:established,to_server; \
-    http.uri; content:"/community/api/v2/vehicle"; \
-    classtype:attempted-user; \
-    sid:9000040; rev:1;)
-
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
-    msg:"OpenSecLab - Acceso al dashboard de usuario en crAPI"; \
-    flow:established,to_server; \
-    http.uri; content:"/identity/api/v2/user/dashboard"; \
-    classtype:policy-violation; \
-    sid:9000041; rev:1;)
-
 # ══ Reconocimiento general ══════════════════════════════════════════
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET any ( \
@@ -93,17 +77,3 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:attempted-user; \
     sid:9000051; rev:1;)
 
-alert dns any any -> $DNS_SERVERS 53 ( \
-    msg:"OpenSecLab - Consulta DNS al registro flag del CTF"; \
-    dns.query; content:"flag.opensec.lab"; \
-    classtype:policy-violation; \
-    sid:9000052; rev:1;)
-
-# ══ CTF — Flag hunting ══════════════════════════════════════════════
-
-alert http $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
-    msg:"OpenSecLab - Respuesta HTTP contiene un flag CTF"; \
-    flow:established,to_client; \
-    http.response_body; content:"OPSN{"; \
-    classtype:policy-violation; \
-    sid:9000060; rev:1;)

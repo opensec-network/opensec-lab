@@ -8,7 +8,7 @@
   <rule id="100001" level="10">
     <if_sid>31108</if_sid>
     <url>/vulnerabilities/sqli</url>
-    <description>OpenSecLab: Posible SQL Injection en DVWA (/vulnerabilities/sqli) — CTF: OPSN{su1c4t4_sql_1nj3ct10n_d3t3ct3d}</description>
+    <description>OpenSecLab: Posible SQL Injection en DVWA (/vulnerabilities/sqli)</description>
     <group>attack,sql_injection,openseclab_dvwa,</group>
     <mitre>
       <id>T1190</id>
@@ -96,28 +96,6 @@
     <group>openseclab_webgoat,</group>
   </rule>
 
-  <!-- ══ crAPI ═════════════════════════════════════════════════════ -->
-
-  <rule id="100040" level="10">
-    <if_sid>31108</if_sid>
-    <url>/community/api/v2/vehicle</url>
-    <description>OpenSecLab: Posible BOLA/IDOR en crAPI (acceso a vehiculo de otro usuario)</description>
-    <group>attack,idor,openseclab_crapi,</group>
-    <mitre>
-      <id>T1078</id>
-    </mitre>
-  </rule>
-
-  <rule id="100041" level="8">
-    <if_sid>31108</if_sid>
-    <url>/identity/api/v2/user/dashboard</url>
-    <description>OpenSecLab: Acceso al dashboard de usuario en crAPI (Excessive Data Exposure)</description>
-    <group>openseclab_crapi,</group>
-    <mitre>
-      <id>T1078</id>
-    </mitre>
-  </rule>
-
   <!-- ══ Suricata IDS ═══════════════════════════════════════════════ -->
 
   <rule id="100050" level="10">
@@ -165,15 +143,6 @@
     <field name="event_type">alert</field>
     <description>OpenSecLab: Suricata IDS — Alerta: $(alert.signature) [$(alert.category)]</description>
     <group>ids,suricata,openseclab,</group>
-  </rule>
-
-  <!-- ══ CTF — Actividad de flag hunting ════════════════════════════ -->
-
-  <rule id="100060" level="4">
-    <if_sid>31108</if_sid>
-    <match>OPSN{</match>
-    <description>OpenSecLab: Posible flag CTF encontrado en trafico HTTP</description>
-    <group>openseclab_ctf,</group>
   </rule>
 
 </group>
