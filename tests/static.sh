@@ -121,6 +121,34 @@ assert_file_contains \
     "services/gitea/configure_gitea.sh" \
     "OPSN{4p1_s3cur1ty_r3v13w}"
 
+# Reglas Wazuh para la API (Plan 3)
+for rule_id in 100060 100061 100062 100063 100064 100065; do
+    assert_file_contains \
+        "wazuh rule ${rule_id} existe" \
+        "services/wazuh/rules/openseclab.xml" \
+        "id=\"${rule_id}\""
+done
+
+assert_file_contains \
+    "wazuh regla API base usa source opsn-api" \
+    "services/wazuh/rules/openseclab.xml" \
+    "opsn-api"
+
+assert_file_contains \
+    "wazuh regla API BOLA usa campo event" \
+    "services/wazuh/rules/openseclab.xml" \
+    "bola_attempt"
+
+assert_file_contains \
+    "wazuh regla mass assignment usa campo event" \
+    "services/wazuh/rules/openseclab.xml" \
+    "mass_assignment_attempt"
+
+assert_file_contains \
+    "wazuh regla broken function auth usa campo event" \
+    "services/wazuh/rules/openseclab.xml" \
+    "broken_function_auth"
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────
