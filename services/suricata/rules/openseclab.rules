@@ -77,3 +77,40 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:attempted-user; \
     sid:9000051; rev:1;)
 
+# ══ OPSN API Vulnerable ═════════════════════════════════════════════
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab API1 BOLA - Enumeracion de perfiles de usuario en la API"; \
+    flow:established,to_server; \
+    http.method; content:"GET"; \
+    http.uri; content:"/api/users/"; content:"/profile"; distance:0; \
+    threshold:type threshold, track by_src, count 5, seconds 10; \
+    classtype:web-application-attack; \
+    sid:9000060; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab API2 Broken Auth - Fuerza bruta en /api/auth/login"; \
+    flow:established,to_server; \
+    http.method; content:"POST"; \
+    http.uri; content:"/api/auth/login"; \
+    threshold:type threshold, track by_src, count 5, seconds 10; \
+    classtype:attempted-user; \
+    sid:9000061; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab API5 Broken Function Auth - Acceso a endpoint admin"; \
+    flow:established,to_server; \
+    http.method; content:"GET"; \
+    http.uri; content:"/api/admin/users"; \
+    classtype:policy-violation; \
+    sid:9000062; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab API3 Mass Assignment - PUT a /profile con campo role"; \
+    flow:established,to_server; \
+    http.method; content:"PUT"; \
+    http.uri; content:"/api/users/"; content:"/profile"; distance:0; \
+    http.request_body; content:"\"role\""; \
+    classtype:web-application-attack; \
+    sid:9000063; rev:1;)
+

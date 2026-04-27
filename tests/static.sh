@@ -149,6 +149,14 @@ assert_file_contains \
     "services/wazuh/rules/openseclab.xml" \
     "broken_function_auth"
 
+# Reglas Suricata para la API (Plan 3)
+for sid in 9000060 9000061 9000062 9000063; do
+    assert_file_contains \
+        "suricata SID ${sid} existe" \
+        "services/suricata/rules/openseclab.rules" \
+        "sid:${sid};"
+done
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────
