@@ -408,7 +408,7 @@ services:
   # Profiles: docs, all
   # ─────────────────────────────────────────────────────────────────
   opsn-docs-build:
-    image: squidfunk/mkdocs-material
+    image: squidfunk/mkdocs-material:9.5
     container_name: opsn-docs-build
     profiles: ["docs", "all"]
     volumes:
@@ -416,8 +416,6 @@ services:
       - opsn_docs_html:/site
     entrypoint: ["mkdocs", "build", "--config-file", "/docs/mkdocs.yml",
                  "--site-dir", "/site"]
-    networks:
-      - openseclab
     restart: "no"
 
   # ─────────────────────────────────────────────────────────────────
