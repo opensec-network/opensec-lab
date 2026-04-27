@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>%%COMPANY_NAME%% — Acción requerida</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: 30px auto; background: #ffffff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background-color: #003366; padding: 20px 32px; }
+    .header-logo { display: block; margin-bottom: 10px; }
+    .header-subtitle { color: #ccd9e8; font-size: 13px; margin: 0; }
+    .body { padding: 32px; color: #333333; line-height: 1.6; }
+    .body h2 { color: #003366; margin-top: 0; font-size: 20px; }
+    .alert-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 20px 0; border-radius: 2px; font-size: 14px; color: #856404; }
+    .btn { display: inline-block; background-color: #003366; color: #ffffff !important; padding: 12px 28px; text-decoration: none; border-radius: 4px; font-size: 15px; font-weight: bold; margin: 20px 0; }
+    .divider { border: none; border-top: 1px solid #e0e0e0; margin: 24px 0; }
+    .footer { background: #f4f4f4; padding: 16px 32px; font-size: 12px; color: #888888; border-top: 1px solid #e0e0e0; }
+    .footer a { color: #888888; text-decoration: underline; }
+    .footer-disclaimer { margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #aaaaaa; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img class="header-logo" src="%%LOGO_IMG%%" alt="%%COMPANY_NAME%%" width="130" height="39">
+      <p class="header-subtitle">&#128274; Notificación de Seguridad Corporativa</p>
+    </div>
+    <div class="body">
+      <h2>Tu contraseña ha expirado</h2>
+      <p>Hola,</p>
+      <p>El sistema de seguridad corporativo de <strong>%%COMPANY_NAME%%</strong> ha detectado que tu contraseña <strong>venció hace 3 días</strong>. Por política de seguridad, debes restablecerla antes de las próximas <strong>24 horas</strong> para evitar el bloqueo de tu cuenta.</p>
+
+      <div class="alert-box">
+        ⚠️ <strong>Cuenta en riesgo de bloqueo.</strong> Restablece tu contraseña lo antes posible para mantener acceso a los sistemas corporativos.
+      </div>
+
+      <p>Haz clic en el botón de abajo para restablecer tu contraseña de forma segura:</p>
+
+      <a href="{{.URL}}" class="btn">Restablecer contraseña ahora</a>
+
+      <p>Si no puedes hacer clic en el botón, copia y pega esta dirección en tu navegador:</p>
+      <p style="word-break:break-all; font-size:13px; color:#555; background:#f8f8f8; padding:8px 12px; border-radius:3px;">{{.URL}}</p>
+
+      <hr class="divider">
+
+      <p style="font-size:13px; color:#666;">Si ya restableciste tu contraseña o crees que este mensaje es un error, comunícate con el área de IT a través de los canales internos habituales.</p>
+
+      <p>Atentamente,<br>
+      <strong>%%SUPPORT_TEAM%%</strong><br>
+      <span style="color:#666;">%%COMPANY_NAME%%</span></p>
+    </div>
+    <div class="footer">
+      Este mensaje fue enviado automáticamente por el sistema de gestión de contraseñas corporativo.<br>
+      No respondas directamente a este correo. Para soporte, contacta a
+      <a href="mailto:it@%%DOMAIN%%">it@%%DOMAIN%%</a>.
+      <div class="footer-disclaimer">
+        Este es un ejercicio de concienciación en seguridad. Ningún dato ingresado será utilizado fuera del entorno de laboratorio controlado.
+      </div>
+    </div>
+  </div>
+  {{.Tracker}}
+</body>
+</html>

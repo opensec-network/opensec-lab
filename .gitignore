@@ -1,0 +1,5 @@
+# Certificados generados en tiempo de ejecución (no commitear)
+services/wazuh/certs/
+
+# Archivos de entorno con credenciales
+.env

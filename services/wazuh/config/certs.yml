@@ -1,0 +1,15 @@
+# services/wazuh/config/certs.yml
+# Configuración para wazuh/wazuh-certs-generator:0.0.2
+# Genera certificados SSL para el stack Wazuh (indexer, manager, dashboard)
+#
+# NOTA: el campo `ip` debe ser un string escalar, NO una lista YAML.
+nodes:
+  indexer:
+    - name: wazuh-indexer
+      ip: wazuh.indexer
+  server:
+    - name: wazuh-manager
+      ip: wazuh.manager
+  dashboard:
+    - name: wazuh-dashboard
+      ip: wazuh.dashboard

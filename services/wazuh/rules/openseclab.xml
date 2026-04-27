@@ -1,0 +1,179 @@
+<!-- OpenSec Lab — Reglas personalizadas de Wazuh -->
+<!-- Detecta actividad de ataque en los servicios del laboratorio -->
+<!-- Rule IDs reservados: 100001-100099 (OpenSec Lab) -->
+<group name="openseclab,">
+
+  <!-- ══ DVWA ══════════════════════════════════════════════════════ -->
+
+  <rule id="100001" level="10">
+    <if_sid>31108</if_sid>
+    <url>/vulnerabilities/sqli</url>
+    <description>OpenSecLab: Posible SQL Injection en DVWA (/vulnerabilities/sqli) — CTF: OPSN{su1c4t4_sql_1nj3ct10n_d3t3ct3d}</description>
+    <group>attack,sql_injection,openseclab_dvwa,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <rule id="100002" level="10">
+    <if_sid>31108</if_sid>
+    <url>/vulnerabilities/exec</url>
+    <description>OpenSecLab: Posible Command Injection en DVWA (/vulnerabilities/exec)</description>
+    <group>attack,openseclab_dvwa,</group>
+    <mitre>
+      <id>T1059</id>
+    </mitre>
+  </rule>
+
+  <rule id="100003" level="8">
+    <if_sid>31108</if_sid>
+    <url>/vulnerabilities/xss</url>
+    <description>OpenSecLab: Posible XSS en DVWA (/vulnerabilities/xss)</description>
+    <group>attack,xss,openseclab_dvwa,</group>
+    <mitre>
+      <id>T1059.007</id>
+    </mitre>
+  </rule>
+
+  <rule id="100004" level="8">
+    <if_sid>31108</if_sid>
+    <url>/vulnerabilities/fi</url>
+    <description>OpenSecLab: Posible File Inclusion en DVWA (/vulnerabilities/fi)</description>
+    <group>attack,openseclab_dvwa,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <!-- ══ OWASP Juice Shop ══════════════════════════════════════════ -->
+
+  <rule id="100010" level="6">
+    <if_sid>31108</if_sid>
+    <url>/score-board</url>
+    <description>OpenSecLab: Acceso al Score Board de Juice Shop (reto de descubrimiento)</description>
+    <group>openseclab_juiceshop,</group>
+  </rule>
+
+  <rule id="100011" level="10">
+    <if_sid>31108</if_sid>
+    <url>/rest/user/login</url>
+    <match>OR 1=1</match>
+    <description>OpenSecLab: Intento de SQL Injection en login de Juice Shop</description>
+    <group>attack,sql_injection,openseclab_juiceshop,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <rule id="100012" level="8">
+    <if_sid>31108</if_sid>
+    <url>/api/Feedbacks</url>
+    <description>OpenSecLab: Actividad en endpoint de Feedbacks de Juice Shop</description>
+    <group>openseclab_juiceshop,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <!-- ══ GoPhish ═══════════════════════════════════════════════════ -->
+
+  <rule id="100020" level="7">
+    <if_sid>31108</if_sid>
+    <url>/track</url>
+    <description>OpenSecLab: Click en landing page de GoPhish registrado</description>
+    <group>openseclab_gophish,phishing,</group>
+    <mitre>
+      <id>T1566</id>
+    </mitre>
+  </rule>
+
+  <!-- ══ WebGoat ════════════════════════════════════════════════════ -->
+
+  <rule id="100030" level="3">
+    <if_sid>31108</if_sid>
+    <url>/WebGoat/</url>
+    <description>OpenSecLab: Actividad en WebGoat detectada</description>
+    <group>openseclab_webgoat,</group>
+  </rule>
+
+  <!-- ══ crAPI ═════════════════════════════════════════════════════ -->
+
+  <rule id="100040" level="10">
+    <if_sid>31108</if_sid>
+    <url>/community/api/v2/vehicle</url>
+    <description>OpenSecLab: Posible BOLA/IDOR en crAPI (acceso a vehiculo de otro usuario)</description>
+    <group>attack,idor,openseclab_crapi,</group>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+  <rule id="100041" level="8">
+    <if_sid>31108</if_sid>
+    <url>/identity/api/v2/user/dashboard</url>
+    <description>OpenSecLab: Acceso al dashboard de usuario en crAPI (Excessive Data Exposure)</description>
+    <group>openseclab_crapi,</group>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+  <!-- ══ Suricata IDS ═══════════════════════════════════════════════ -->
+
+  <rule id="100050" level="10">
+    <field name="event_type">alert</field>
+    <field name="alert.category">Web Application Attack</field>
+    <description>OpenSecLab: Suricata IDS — Ataque a aplicacion web: $(alert.signature)</description>
+    <group>ids,suricata,openseclab,attack,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <rule id="100051" level="10">
+    <field name="event_type">alert</field>
+    <field name="alert.category">A Network Trojan</field>
+    <description>OpenSecLab: Suricata IDS — Trojan de red detectado: $(alert.signature)</description>
+    <group>ids,suricata,openseclab,malware,</group>
+    <mitre>
+      <id>T1059</id>
+    </mitre>
+  </rule>
+
+  <rule id="100052" level="8">
+    <field name="event_type">alert</field>
+    <field name="alert.category">Attempted Information Leak</field>
+    <description>OpenSecLab: Suricata IDS — Posible reconocimiento/escaneo: $(alert.signature)</description>
+    <group>ids,suricata,openseclab,recon,</group>
+    <mitre>
+      <id>T1046</id>
+    </mitre>
+  </rule>
+
+  <rule id="100053" level="8">
+    <field name="event_type">alert</field>
+    <field name="alert.category">Attempted User Privilege Gain</field>
+    <description>OpenSecLab: Suricata IDS — Intento de escalada de privilegios: $(alert.signature)</description>
+    <group>ids,suricata,openseclab,privilege_escalation,</group>
+    <mitre>
+      <id>T1068</id>
+    </mitre>
+  </rule>
+
+  <!-- Regla genérica para otras alertas de Suricata -->
+  <rule id="100059" level="6">
+    <field name="event_type">alert</field>
+    <description>OpenSecLab: Suricata IDS — Alerta: $(alert.signature) [$(alert.category)]</description>
+    <group>ids,suricata,openseclab,</group>
+  </rule>
+
+  <!-- ══ CTF — Actividad de flag hunting ════════════════════════════ -->
+
+  <rule id="100060" level="4">
+    <if_sid>31108</if_sid>
+    <match>OPSN{</match>
+    <description>OpenSecLab: Posible flag CTF encontrado en trafico HTTP</description>
+    <group>openseclab_ctf,</group>
+  </rule>
+
+</group>

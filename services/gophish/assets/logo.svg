@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48">
+  <!-- Shield background -->
+  <path d="M8 4 L8 28 Q8 42 20 46 L24 47.5 L28 46 Q40 42 40 28 L40 4 Z" fill="#003366"/>
+  <!-- Shield highlight -->
+  <path d="M10 6 L10 28 Q10 40 20 44 L20 8 Z" fill="#004499" opacity="0.4"/>
+  <!-- Shield initials -->
+  <text x="24" y="32" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="bold" fill="#ffffff" text-anchor="middle">AC</text>
+  <!-- Company name -->
+  <text x="52" y="20" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="bold" fill="#003366">ACME</text>
+  <text x="52" y="36" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#5577aa" letter-spacing="3">CORP</text>
+  <!-- Separator line -->
+  <line x1="46" y1="6" x2="46" y2="42" stroke="#003366" stroke-width="1.5" opacity="0.3"/>
+</svg>

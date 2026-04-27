@@ -1,0 +1,223 @@
+%YAML 1.1
+---
+# services/suricata/suricata.yaml
+# OpenSec Lab — Configuración de Suricata IDS
+# Monitorea la red Docker del laboratorio (172.18.0.0/16)
+
+# ── Grupos de IPs/puertos del lab ───────────────────────────────────
+vars:
+  address-groups:
+    HOME_NET: "[172.18.0.0/16,127.0.0.0/8]"
+    EXTERNAL_NET: "!$HOME_NET"
+    HTTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "[172.18.0.2]"
+
+  port-groups:
+    # Puertos de los servicios del lab
+    HTTP_PORTS: "[80, 3000, 3002, 5380, 6875, 8000, 8025, 8080, 8081, 8443, 9000, 9443]"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: "[22, 2222]"
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+    FILE_DATA_PORTS: "[$HTTP_PORTS, 110, 143]"
+    FTP_PORTS: 21
+    VXLAN_PORTS: 4789
+    TEREDO_PORTS: 3544
+
+# ── Directorio de logs ───────────────────────────────────────────────
+default-log-dir: /var/log/suricata
+
+# ── Estadísticas ─────────────────────────────────────────────────────
+stats:
+  enabled: yes
+  interval: 30
+
+# ── Outputs ─────────────────────────────────────────────────────────
+outputs:
+  # eve.json: log estructurado JSON — lo lee Wazuh Manager
+  - eve-log:
+      enabled: yes
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            packet: no
+            http-body: yes
+            http-body-printable: yes
+            metadata: yes
+            tagged-packets: no
+        - http:
+            extended: yes
+        - dns:
+            query: yes
+            answer: yes
+        - tls:
+            extended: yes
+        - ssh:
+        - flow
+
+  # fast.log: resumen rápido de alertas (línea por alerta)
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+
+  # stats.log: estadísticas de rendimiento
+  - stats:
+      enabled: yes
+      filename: stats.log
+      append: yes
+      totals: yes
+      threads: no
+
+# ── Logging interno de Suricata ───────────────────────────────────────
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+    - file:
+        enabled: yes
+        level: notice
+        filename: suricata.log
+        append: yes
+
+# ── Captura de paquetes ───────────────────────────────────────────────
+# La interfaz real se pasa via flag -i al ejecutar el contenedor.
+# "any" captura en todos los interfaces disponibles.
+af-packet:
+  - interface: default
+
+pcap:
+  - interface: default
+
+pcap-file:
+  checksum-checks: auto
+
+# ── Capa de aplicación ────────────────────────────────────────────────
+app-layer:
+  protocols:
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+    ssh:
+      enabled: yes
+    smtp:
+      enabled: yes
+      mime:
+        decode-mime: yes
+        decode-base64: yes
+        decode-quoted-printable: yes
+        extract-urls: yes
+    dns:
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+          request-body-minimal-inspect-size: 32kb
+          request-body-inspect-window: 4kb
+          response-body-minimal-inspect-size: 40kb
+          response-body-inspect-window: 16kb
+
+# ── Archivos de clasificación y referencia ────────────────────────────
+classification-file: /etc/suricata/classification.config
+reference-config-file: /etc/suricata/reference.config
+
+# ── Reglas ────────────────────────────────────────────────────────────
+default-rule-path: /etc/suricata/rules
+
+rule-files:
+  - openseclab.rules
+
+# ── Sistema operativo objetivo (red Docker es Linux) ──────────────────
+host-os-policy:
+  linux: [172.18.0.0/16]
+  windows: [0.0.0.0/0]
+
+# ── Desfragmentación IP ───────────────────────────────────────────────
+defrag:
+  memcap: 64mb
+  hash-size: 65536
+  trackers: 65535
+  max-frags: 65535
+  prealloc: yes
+  timeout: 60
+
+# ── Flujos ────────────────────────────────────────────────────────────
+flow:
+  memcap: 128mb
+  hash-size: 65536
+  prealloc: 10000
+  emergency-recovery: 30
+
+flow-timeouts:
+  default:
+    new: 30
+    established: 300
+    closed: 0
+    emergency-new: 10
+    emergency-established: 100
+    emergency-closed: 0
+  tcp:
+    new: 60
+    established: 600
+    closed: 60
+    emergency-new: 5
+    emergency-established: 100
+    emergency-closed: 10
+  udp:
+    new: 30
+    established: 300
+    emergency-new: 10
+    emergency-established: 100
+
+# ── Stream TCP ────────────────────────────────────────────────────────
+stream:
+  memcap: 64mb
+  checksum-validation: yes
+  inline: auto
+  reassembly:
+    memcap: 256mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+    randomize-chunk-size: yes
+
+# ── Motor de detección ────────────────────────────────────────────────
+detect:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25
+  sgh-mpm-context: auto
+  inspection-recursion-limit: 3000
+  prefilter:
+    default: mpm
+
+mpm-algo: auto
+spm-algo: auto
+
+# ── Threads ───────────────────────────────────────────────────────────
+threading:
+  set-cpu-affinity: no
+  detect-thread-ratio: 1.0
+
+# ── PCRE ──────────────────────────────────────────────────────────────
+pcre:
+  match-limit: 3500
+  match-limit-recursion: 1500

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>%%COMPANY_NAME%% — Portal de Seguridad</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f0f2f5; font-family: Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #fff; width: 100%; max-width: 420px; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); overflow: hidden; }
+    .card-header { background: #003366; padding: 24px 32px; text-align: center; }
+    .card-header img { margin-bottom: 12px; }
+    .card-header h1 { color: #fff; font-size: 18px; font-weight: bold; }
+    .card-header p { color: #ccd9e8; font-size: 12px; margin-top: 5px; }
+    .card-body { padding: 28px 32px; }
+    .alert { background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: #856404; }
+    label { display: block; font-size: 13px; font-weight: bold; color: #444; margin-bottom: 4px; }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 14px; margin-bottom: 16px; outline: none; transition: border-color .2s;
+    }
+    input:focus { border-color: #003366; }
+    .btn-submit {
+      width: 100%; padding: 12px; background: #003366; color: #fff;
+      border: none; border-radius: 4px; font-size: 15px; font-weight: bold;
+      cursor: pointer; transition: background .2s;
+    }
+    .btn-submit:hover { background: #004999; }
+    .btn-submit:disabled { background: #6c8ab0; cursor: not-allowed; }
+    .card-footer { padding: 14px 32px; border-top: 1px solid #e8e8e8; text-align: center; font-size: 12px; color: #999; }
+    .card-footer a { color: #003366; text-decoration: none; }
+    .disclaimer { margin-top: 10px; font-size: 11px; color: #bbb; }
+
+    /* Estado: procesando */
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Pantalla de resultado */
+    .result-box { text-align: center; padding: 12px 0; }
+    .result-icon { font-size: 48px; margin-bottom: 16px; }
+    .result-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+    .result-msg { font-size: 14px; color: #555; line-height: 1.5; }
+    .result-box.success .result-title { color: #1a7a3c; }
+    .result-box.error .result-title { color: #c0392b; }
+  </style>
+</head>
+<body>
+<!-- CTF: OPSN{ph1sh1ng_aw4r3n3ss_ch4ll3ng3} -->
+  <div class="card">
+    <div class="card-header">
+      <img src="%%LOGO_IMG%%" alt="%%COMPANY_NAME%%" width="130" height="39">
+      <h1>&#128274; Portal de Seguridad</h1>
+      <p>%%COMPANY_NAME%% — Gestión de contraseñas</p>
+    </div>
+    <div class="card-body" id="card-body">
+      <div class="alert">
+        ⚠️ Tu contraseña ha expirado. Ingresa tus credenciales para continuar.
+      </div>
+      <form id="reset-form" method="POST" action="">
+        <label for="username">Correo corporativo</label>
+        <input type="text" id="username" name="username" placeholder="usuario@%%DOMAIN%%" autocomplete="username">
+
+        <label for="password">Contraseña actual</label>
+        <input type="password" id="password" name="password" placeholder="Contraseña actual" autocomplete="current-password">
+
+        <label for="new_password">Nueva contraseña</label>
+        <input type="password" id="new_password" name="new_password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+
+        <button type="submit" class="btn-submit" id="submit-btn">Restablecer contraseña</button>
+      </form>
+    </div>
+    <div class="card-footer">
+      ¿Problemas para acceder? <a href="#">Contacta a IT Support</a>
+      <div class="disclaimer">
+        Ejercicio de concienciación en seguridad — entorno de laboratorio controlado
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('reset-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Procesando...';
+
+      var formData = new URLSearchParams(new FormData(this));
+
+      fetch(window.location.href, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+        redirect: 'manual'
+      }).catch(function() {});
+
+      setTimeout(function() {
+        var body = document.getElementById('card-body');
+        var ok = Math.random() > 0.35;
+
+        if (ok) {
+          body.innerHTML =
+            '<div class="result-box success">' +
+            '<div class="result-icon">&#10003;</div>' +
+            '<div class="result-title">Contraseña actualizada</div>' +
+            '<div class="result-msg">Tu contraseña ha sido cambiada exitosamente.<br>' +
+            'Puedes iniciar sesión con tu nueva contraseña.<br><br>' +
+            '<small style="color:#aaa;">Redirigiendo al portal...</small></div>' +
+            '</div>';
+        } else {
+          body.innerHTML =
+            '<div class="result-box error">' +
+            '<div class="result-icon">&#9888;</div>' +
+            '<div class="result-title">Ocurrió un error</div>' +
+            '<div class="result-msg">No fue posible procesar tu solicitud en este momento.<br>' +
+            'Por favor inténtalo de nuevo más tarde o contacta a IT Support.<br><br>' +
+            '<small style="color:#aaa;">Código de referencia: ERR-5042</small></div>' +
+            '</div>';
+        }
+      }, 1800);
+    });
+  </script>
+</body>
+</html>

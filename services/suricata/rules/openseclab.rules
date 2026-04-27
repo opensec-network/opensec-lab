@@ -1,0 +1,109 @@
+# services/suricata/rules/openseclab.rules
+# OpenSec Lab — Reglas Suricata personalizadas
+# Detecta ataques a los servicios del laboratorio (172.18.0.0/16)
+# SIDs reservados: 9000001-9000099
+
+# ══ DVWA ════════════════════════════════════════════════════════════
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - SQL Injection en DVWA"; \
+    flow:established,to_server; \
+    http.uri; content:"/vulnerabilities/sqli"; \
+    http.request_body; pcre:"/(\'|%27|--|;|UNION|SELECT|DROP|INSERT|OR\s+1)/i"; \
+    classtype:web-application-attack; \
+    sid:9000001; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Command Injection en DVWA"; \
+    flow:established,to_server; \
+    http.uri; content:"/vulnerabilities/exec"; \
+    http.request_body; pcre:"/(;|\||&&|` |\$\()/"; \
+    classtype:web-application-attack; \
+    sid:9000002; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - XSS en DVWA"; \
+    flow:established,to_server; \
+    http.uri; content:"/vulnerabilities/xss"; \
+    http.request_body; pcre:"/<script|javascript:|on\w+\s*=/i"; \
+    classtype:web-application-attack; \
+    sid:9000003; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - File Inclusion en DVWA"; \
+    flow:established,to_server; \
+    http.uri; content:"/vulnerabilities/fi"; \
+    http.uri; pcre:"/(\.\.|\/etc\/|c:\\\\windows)/i"; \
+    classtype:web-application-attack; \
+    sid:9000004; rev:1;)
+
+# ══ OWASP Juice Shop ════════════════════════════════════════════════
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Acceso al Score Board de Juice Shop (CTF discovery)"; \
+    flow:established,to_server; \
+    http.uri; content:"/score-board"; \
+    classtype:policy-violation; \
+    sid:9000010; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - SQL Injection en Juice Shop login"; \
+    flow:established,to_server; \
+    http.uri; content:"/rest/user/login"; \
+    http.request_body; content:"' OR"; nocase; \
+    classtype:web-application-attack; \
+    sid:9000011; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Intento de acceso a admin en Juice Shop"; \
+    flow:established,to_server; \
+    http.uri; content:"/rest/user/whoami"; \
+    classtype:policy-violation; \
+    sid:9000012; rev:1;)
+
+# ══ crAPI ═══════════════════════════════════════════════════════════
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Posible BOLA/IDOR en crAPI (vehiculos)"; \
+    flow:established,to_server; \
+    http.uri; content:"/community/api/v2/vehicle"; \
+    classtype:attempted-user; \
+    sid:9000040; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Acceso al dashboard de usuario en crAPI"; \
+    flow:established,to_server; \
+    http.uri; content:"/identity/api/v2/user/dashboard"; \
+    classtype:policy-violation; \
+    sid:9000041; rev:1;)
+
+# ══ Reconocimiento general ══════════════════════════════════════════
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"OpenSecLab - Escaneo de puertos SYN detectado"; \
+    flags:S,12; \
+    threshold:type threshold, track by_src, count 30, seconds 5; \
+    classtype:attempted-recon; \
+    sid:9000050; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Posible fuerza bruta HTTP"; \
+    flow:established,to_server; \
+    threshold:type threshold, track by_src, count 30, seconds 10; \
+    classtype:attempted-user; \
+    sid:9000051; rev:1;)
+
+alert dns any any -> $DNS_SERVERS 53 ( \
+    msg:"OpenSecLab - Consulta DNS al registro flag del CTF"; \
+    dns.query; content:"flag.opensec.lab"; \
+    classtype:policy-violation; \
+    sid:9000052; rev:1;)
+
+# ══ CTF — Flag hunting ══════════════════════════════════════════════
+
+alert http $HOME_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Respuesta HTTP contiene un flag CTF"; \
+    flow:established,to_client; \
+    http.response_body; content:"OPSN{"; \
+    classtype:policy-violation; \
+    sid:9000060; rev:1;)

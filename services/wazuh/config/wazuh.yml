@@ -1,0 +1,10 @@
+# services/wazuh/config/wazuh.yml
+# Conexión del Wazuh Dashboard → Wazuh Manager API
+# NOTA: La contraseña aquí debe coincidir con OPSN_WAZUH_API_PASSWORD
+hosts:
+  - default:
+      url: https://opsn-wazuh-manager
+      port: 55000
+      username: wazuh-wui
+      password: "WazuhApiP4ss."
+      run_as: false

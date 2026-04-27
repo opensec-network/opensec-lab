@@ -1,0 +1,27 @@
+# /etc/postfix/main.cf — generado desde template por entrypoint.sh
+
+myhostname = mail.${OPSN_DOMAIN}
+mydomain = ${OPSN_DOMAIN}
+myorigin = $mydomain
+inet_interfaces = all
+inet_protocols = ipv4
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+mynetworks_style = subnet
+
+# Entrega local via Dovecot LMTP
+mailbox_transport = lmtp:unix:private/dovecot-lmtp
+
+# Deshabilitar verificación de usuarios locales contra /etc/passwd.
+# Los usuarios se gestionan en Dovecot (passwd-file), no como usuarios del sistema.
+local_recipient_maps =
+
+# Autenticación SASL via Dovecot
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+
+# Sin TLS — entorno de laboratorio
+smtpd_tls_security_level = none
+
+# Restricciones de envío
+smtpd_recipient_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination

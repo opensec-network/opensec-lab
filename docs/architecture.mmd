@@ -1,0 +1,209 @@
+%%{
+  init: {
+    "theme": "dark",
+    "themeVariables": {
+      "background":       "#0f172a",
+      "mainBkg":          "#0f172a",
+      "primaryColor":     "#1e293b",
+      "primaryTextColor": "#f1f5f9",
+      "primaryBorderColor":"#475569",
+      "lineColor":        "#64748b",
+      "clusterBkg":       "#1a2235",
+      "clusterBorder":    "#334155",
+      "titleColor":       "#f8fafc",
+      "edgeLabelBackground":"#0f172a",
+      "fontFamily":       "ui-monospace, monospace",
+      "fontSize":         "14px"
+    }
+  }
+}%%
+flowchart TB
+
+  %% ══════════════════════════════════════════════════════════
+  %%  ENTRY POINT
+  %% ══════════════════════════════════════════════════════════
+  BROWSER(["USUARIO — Kali Linux Host\nNavegador / Terminal"])
+
+  %% ══════════════════════════════════════════════════════════
+  %%  TIER 0 — CORE LAB
+  %% ══════════════════════════════════════════════════════════
+  subgraph T0["  TIER 0 — Core Lab  "]
+    direction LR
+    DNS["DNS\nTechnitium\n:5380 · :53"]
+    MAIL["Mail Server\nPostfix/Dovecot/RC\n:25 · :143 · :587 · :8888"]
+    DVWA["DVWA\n:8080"]
+    JUICE["Juice Shop\n:3000"]
+    DESKTOP["Desktop\nXFCE/Thunderbird\n:3100"]
+    subgraph GPHSH["  GoPhish  "]
+      direction TB
+      GOPHISH_VI["vol-init"]:::init
+      GOPHISH["GoPhish\n:3333 · :80"]
+      GOPHISH_INIT["gophish-init"]:::init
+      GOPHISH_VI -->|"chown"| GOPHISH
+      GOPHISH_INIT -->|"config API"| GOPHISH
+    end
+  end
+
+  %% ══════════════════════════════════════════════════════════
+  %%  TIER 1 — VULNERABLE TARGETS
+  %% ══════════════════════════════════════════════════════════
+  subgraph T1["  TIER 1 — Vulnerable Targets  "]
+    direction LR
+    WEBGOAT["WebGoat\n:8081"]
+    PORTAINER["Portainer\n:9443"]
+    subgraph CRAPI_GRP["  crAPI  ×7 containers  "]
+      direction TB
+      CRAPI_DB[("mongo\npostgres\nmailhog")]:::db
+      CRAPI_SVC["identity\ncommunity\nworkshop"]
+      CRAPI["Gateway\n:8025"]
+      CRAPI_DB --> CRAPI_SVC --> CRAPI
+    end
+  end
+
+  %% ══════════════════════════════════════════════════════════
+  %%  TIER 2 — GAMIFICACIÓN
+  %% ══════════════════════════════════════════════════════════
+  subgraph T2["  TIER 2 — Gamificación y Aprendizaje  "]
+    direction LR
+
+    subgraph CTFD_GRP["  CTFd  "]
+      direction TB
+      CTFD_DB[("MariaDB")]:::db
+      CTFD["CTFd\n:8000"]
+      CTFD_INIT["ctfd-init"]:::init
+      CTFD_DB --> CTFD
+      CTFD_INIT -->|"seed"| CTFD
+    end
+
+    subgraph WIKI_GRP["  BookStack  "]
+      direction TB
+      WIKI_DB[("MariaDB")]:::db
+      WIKI["BookStack\n:6875"]
+      WIKI_INIT["wiki-init"]:::init
+      WIKI_DB --> WIKI
+      WIKI_INIT -->|"seed"| WIKI
+    end
+
+    subgraph GITEA_GRP["  Gitea  "]
+      direction TB
+      GITEA["Gitea\n:3002 · :2222"]
+      GITEA_INIT["gitea-init"]:::init
+      GITEA_INIT -->|"seed"| GITEA
+    end
+
+    subgraph PORTAL_GRP["  Portal  "]
+      direction TB
+      PORTAL_INIT["portal-init"]:::init
+      PORTAL["Portal nginx\n:8443"]
+      PORTAL_INIT -->|"gen HTML"| PORTAL
+    end
+  end
+
+  %% ══════════════════════════════════════════════════════════
+  %%  TIER 3 — BLUE TEAM
+  %% ══════════════════════════════════════════════════════════
+  subgraph T3["  TIER 3 — Blue Team  ⚠ 12+ GB RAM  "]
+    direction LR
+
+    subgraph WAZUH_GRP["  Wazuh SIEM  "]
+      direction LR
+      WAZUH_CERTS["wazuh-certs\nSSL gen"]:::init
+      WAZUH_IDX["Indexer\nOpenSearch\n:9200"]
+      WAZUH_MGR["Manager\n:1514 · :1515 · :55000"]
+      WAZUH_DASH["Dashboard\n:5601"]
+      WAZUH_INIT["wazuh-init"]:::init
+      WAZUH_CERTS -->|"SSL"| WAZUH_IDX
+      WAZUH_CERTS -->|"SSL"| WAZUH_MGR
+      WAZUH_CERTS -->|"SSL"| WAZUH_DASH
+      WAZUH_IDX -->|"indices"| WAZUH_MGR
+      WAZUH_IDX -->|"data"| WAZUH_DASH
+      WAZUH_MGR -->|"API :55000"| WAZUH_DASH
+      WAZUH_INIT -.->|"valida"| WAZUH_MGR
+    end
+
+    SURICATA["Suricata IDS\naf-packet · host network\nopenSecLab.rules"]
+  end
+
+  %% ══════════════════════════════════════════════════════════
+  %%  SHARED HOST RESOURCES
+  %% ══════════════════════════════════════════════════════════
+  DOCKER_SOCK[/"docker.sock"/]:::shared
+
+  %% ══════════════════════════════════════════════════════════
+  %%  ACCESO USUARIO → TIERS
+  %% ══════════════════════════════════════════════════════════
+  BROWSER --> T0
+  BROWSER --> T1
+  BROWSER --> T2
+  BROWSER --> WAZUH_DASH
+
+  %% ══════════════════════════════════════════════════════════
+  %%  FORZAR ORDEN VERTICAL: T0 → T1 → T2 → T3
+  %% ══════════════════════════════════════════════════════════
+  T0 ~~~ T1
+  T1 ~~~ T2
+  T2 ~~~ T3
+
+  %% ══════════════════════════════════════════════════════════
+  %%  CONEXIONES CROSS-TIER
+  %% ══════════════════════════════════════════════════════════
+
+  %% GoPhish envía correos de phishing via Mail (SMTP)
+  GOPHISH -->|"SMTP :25\nphishing"| MAIL
+
+  %% Suricata captura tráfico → escribe eve.json → Wazuh Manager lo lee
+  SURICATA -.->|"eve.json\n(vol compartido)"| WAZUH_MGR
+
+  %% docker.sock: inspección de contenedores
+  DOCKER_SOCK -.->|":ro"| DESKTOP
+  DOCKER_SOCK -.->|":ro"| PORTAINER
+  DOCKER_SOCK -.->|":rw docker-listener"| WAZUH_MGR
+
+  %% ══════════════════════════════════════════════════════════
+  %%  ESTILOS
+  %% ══════════════════════════════════════════════════════════
+  classDef init   fill:#1c1917,stroke:#78716c,color:#d6d3d1,stroke-dasharray:4 3
+  classDef db     fill:#0c1929,stroke:#334155,color:#94a3b8
+  classDef shared fill:#0f172a,stroke:#475569,color:#64748b
+
+  %% Tier 0 — azul
+  style T0        fill:#0f2340,stroke:#3b82f6,color:#dbeafe
+  style GPHSH     fill:#0d1f38,stroke:#2563eb,color:#bfdbfe
+
+  %% Tier 1 — naranja
+  style T1        fill:#3d1208,stroke:#f97316,color:#fed7aa
+  style CRAPI_GRP fill:#351008,stroke:#ea580c,color:#fdba74
+
+  %% Tier 2 — verde
+  style T2        fill:#0a2e18,stroke:#22c55e,color:#bbf7d0
+  style CTFD_GRP  fill:#082714,stroke:#16a34a,color:#86efac
+  style WIKI_GRP  fill:#082714,stroke:#16a34a,color:#86efac
+  style GITEA_GRP fill:#082714,stroke:#16a34a,color:#86efac
+  style PORTAL_GRP fill:#082714,stroke:#16a34a,color:#86efac
+
+  %% Tier 3 — morado
+  style T3        fill:#2e1065,stroke:#a855f7,color:#e9d5ff
+  style WAZUH_GRP fill:#270e56,stroke:#9333ea,color:#d8b4fe
+
+  %% Nodos específicos: tier0=azul, tier1=naranja, tier2=verde, tier3=morado
+  style DNS     fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+  style MAIL    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+  style DVWA    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+  style JUICE   fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+  style DESKTOP fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+  style GOPHISH fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
+
+  style WEBGOAT  fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style PORTAINER fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style CRAPI_SVC fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style CRAPI    fill:#7c2d12,stroke:#f97316,color:#fed7aa
+
+  style CTFD    fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style WIKI    fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style GITEA   fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style PORTAL  fill:#14532d,stroke:#22c55e,color:#bbf7d0
+
+  style WAZUH_IDX  fill:#4a1d96,stroke:#a855f7,color:#e9d5ff
+  style WAZUH_MGR  fill:#4a1d96,stroke:#a855f7,color:#e9d5ff
+  style WAZUH_DASH fill:#4a1d96,stroke:#a855f7,color:#e9d5ff
+  style SURICATA   fill:#4a1d96,stroke:#a855f7,color:#e9d5ff

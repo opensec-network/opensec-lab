@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build service tarballs
+        run: |
+          mkdir -p dist
+
+          # Empaquetar cada servicio que requiere archivos extra
+          for svc in dns mail desktop gophish wiki gitea portal portainer wazuh suricata; do
+            if [ -d "services/$svc" ]; then
+              tar -czf "dist/opsn-${svc}.tar.gz" -C services "$svc"
+              echo "Empaquetado: opsn-${svc}.tar.gz"
+            fi
+          done
+
+          # Copiar archivos raíz que el script descarga
+          cp opensec-lab.sh dist/
+          cp docker-compose.yml dist/
+          cp config/defaults.env dist/
+
+      - name: Compute checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.sha256
+          cat checksums.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: OpenSec Lab ${{ github.ref_name }}
+          body: |
+            ## OpenSec Lab ${{ github.ref_name }}
+
+            ### Instalación
+
+            ```bash
+            /bin/bash -c "$(curl -fsSL https://lab.opensec.network/install)"
+            ```
+
+            ### Assets incluidos
+
+            | Archivo | Descripción |
+            |---------|-------------|
+            | `opensec-lab.sh` | Script de instalación y gestión |
+            | `docker-compose.yml` | Compose estático con todos los servicios |
+            | `defaults.env` | Configuración por defecto |
+            | `opsn-dns.tar.gz` | Archivos del servicio DNS |
+            | `opsn-mail.tar.gz` | Archivos del servidor de correo |
+            | `opsn-desktop.tar.gz` | Archivos del escritorio KDE |
+            | `opsn-gophish.tar.gz` | Archivos de GoPhish (script + templates) |
+            | `opsn-wiki.tar.gz` | Scripts de configuracion BookStack |
+            | `opsn-gitea.tar.gz` | Script de configuracion Gitea + repos seed |
+            | `opsn-portal.tar.gz` | Generador del portal central + nginx.conf |
+            | `opsn-portainer.tar.gz` | Script de configuracion de Portainer |
+            | `opsn-wazuh.tar.gz` | Configs, reglas y certs de Wazuh + Suricata |
+            | `opsn-suricata.tar.gz` | Config y reglas custom de Suricata |
+            | `checksums.sha256` | Checksums SHA256 de todos los archivos |
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
