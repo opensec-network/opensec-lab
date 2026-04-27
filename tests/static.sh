@@ -79,7 +79,7 @@ for var in OPSN_DOMAIN OPSN_DNS_PASSWORD OPSN_MAIL_PASSWORD \
 done
 
 # Tier 1
-for var in OPSN_WEBGOAT_PORT OPSN_CRAPI_PORT OPSN_PORTAINER_PORT OPSN_PORTAINER_PASSWORD; do
+for var in OPSN_WEBGOAT_PORT; do
     assert_env_var "defaults.env (Tier 1)" "$DEFAULTS" "$var"
 done
 
@@ -116,7 +116,7 @@ section "Docker Compose — estructura"
 
 COMPOSE="docker-compose.yml"
 
-for service in opsn-dns opsn-dvwa opsn-juice-shop opsn-webgoat opsn-crapi \
+for service in opsn-dns opsn-dvwa opsn-juice-shop opsn-webgoat \
                opsn-gophish opsn-desktop opsn-mail \
                opsn-gitea opsn-gitea-init \
                opsn-portal opsn-portal-init; do
@@ -125,7 +125,6 @@ done
 
 # Verificar volumes declarados
 for vol in opsn_dns_data opsn_dvwa_data opsn_gophish_data opsn_mail_data \
-           opsn_crapi_data \
            opsn_gitea_data opsn_portal_html; do
     assert_file_contains "compose volumen $vol" "$COMPOSE" "${vol}:"
 done
