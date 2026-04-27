@@ -119,7 +119,6 @@ services:
       start_period: 60s
     restart: unless-stopped
 
-
   # ─────────────────────────────────────────────────────────────────
   # GoPhish Volume Init — fija permisos del volumen para uid 1000 (app)
   # Profiles: gophish, all
@@ -262,7 +261,6 @@ services:
       start_period: 20s
     restart: unless-stopped
 
-
   # ─────────────────────────────────────────────────────────────────
   # Gitea — Repositorios de código vulnerable
   # Profiles: gitea, all
@@ -345,11 +343,7 @@ services:
       - OPSN_DESKTOP_PORT=${OPSN_DESKTOP_PORT:-3100}
       - OPSN_MAIL_WEBMAIL_PORT=${OPSN_MAIL_WEBMAIL_PORT:-8888}
       - OPSN_WEBGOAT_PORT=${OPSN_WEBGOAT_PORT:-8081}
-      - OPSN_CRAPI_PORT=${OPSN_CRAPI_PORT:-8025}
-      - OPSN_PORTAINER_PORT=${OPSN_PORTAINER_PORT:-9443}
-      - OPSN_PORTAINER_PASSWORD=${OPSN_PORTAINER_PASSWORD:-Password1234}
       - OPSN_CTFD_PORT=${OPSN_CTFD_PORT:-8000}
-      - OPSN_WIKI_PORT=${OPSN_WIKI_PORT:-6875}
       - OPSN_GITEA_PORT=${OPSN_GITEA_PORT:-3002}
     volumes:
       - opsn_portal_html:/html
