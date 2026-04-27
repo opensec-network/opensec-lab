@@ -30,21 +30,16 @@ assert_dir_exists "services/dns"       "services/dns"
 assert_dir_exists "services/mail"      "services/mail"
 assert_dir_exists "services/gophish"   "services/gophish"
 assert_dir_exists "services/desktop"   "services/desktop"
-assert_dir_exists "services/wiki"      "services/wiki"
 assert_dir_exists "services/gitea"     "services/gitea"
 assert_dir_exists "services/portal"      "services/portal"
-assert_dir_exists "services/portainer"  "services/portainer"
 
 assert_file_exists "services/lib/common.sh"                    "services/lib/common.sh"
 assert_file_exists "services/dns/configure_dns.sh"             "services/dns/configure_dns.sh"
 assert_file_exists "services/gophish/configure_gophish.sh"     "services/gophish/configure_gophish.sh"
 assert_file_exists "services/gophish/templates/landing_page.html" "services/gophish/templates/landing_page.html"
-assert_file_exists "services/wiki/bookstack-init.sh"           "services/wiki/bookstack-init.sh"
-assert_file_exists "services/wiki/configure_wiki.sh"           "services/wiki/configure_wiki.sh"
 assert_file_exists "services/gitea/configure_gitea.sh"         "services/gitea/configure_gitea.sh"
 assert_file_exists "services/portal/generate_portal.sh"           "services/portal/generate_portal.sh"
 assert_file_exists "services/portal/nginx.conf"                   "services/portal/nginx.conf"
-assert_file_exists "services/portainer/configure_portainer.sh"    "services/portainer/configure_portainer.sh"
 assert_file_exists ".github/workflows/release.yml"             ".github/workflows/release.yml"
 assert_file_exists ".github/workflows/build-mail.yml"          ".github/workflows/build-mail.yml"
 
@@ -57,11 +52,8 @@ for script in \
     services/lib/common.sh \
     services/dns/configure_dns.sh \
     services/gophish/configure_gophish.sh \
-    services/wiki/bookstack-init.sh \
-    services/wiki/configure_wiki.sh \
     services/gitea/configure_gitea.sh \
     services/portal/generate_portal.sh \
-    services/portainer/configure_portainer.sh \
     services/mail/entrypoint.sh \
     services/desktop/custom-init.sh \
     services/desktop/init.sh
@@ -92,8 +84,7 @@ for var in OPSN_WEBGOAT_PORT OPSN_CRAPI_PORT OPSN_PORTAINER_PORT OPSN_PORTAINER_
 done
 
 # Tier 2
-for var in OPSN_WIKI_PORT OPSN_WIKI_PASSWORD OPSN_WIKI_DB_PASSWORD \
-           OPSN_GITEA_PORT OPSN_GITEA_SSH_PORT OPSN_GITEA_PASSWORD \
+for var in OPSN_GITEA_PORT OPSN_GITEA_SSH_PORT OPSN_GITEA_PASSWORD \
            OPSN_PORTAL_PORT; do
     assert_env_var "defaults.env (Tier 2)" "$DEFAULTS" "$var"
 done
@@ -126,8 +117,7 @@ section "Docker Compose — estructura"
 COMPOSE="docker-compose.yml"
 
 for service in opsn-dns opsn-dvwa opsn-juice-shop opsn-webgoat opsn-crapi \
-               opsn-portainer opsn-portainer-init opsn-gophish opsn-desktop opsn-mail \
-               opsn-wiki opsn-wiki-db opsn-wiki-init \
+               opsn-gophish opsn-desktop opsn-mail \
                opsn-gitea opsn-gitea-init \
                opsn-portal opsn-portal-init; do
     assert_file_contains "compose tiene $service" "$COMPOSE" "container_name: $service"
@@ -135,8 +125,8 @@ done
 
 # Verificar volumes declarados
 for vol in opsn_dns_data opsn_dvwa_data opsn_gophish_data opsn_mail_data \
-           opsn_crapi_data opsn_portainer_data \
-           opsn_wiki_db opsn_wiki_data opsn_gitea_data opsn_portal_html; do
+           opsn_crapi_data \
+           opsn_gitea_data opsn_portal_html; do
     assert_file_contains "compose volumen $vol" "$COMPOSE" "${vol}:"
 done
 
@@ -162,7 +152,7 @@ section "release.yml — servicios empaquetados"
 # ─────────────────────────────────────────────────────────────────────────────
 
 RELEASE=".github/workflows/release.yml"
-for svc in dns mail desktop gophish wiki gitea portal; do
+for svc in dns mail desktop gophish gitea portal; do
     assert_file_contains "release.yml incluye $svc" "$RELEASE" "$svc"
 done
 
@@ -170,7 +160,7 @@ done
 section "Makefile — targets"
 # ─────────────────────────────────────────────────────────────────────────────
 
-for svc in wiki gitea portal portainer; do
+for svc in gitea portal; do
     assert_file_contains "Makefile SERVICES incluye $svc" "Makefile" "$svc"
 done
 
@@ -184,11 +174,6 @@ section "Idempotencia — funciones de init scripts"
 
 # Verificar que los init scripts tienen guards de idempotencia
 assert_file_contains \
-    "configure_wiki.sh — guard idempotencia (book exists)" \
-    "services/wiki/configure_wiki.sh" \
-    "ya existe"
-
-assert_file_contains \
     "configure_gitea.sh — guard idempotencia (repo exists)" \
     "services/gitea/configure_gitea.sh" \
     "ya existe"
@@ -196,11 +181,6 @@ assert_file_contains \
 assert_file_contains \
     "configure_dns.sh — guard idempotencia (zona exists)" \
     "services/dns/configure_dns.sh" \
-    "ya existe"
-
-assert_file_contains \
-    "configure_portainer.sh — guard idempotencia (ya existe)" \
-    "services/portainer/configure_portainer.sh" \
     "ya existe"
 
 # ─────────────────────────────────────────────────────────────────────────────
