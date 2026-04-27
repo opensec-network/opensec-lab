@@ -39,9 +39,6 @@ SERVER_IP=$(wait_for_host "opsn-mail")
 DNS_SERVER_IP=$(resolve_host "opsn-dns")
 GOPHISH_IP=$(wait_for_host "opsn-gophish")
 WEBGOAT_IP=$(resolve_host "opsn-webgoat")
-CRAPI_IP=$(resolve_host "opsn-crapi")
-PORTAINER_IP=$(resolve_host "opsn-portainer")
-WIKI_IP=$(resolve_host "opsn-wiki")
 GITEA_IP=$(resolve_host "opsn-gitea")
 PORTAL_IP=$(resolve_host "opsn-portal")
 WAZUH_IP=$(resolve_host "opsn-wazuh-dashboard")
@@ -187,24 +184,6 @@ if [ -n "$WEBGOAT_IP" ]; then
     add_dns_record "A"  "webgoat"  "$WEBGOAT_IP"    ""            "$TTL"
 else
     echo "  (webgoat omitido — opsn-webgoat no está corriendo)" >> /proc/1/fd/1
-fi
-
-if [ -n "$CRAPI_IP" ]; then
-    add_dns_record "A"  "crapi"    "$CRAPI_IP"      ""            "$TTL"
-else
-    echo "  (crapi omitido — opsn-crapi no está corriendo)" >> /proc/1/fd/1
-fi
-
-if [ -n "$PORTAINER_IP" ]; then
-    add_dns_record "A"  "portainer" "$PORTAINER_IP" ""            "$TTL"
-else
-    echo "  (portainer omitido — opsn-portainer no está corriendo)" >> /proc/1/fd/1
-fi
-
-if [ -n "$WIKI_IP" ]; then
-    add_dns_record "A"  "wiki"      "$WIKI_IP"       ""            "$TTL"
-else
-    echo "  (wiki omitido — opsn-wiki no está corriendo)" >> /proc/1/fd/1
 fi
 
 if [ -n "$GITEA_IP" ]; then
