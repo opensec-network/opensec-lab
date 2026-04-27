@@ -157,6 +157,36 @@ for sid in 9000060 9000061 9000062 9000063; do
         "sid:${sid};"
 done
 
+# Portal redesign (Plan 3)
+assert_file_contains \
+    "portal tiene variable PORT_API" \
+    "services/portal/generate_portal.sh" \
+    'PORT_API='
+
+assert_file_contains \
+    "portal tiene variable PORT_DOCS" \
+    "services/portal/generate_portal.sh" \
+    'PORT_DOCS='
+
+assert_file_contains \
+    "portal tiene seccion ATAQUE" \
+    "services/portal/generate_portal.sh" \
+    "ATAQUE"
+
+assert_file_contains \
+    "portal tiene seccion DEFENSA" \
+    "services/portal/generate_portal.sh" \
+    "DEFENSA"
+
+# Variables eliminadas en plan1 no deben estar en el portal
+for dead_var in PORT_CRAPI PORT_PORTAINER PORT_WIKI PASS_PORTAINER PORT_GITEA PORT_WEBGOAT; do
+    if grep -q "${dead_var}" services/portal/generate_portal.sh 2>/dev/null; then
+        fail "portal todavia referencia variable eliminada: ${dead_var}"
+    else
+        pass "portal no referencia variable eliminada: ${dead_var}"
+    fi
+done
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────
