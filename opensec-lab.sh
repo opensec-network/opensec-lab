@@ -30,14 +30,11 @@ declare -a SERVICES_CATALOG=(
     "opsn-dns|Servidor DNS (Technitium)|yes|"
     "opsn-mail|Servidor de correo + Roundcube webmail|yes|opsn-dns"
     "opsn-gophish|GoPhish — framework de phishing con campaña pre-configurada|yes|opsn-dns opsn-mail"
-    "opsn-desktop|Escritorio KDE con Thunderbird pre-configurado|yes|opsn-dns"
+    "opsn-desktop|Escritorio XFCE con Thunderbird pre-configurado|yes|opsn-dns"
     "opsn-dvwa|DVWA — aplicación web vulnerable|no|"
     "opsn-juice-shop|OWASP Juice Shop|no|"
     "opsn-webgoat|WebGoat — plataforma de aprendizaje guiado OWASP|no|"
-    "opsn-crapi|crAPI — pruebas de seguridad de APIs REST|no|"
-    "opsn-portainer|Portainer — gestión visual de Docker (herramienta admin)|yes|"
-    "opsn-wiki|BookStack — wiki con guias del lab|yes|"
-    "opsn-gitea|Gitea — repos con codigo vulnerable para code review|yes|"
+    "opsn-gitea|Gitea — repos con código vulnerable para análisis estático|yes|"
     "opsn-portal|Portal central — dashboard con links a todos los servicios|yes|"
     "opsn-wazuh|Wazuh SIEM + Suricata IDS — Blue Team (8+ GB RAM)|yes|opsn-dns opsn-suricata"
 )
@@ -186,9 +183,6 @@ declare -A SERVICE_RAM_MB=(
     ["opsn-dvwa"]=200
     ["opsn-juice-shop"]=300
     ["opsn-webgoat"]=400
-    ["opsn-crapi"]=1500
-    ["opsn-portainer"]=150
-    ["opsn-wiki"]=400
     ["opsn-gitea"]=200
     ["opsn-portal"]=50
     ["opsn-wazuh"]=2500
@@ -305,9 +299,9 @@ detectar_interfaz_suricata() {
 # ─────────────────────────────────────────────────────────────────
 declare -A META_PROFILES=(
     ["B"]="opsn-wazuh opsn-suricata"
-    ["V"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-crapi"
-    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-crapi opsn-portal"
-    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-crapi opsn-portainer opsn-wiki opsn-gitea opsn-portal opsn-wazuh opsn-suricata"
+    ["V"]="opsn-dvwa opsn-juice-shop opsn-webgoat"
+    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-portal"
+    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-gitea opsn-portal opsn-wazuh opsn-suricata"
 )
 
 # ─────────────────────────────────────────────────────────────────
@@ -445,15 +439,7 @@ descargar_archivos_base() {
     # .env (solo si no existe, para no sobreescribir cambios del usuario)
     if [[ ! -f "$ENV_FILE" ]]; then
         curl -fsSL "${RELEASE_BASE}/defaults.env" -o "$ENV_FILE"
-        # Generar secretos aleatorios para BookStack (únicos por instalación)
-        local wiki_key wiki_token_id wiki_token_secret
-        wiki_key="base64:$(dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d '\n=')"
-        wiki_token_id="$(dd if=/dev/urandom bs=12 count=1 2>/dev/null | base64 | tr -d '\n=+/' | cut -c1-20)"
-        wiki_token_secret="$(dd if=/dev/urandom bs=24 count=1 2>/dev/null | base64 | tr -d '\n=+/' | cut -c1-32)"
-        sed -i "s|^OPSN_WIKI_APP_KEY=.*|OPSN_WIKI_APP_KEY=${wiki_key}|" "$ENV_FILE"
-        sed -i "s|^OPSN_WIKI_TOKEN_ID=.*|OPSN_WIKI_TOKEN_ID=${wiki_token_id}|" "$ENV_FILE"
-        sed -i "s|^OPSN_WIKI_TOKEN_SECRET=.*|OPSN_WIKI_TOKEN_SECRET=${wiki_token_secret}|" "$ENV_FILE"
-        log_info ".env creado desde defaults.env (APP_KEY y tokens wiki generados aleatoriamente)."
+        log_info ".env creado desde defaults.env."
     else
         log_info ".env ya existe. No se sobreescribe (cambios del usuario preservados)."
     fi
@@ -515,8 +501,8 @@ seleccionar_servicios() {
     if [[ "$mode" == "install" ]]; then
         echo -e "  ${CYAN}Paquetes rápidos:${NC}"
         echo "  B) Blue Team   — Wazuh SIEM + Suricata IDS ${YELLOW}(requiere 12+ GB RAM)${NC}"
-        echo -e "  V) Vuln Targets — DVWA + Juice Shop + WebGoat + crAPI"
-        echo -e "  C) Vuln + Portal — DVWA + Juice Shop + WebGoat + crAPI + Portal"
+        echo -e "  V) Vuln Targets — DVWA + Juice Shop + WebGoat"
+        echo -e "  C) Vuln + Portal — DVWA + Juice Shop + WebGoat + Portal"
         echo -e "  F) Full Lab    — Todos los servicios ${YELLOW}(excluye Wazuh)${NC}"
         echo ""
         echo -e "  ${CYAN}Servicios individuales:${NC}"
@@ -908,15 +894,6 @@ mostrar_credenciales() {
 
     service_installed "opsn-webgoat" && \
         printf "  %-18s %-22s %-14s %s\n" "OPSN WebGoat" "guest" "(sin auth)" "http://localhost:$(_port OPSN_WEBGOAT_PORT 8081)/WebGoat"
-
-    service_installed "opsn-crapi" && \
-        printf "  %-18s %-22s %-14s %s\n" "OPSN crAPI" "(registrar)" "(en app)" "http://localhost:$(_port OPSN_CRAPI_PORT 8025)"
-
-    service_installed "opsn-portainer" && \
-        printf "  %-18s %-22s %-14s %s\n" "OPSN Portainer" "admin" "$(_port OPSN_PORTAINER_PASSWORD Password)" "https://localhost:$(_port OPSN_PORTAINER_PORT 9443)"
-
-    service_installed "opsn-wiki" && \
-        printf "  %-18s %-22s %-14s %s\n" "OPSN Wiki" "admin@opensec.lab" "$(_port OPSN_WIKI_PASSWORD Password)" "http://localhost:$(_port OPSN_WIKI_PORT 6875)"
 
     service_installed "opsn-gitea" && \
         printf "  %-18s %-22s %-14s %s\n" "OPSN Gitea" "$(_port OPSN_GITEA_ADMIN_USER admin)" "$(_port OPSN_GITEA_PASSWORD Password)" "http://localhost:$(_port OPSN_GITEA_PORT 3002)"
