@@ -302,8 +302,8 @@ detectar_interfaz_suricata() {
 declare -A META_PROFILES=(
     ["B"]="opsn-wazuh opsn-suricata"
     ["V"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api"
-    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-portal opsn-docs"
-    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-gitea opsn-portal opsn-docs opsn-wazuh opsn-suricata"
+    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-portal"
+    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-gitea opsn-portal opsn-wazuh opsn-suricata"
 )
 
 # ─────────────────────────────────────────────────────────────────
