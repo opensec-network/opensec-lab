@@ -103,7 +103,8 @@ openseclab (172.18.0.0/16)
 ├── 172.18.0.7  opsn-mail         Postfix + Roundcube :8888
 ├── 172.18.0.8  opsn-api          API vulnerable (Flask) :8025
 ├── 172.18.0.9  opsn-wazuh        Wazuh SIEM :5601
-└── 172.18.0.10 opsn-suricata     Suricata IDS (pasivo)
+├── 172.18.0.10 opsn-suricata     Suricata IDS (pasivo)
+└── (dinámica)  opsn-docs         MkDocs :4000
 ```
 
 Zona DNS `opensec.lab` configurada automáticamente:
@@ -114,7 +115,7 @@ Zona DNS `opensec.lab` configurada automáticamente:
 | A | `webmail.opensec.lab` | 172.18.0.7 |
 | A | `gophish.opensec.lab` | 172.18.0.5 |
 | A | `api.opensec.lab` | 172.18.0.8 |
-| A | `docs.opensec.lab` | 172.18.0.10 |
+| A | `docs.opensec.lab` | (resuelta dinámicamente por Docker) |
 | MX | `opensec.lab` | `mail.opensec.lab` |
 
 ---
