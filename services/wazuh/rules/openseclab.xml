@@ -155,22 +155,22 @@
     <group>openseclab_api,</group>
   </rule>
 
-  <!-- API1:2023 BOLA -- lectura de perfil ajeno (IDOR) -->
+  <!-- API1:2023 BOLA — lectura de perfil ajeno (IDOR) -->
   <rule id="100061" level="10">
     <if_sid>100060</if_sid>
     <field name="event">bola_attempt</field>
-    <description>OpenSecLab API1 BOLA: Acceso a perfil de otro usuario. El servidor no verifica que el token pertenece al user_id solicitado -- IDOR clasico.</description>
+    <description>OpenSecLab API1 BOLA: Acceso a perfil de otro usuario. El servidor no verifica que el token pertenece al user_id solicitado — IDOR clasico.</description>
     <group>attack,bola,openseclab_api,</group>
     <mitre>
       <id>T1078</id>
     </mitre>
   </rule>
 
-  <!-- API1:2023 BOLA -- escritura de perfil ajeno -->
+  <!-- API1:2023 BOLA — escritura de perfil ajeno -->
   <rule id="100062" level="12">
     <if_sid>100060</if_sid>
     <field name="event">bola_write_attempt</field>
-    <description>OpenSecLab API1 BOLA (escritura): Modificacion de datos de otro usuario. BOLA con impacto de integridad -- puede sobrescribir email, password u otros campos.</description>
+    <description>OpenSecLab API1 BOLA (escritura): Modificacion de datos de otro usuario. BOLA con impacto de integridad — puede sobrescribir email, password u otros campos.</description>
     <group>attack,bola,openseclab_api,</group>
     <mitre>
       <id>T1078</id>
@@ -181,7 +181,7 @@
   <rule id="100063" level="12">
     <if_sid>100060</if_sid>
     <field name="event">mass_assignment_attempt</field>
-    <description>OpenSecLab API3 Mass Assignment: Intento de modificar campos protegidos via PUT /profile. El servidor aplica todos los campos del JSON sin lista blanca -- un atacante puede escalar su rol a admin.</description>
+    <description>OpenSecLab API3 Mass Assignment: Intento de modificar campos protegidos via PUT /profile. El servidor aplica todos los campos del JSON sin lista blanca — un atacante puede escalar su rol a admin.</description>
     <group>attack,mass_assignment,openseclab_api,</group>
     <mitre>
       <id>T1078.004</id>
@@ -192,18 +192,18 @@
   <rule id="100064" level="10">
     <if_sid>100060</if_sid>
     <field name="event">broken_function_auth</field>
-    <description>OpenSecLab API5 Broken Function Level Auth: Usuario sin privilegios accedio a /api/admin/users. El endpoint existe y responde sin verificar el rol -- cualquier token valido obtiene la lista completa de usuarios.</description>
+    <description>OpenSecLab API5 Broken Function Level Auth: Usuario sin privilegios accedio a /api/admin/users. El endpoint existe y responde sin verificar el rol — cualquier token valido obtiene la lista completa de usuarios.</description>
     <group>attack,privilege_escalation,openseclab_api,</group>
     <mitre>
       <id>T1078</id>
     </mitre>
   </rule>
 
-  <!-- API2:2023 Broken Authentication -- login fallido -->
+  <!-- API2:2023 Broken Authentication — login fallido -->
   <rule id="100065" level="5">
     <if_sid>100060</if_sid>
     <field name="event">login_failed</field>
-    <description>OpenSecLab API2 Broken Auth: Login fallido en la API. Los tokens son estaticos y nunca expiran -- una vez obtenido un token valido, es permanente.</description>
+    <description>OpenSecLab API2 Broken Auth: Login fallido en la API. Los tokens son estaticos y nunca expiran — una vez obtenido un token valido, es permanente.</description>
     <group>authentication_failed,openseclab_api,</group>
     <mitre>
       <id>T1110</id>
