@@ -17,6 +17,7 @@ volumes:
   opsn_wazuh_indexer_data:
   opsn_suricata_logs:
   opsn_api_logs:
+  opsn_docs_html:
 
 services:
 
@@ -372,6 +373,7 @@ services:
       - OPSN_WEBGOAT_PORT=${OPSN_WEBGOAT_PORT:-8081}
       - OPSN_GITEA_PORT=${OPSN_GITEA_PORT:-3002}
       - OPSN_API_PORT=${OPSN_API_PORT:-8025}
+      - OPSN_DOCS_PORT=${OPSN_DOCS_PORT:-4000}
     volumes:
       - opsn_portal_html:/html
       - ./services/portal/generate_portal.sh:/generate_portal.sh:ro
@@ -397,6 +399,44 @@ services:
       - ./services/portal/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "${OPSN_PORTAL_PORT:-8443}:80"
+    networks:
+      - openseclab
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # Docs Build — genera HTML con MkDocs Material (sidecar efimero)
+  # Profiles: docs, all
+  # ─────────────────────────────────────────────────────────────────
+  opsn-docs-build:
+    image: squidfunk/mkdocs-material
+    container_name: opsn-docs-build
+    profiles: ["docs", "all"]
+    volumes:
+      - ./services/docs:/docs
+      - opsn_docs_html:/site
+    entrypoint: ["mkdocs", "build", "--config-file", "/docs/mkdocs.yml",
+                 "--site-dir", "/site"]
+    networks:
+      - openseclab
+    restart: "no"
+
+  # ─────────────────────────────────────────────────────────────────
+  # Docs — nginx sirve la documentacion MkDocs Material
+  # Profiles: docs, all
+  # Puerto: 4000
+  # ─────────────────────────────────────────────────────────────────
+  opsn-docs:
+    image: nginx:alpine
+    container_name: opsn-docs
+    profiles: ["docs", "all"]
+    depends_on:
+      opsn-docs-build:
+        condition: service_completed_successfully
+    volumes:
+      - opsn_docs_html:/usr/share/nginx/html:ro
+      - ./services/docs/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${OPSN_DOCS_PORT:-4000}:80"
     networks:
       - openseclab
     restart: unless-stopped

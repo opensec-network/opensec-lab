@@ -36,6 +36,7 @@ declare -a SERVICES_CATALOG=(
     "opsn-webgoat|WebGoat — plataforma de aprendizaje guiado OWASP|no|"
     "opsn-api|API vulnerable — OWASP API Security Top 10 (Flask)|no|"
     "opsn-gitea|Gitea — repos con código vulnerable para análisis estático|yes|"
+    "opsn-docs|Documentacion guiada MkDocs Material|no|"
     "opsn-portal|Portal central — dashboard con links a todos los servicios|yes|"
     "opsn-wazuh|Wazuh SIEM + Suricata IDS — Blue Team (8+ GB RAM)|yes|opsn-dns opsn-suricata"
 )
@@ -185,6 +186,7 @@ declare -A SERVICE_RAM_MB=(
     ["opsn-juice-shop"]=300
     ["opsn-webgoat"]=400
     ["opsn-api"]=150
+    ["opsn-docs"]=50
     ["opsn-gitea"]=200
     ["opsn-portal"]=50
     ["opsn-wazuh"]=2500
@@ -302,8 +304,8 @@ detectar_interfaz_suricata() {
 declare -A META_PROFILES=(
     ["B"]="opsn-wazuh opsn-suricata"
     ["V"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api"
-    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-portal"
-    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-gitea opsn-portal opsn-wazuh opsn-suricata"
+    ["C"]="opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-portal opsn-docs"
+    ["F"]="opsn-dns opsn-mail opsn-gophish opsn-desktop opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api opsn-gitea opsn-portal opsn-docs opsn-wazuh opsn-suricata"
 )
 
 # ─────────────────────────────────────────────────────────────────
@@ -902,6 +904,9 @@ mostrar_credenciales() {
 
     service_installed "opsn-gitea" && \
         printf "  %-18s %-22s %-14s %s\n" "OPSN Gitea" "$(_port OPSN_GITEA_ADMIN_USER admin)" "$(_port OPSN_GITEA_PASSWORD Password)" "http://localhost:$(_port OPSN_GITEA_PORT 3002)"
+
+    service_installed "opsn-docs" && \
+        printf "  %-18s %-22s %-14s %s\n" "OPSN Docs" "(documentacion)" "(abierta)" "http://localhost:$(_port OPSN_DOCS_PORT 4000)"
 
     service_installed "opsn-portal" && \
         printf "  %-18s %-22s %-14s %s\n" "OPSN Portal" "(dashboard)" "(abierto)" "http://localhost:$(_port OPSN_PORTAL_PORT 8443)"

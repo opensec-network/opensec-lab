@@ -43,6 +43,7 @@ GITEA_IP=$(resolve_host "opsn-gitea")
 PORTAL_IP=$(resolve_host "opsn-portal")
 WAZUH_IP=$(resolve_host "opsn-wazuh-dashboard")
 API_IP=$(resolve_host "opsn-api")
+DOCS_IP=$(resolve_host "opsn-docs")
 
 # Si el propio DNS no resuelve (extraño), usar la IP del contenedor actual
 [ -z "$DNS_SERVER_IP" ] && DNS_SERVER_IP="$(hostname -i | awk '{print $1}')"
@@ -209,6 +210,12 @@ if [ -n "$API_IP" ]; then
     add_dns_record "A"  "api"       "$API_IP"        ""            "$TTL"
 else
     echo "  (api omitido — opsn-api no esta corriendo)" >> /proc/1/fd/1
+fi
+
+if [ -n "$DOCS_IP" ]; then
+    add_dns_record "A"  "docs"      "$DOCS_IP"       ""            "$TTL"
+else
+    echo "  (docs omitido — opsn-docs no esta corriendo)" >> /proc/1/fd/1
 fi
 
 echo "Configuración DNS completada." >> /proc/1/fd/1
