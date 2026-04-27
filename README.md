@@ -23,13 +23,18 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 | # | Servicio | Descripción | Puerto(s) |
 |---|----------|-------------|-----------|
 | 1 | **DVWA** | Damn Vulnerable Web Application | 8080 |
-| 2 | **Juice Shop** | OWASP Juice Shop | 3000 |
-| 3 | **GoPhish** | Framework de phishing con campaña pre-configurada | 3333, 80 |
-| 4 | **Desktop** | Escritorio KDE con Thunderbird pre-configurado | 3100 |
-| 5 | **DNS** | Servidor DNS Technitium para la zona `opensec.lab` | 5380 |
-| 6 | **Mail** | Servidor de correo + Roundcube webmail | 8888 |
+| 2 | **Juice Shop** | OWASP Juice Shop — 100+ retos | 3000 |
+| 3 | **API Vulnerable** | API REST con OWASP API Top 10 | 8025 |
+| 4 | **GoPhish** | Framework de phishing con campaña pre-configurada | 3333, 80 |
+| 5 | **Desktop** | Escritorio XFCE con Thunderbird pre-configurado | 3100 |
+| 6 | **DNS** | Servidor DNS Technitium para la zona `opensec.lab` | 5380 |
+| 7 | **Mail** | Servidor de correo + Roundcube webmail | 8888 |
+| 8 | **Wazuh** | SIEM — detecta todos los ataques del lab en tiempo real | 5601 |
+| 9 | **Suricata** | IDS — monitorea el tráfico de red del lab | — |
+| 10 | **Portal** | Panel de inicio con acceso a todos los servicios | 4080 |
+| 11 | **Docs** | Documentación y escenarios guiados | 4000 |
 
-> GoPhish requiere DNS y Mail. Desktop y Mail requieren DNS. Se instalan automáticamente.
+> GoPhish requiere DNS y Mail. Wazuh requiere DNS. Desktop y Mail requieren DNS.
 
 ---
 
@@ -39,10 +44,14 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 |----------|---------|------------|-----|
 | DVWA | `admin` | `admin` | http://localhost:8080 |
 | Juice Shop | — | (es un reto) | http://localhost:3000 |
+| API — alice | `alice` | `alice123` | http://localhost:8025 |
+| API — admin | `admin` | `admin_secret` | http://localhost:8025 |
 | GoPhish | `admin` | *(auto-generada — ver logs)* | https://localhost:3333 |
 | Desktop | `abc` | `abc` | http://localhost:3100 |
 | DNS | `admin` | `Password` | http://localhost:5380 |
 | Mail / Roundcube | `admin` | `Password` | http://localhost:8888 |
+| Wazuh | `admin` | `SecretPassword` | https://localhost:5601 |
+| Docs | — | — | http://localhost:4000 |
 
 Para ver la contraseña de GoPhish después de instalar:
 ```bash
@@ -86,12 +95,15 @@ Opciones disponibles:
 
 ```
 openseclab (172.18.0.0/16)
-├── 172.18.0.2  opsn-dns       — Technitium DNS (resuelve *.opensec.lab)
-├── 172.18.0.3  opsn-dvwa      — DVWA
-├── 172.18.0.4  opsn-juice-shop — Juice Shop
-├── 172.18.0.5  opsn-gophish   — GoPhish (phishing framework)
-├── 172.18.0.6  opsn-desktop   — KDE Webtop con Thunderbird
-└── 172.18.0.7  opsn-mail      — Postfix + Dovecot + Roundcube
+├── 172.18.0.2  opsn-dns          Technitium DNS (resuelve *.opensec.lab)
+├── 172.18.0.3  opsn-dvwa         DVWA :8080
+├── 172.18.0.4  opsn-juice-shop   Juice Shop :3000
+├── 172.18.0.5  opsn-gophish      GoPhish :3333/:80
+├── 172.18.0.6  opsn-desktop      XFCE con Thunderbird :3100
+├── 172.18.0.7  opsn-mail         Postfix + Roundcube :8888
+├── 172.18.0.8  opsn-api          API vulnerable (Flask) :8025
+├── 172.18.0.9  opsn-wazuh        Wazuh SIEM :5601
+└── 172.18.0.10 opsn-suricata     Suricata IDS (pasivo)
 ```
 
 Zona DNS `opensec.lab` configurada automáticamente:
@@ -101,6 +113,8 @@ Zona DNS `opensec.lab` configurada automáticamente:
 | A | `mail.opensec.lab` | 172.18.0.7 |
 | A | `webmail.opensec.lab` | 172.18.0.7 |
 | A | `gophish.opensec.lab` | 172.18.0.5 |
+| A | `api.opensec.lab` | 172.18.0.8 |
+| A | `docs.opensec.lab` | 172.18.0.10 |
 | MX | `opensec.lab` | `mail.opensec.lab` |
 
 ---

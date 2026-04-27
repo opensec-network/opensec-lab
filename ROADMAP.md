@@ -315,3 +315,16 @@ Se implementan en `opensec-lab.sh` como expansion de profiles antes de llamar a 
 - **Suricata:** Requiere `NET_ADMIN` + `NET_RAW` capabilities para monitorear el bridge Docker
 - **TheHive:** Requiere `vm.max_map_count=262144` en el host (el script debe verificar y advertir)
 - **Versionado:** v2.0 = Fase 1+2 completas, v2.1 = Fase 3, v2.2 = Fase 4, v2.3 = Fase 5
+
+---
+
+## Plan 3 — Portal + Reglas + Contenido (completado 2026-04-27)
+
+- [x] Portal rediseñado con secciones ATAQUE / DEFENSA / INFRAESTRUCTURA / APRENDIZAJE
+- [x] CTAs en el portal: "Sigue un escenario" (→ Docs) y "Explora libremente" (→ scroll)
+- [x] Reglas Wazuh educativas para la API (100060-100065) con descripciones en español
+- [x] Reglas Suricata para endpoints de la API (SIDs 9000060-9000063)
+- [x] MkDocs: 3 escenarios guiados (Phishing, API Security, Web Hacking)
+- [x] MkDocs: 6 páginas de servicio (DVWA, Juice Shop, API, Wazuh, GoPhish, Mail)
+- [x] MkDocs: 4 cheat sheets (curl, nmap, Burp Suite, Wazuh)
+- [x] README actualizado con todos los servicios actuales (API, Wazuh, Suricata, Docs)
