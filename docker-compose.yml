@@ -16,6 +16,7 @@ volumes:
   opsn_wazuh_manager_etc:
   opsn_wazuh_indexer_data:
   opsn_suricata_logs:
+  opsn_api_logs:
 
 services:
 
@@ -117,6 +118,32 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────
+  # API Vulnerable — OWASP API Security Top 10 (Flask custom)
+  # Profiles: api, all
+  # Puerto host: 8025 (liberado al eliminar crAPI)
+  # Logs JSON → volumen opsn_api_logs (leidos por Wazuh via localfile)
+  # ─────────────────────────────────────────────────────────────────
+  opsn-api:
+    build: ./services/api
+    container_name: opsn-api
+    profiles: ["api", "all"]
+    environment:
+      - LOG_FILE=/logs/api.log
+    volumes:
+      - opsn_api_logs:/logs
+    ports:
+      - "${OPSN_API_PORT:-8025}:5000"
+    networks:
+      - openseclab
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/api/health > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
 
   # ─────────────────────────────────────────────────────────────────
@@ -344,6 +371,7 @@ services:
       - OPSN_MAIL_WEBMAIL_PORT=${OPSN_MAIL_WEBMAIL_PORT:-8888}
       - OPSN_WEBGOAT_PORT=${OPSN_WEBGOAT_PORT:-8081}
       - OPSN_GITEA_PORT=${OPSN_GITEA_PORT:-3002}
+      - OPSN_API_PORT=${OPSN_API_PORT:-8025}
     volumes:
       - opsn_portal_html:/html
       - ./services/portal/generate_portal.sh:/generate_portal.sh:ro
@@ -461,6 +489,7 @@ services:
       - opsn_wazuh_manager_etc:/var/ossec/etc
       - ./services/wazuh/certs:/etc/ssl:ro
       - opsn_suricata_logs:/var/ossec/logs/suricata:ro
+      - opsn_api_logs:/var/ossec/logs/api:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/wazuh/config/ossec.conf:/wazuh-config-mount/etc/ossec.conf:ro
       - ./services/wazuh/rules/openseclab.xml:/var/ossec/etc/rules/openseclab.xml:ro

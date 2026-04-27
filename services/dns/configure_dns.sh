@@ -42,6 +42,7 @@ WEBGOAT_IP=$(resolve_host "opsn-webgoat")
 GITEA_IP=$(resolve_host "opsn-gitea")
 PORTAL_IP=$(resolve_host "opsn-portal")
 WAZUH_IP=$(resolve_host "opsn-wazuh-dashboard")
+API_IP=$(resolve_host "opsn-api")
 
 # Si el propio DNS no resuelve (extraño), usar la IP del contenedor actual
 [ -z "$DNS_SERVER_IP" ] && DNS_SERVER_IP="$(hostname -i | awk '{print $1}')"
@@ -202,6 +203,12 @@ if [ -n "$WAZUH_IP" ]; then
     add_dns_record "A"  "wazuh"    "$WAZUH_IP"      ""            "$TTL"
 else
     echo "  (wazuh omitido — opsn-wazuh-dashboard no está corriendo)" >> /proc/1/fd/1
+fi
+
+if [ -n "$API_IP" ]; then
+    add_dns_record "A"  "api"       "$API_IP"        ""            "$TTL"
+else
+    echo "  (api omitido — opsn-api no esta corriendo)" >> /proc/1/fd/1
 fi
 
 echo "Configuración DNS completada." >> /proc/1/fd/1
