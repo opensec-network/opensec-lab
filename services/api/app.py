@@ -23,6 +23,7 @@ from flask import Flask, request, jsonify, g
 app = Flask(__name__)
 
 LOG_FILE = os.environ.get("LOG_FILE", "/logs/api.log")
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 # --- Usuarios en memoria -------------------------------------------------------
 USERS = {
@@ -64,7 +65,6 @@ def _write_log(event_data: dict) -> None:
         **event_data,
     }
     try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
         with open(LOG_FILE, "a") as fh:
             fh.write(json.dumps(record) + "\n")
     except OSError:
