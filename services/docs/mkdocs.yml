@@ -1,4 +1,4 @@
-site_name: OpenSec Lab -- Documentacion
+site_name: OpenSec Lab — Documentacion
 docs_dir: docs
 
 theme:
@@ -10,7 +10,25 @@ theme:
   features:
     - navigation.sections
     - navigation.top
+    - navigation.tabs
     - search.highlight
+    - content.code.copy
 
 nav:
   - Inicio: index.md
+  - Escenarios:
+    - Phishing: scenarios/phishing.md
+    - Seguridad de APIs: scenarios/api.md
+    - Hacking Web: scenarios/web.md
+  - Servicios:
+    - DVWA: services/dvwa.md
+    - Juice Shop: services/juiceshop.md
+    - API Vulnerable: services/api.md
+    - Wazuh SIEM: services/wazuh.md
+    - GoPhish: services/gophish.md
+    - Correo: services/mail.md
+  - Cheat Sheets:
+    - curl: cheatsheets/curl.md
+    - nmap: cheatsheets/nmap.md
+    - Burp Suite: cheatsheets/burp.md
+    - Wazuh: cheatsheets/wazuh.md

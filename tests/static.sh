@@ -49,6 +49,21 @@ assert_file_exists "services/docs/mkdocs.yml"                  "services/docs/mk
 assert_file_exists "services/docs/nginx.conf"                  "services/docs/nginx.conf"
 assert_file_exists "services/docs/docs/index.md"               "services/docs/docs/index.md"
 
+# Docs — escenarios (Plan 3)
+assert_file_exists "docs scenarios/phishing.md"  "services/docs/docs/scenarios/phishing.md"
+assert_file_exists "docs scenarios/api.md"       "services/docs/docs/scenarios/api.md"
+assert_file_exists "docs scenarios/web.md"       "services/docs/docs/scenarios/web.md"
+
+# Docs — servicios (Plan 3)
+for svc in dvwa juiceshop api wazuh gophish mail; do
+    assert_file_exists "docs services/${svc}.md" "services/docs/docs/services/${svc}.md"
+done
+
+# Docs — cheatsheets (Plan 3)
+for cs in curl nmap burp wazuh; do
+    assert_file_exists "docs cheatsheets/${cs}.md" "services/docs/docs/cheatsheets/${cs}.md"
+done
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Sintaxis de scripts shell"
 # ─────────────────────────────────────────────────────────────────────────────
@@ -186,6 +201,22 @@ for dead_var in PORT_CRAPI PORT_PORTAINER PORT_WIKI PASS_PORTAINER PORT_GITEA PO
         pass "portal no referencia variable eliminada: ${dead_var}"
     fi
 done
+
+# MkDocs nav (Plan 3)
+assert_file_contains \
+    "mkdocs.yml tiene nav de escenarios" \
+    "services/docs/mkdocs.yml" \
+    "scenarios/phishing.md"
+
+assert_file_contains \
+    "mkdocs.yml tiene nav de servicios" \
+    "services/docs/mkdocs.yml" \
+    "services/dvwa.md"
+
+assert_file_contains \
+    "mkdocs.yml tiene nav de cheatsheets" \
+    "services/docs/mkdocs.yml" \
+    "cheatsheets/curl.md"
 
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
