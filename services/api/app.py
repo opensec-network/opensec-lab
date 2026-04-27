@@ -15,7 +15,7 @@ leido por Wazuh via localfile.
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 
 from flask import Flask, request, jsonify, g
@@ -57,7 +57,7 @@ TOKENS = {
 
 def _write_log(event_data: dict) -> None:
     record = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "source": "opsn-api",
         "remote_ip": request.remote_addr,
         "method": request.method,
