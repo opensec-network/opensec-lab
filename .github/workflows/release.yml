@@ -20,7 +20,7 @@ jobs:
           mkdir -p dist
 
           # Empaquetar cada servicio que requiere archivos extra
-          for svc in dns mail desktop gophish gitea portal wazuh suricata; do
+          for svc in dns mail desktop gophish gitea portal wazuh suricata api docs; do
             if [ -d "services/$svc" ]; then
               tar -czf "dist/opsn-${svc}.tar.gz" -C services "$svc"
               echo "Empaquetado: opsn-${svc}.tar.gz"
@@ -66,6 +66,8 @@ jobs:
             | `opsn-portal.tar.gz` | Generador del portal central + nginx.conf |
             | `opsn-wazuh.tar.gz` | Configs, reglas y certs de Wazuh + Suricata |
             | `opsn-suricata.tar.gz` | Config y reglas custom de Suricata |
+            | `opsn-api.tar.gz` | API Flask vulnerable (OWASP API Top 10) |
+            | `opsn-docs.tar.gz` | Configuracion MkDocs Material + placeholder |
             | `checksums.sha256` | Checksums SHA256 de todos los archivos |
           files: dist/*
           draft: false

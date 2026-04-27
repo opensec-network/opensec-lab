@@ -1,7 +1,7 @@
 .PHONY: release validate clean help test test-static test-smoke
 
 DIST_DIR := dist
-SERVICES  := dns mail desktop gophish gitea portal wazuh suricata
+SERVICES  := dns mail desktop gophish gitea portal wazuh suricata api docs
 
 # Genera los tarballs por servicio + checksums (equivalente a lo que hace release.yml)
 release: clean

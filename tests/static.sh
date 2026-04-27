@@ -89,6 +89,11 @@ for var in OPSN_WEBGOAT_PORT; do
     assert_env_var "defaults.env (Tier 1)" "$DEFAULTS" "$var"
 done
 
+# API y Docs
+for var in OPSN_API_PORT OPSN_DOCS_PORT; do
+    assert_env_var "defaults.env (API/Docs)" "$DEFAULTS" "$var"
+done
+
 # Tier 2
 for var in OPSN_GITEA_PORT OPSN_GITEA_SSH_PORT OPSN_GITEA_PASSWORD \
            OPSN_PORTAL_PORT; do
@@ -122,16 +127,18 @@ section "Docker Compose — estructura"
 
 COMPOSE="docker-compose.yml"
 
-for service in opsn-dns opsn-dvwa opsn-juice-shop opsn-webgoat \
+for service in opsn-dns opsn-dvwa opsn-juice-shop opsn-webgoat opsn-api \
                opsn-gophish opsn-desktop opsn-mail \
                opsn-gitea opsn-gitea-init \
+               opsn-docs-build opsn-docs \
                opsn-portal opsn-portal-init; do
     assert_file_contains "compose tiene $service" "$COMPOSE" "container_name: $service"
 done
 
 # Verificar volumes declarados
 for vol in opsn_dns_data opsn_dvwa_data opsn_gophish_data opsn_mail_data \
-           opsn_gitea_data opsn_portal_html; do
+           opsn_gitea_data opsn_portal_html \
+           opsn_api_logs opsn_docs_html; do
     assert_file_contains "compose volumen $vol" "$COMPOSE" "${vol}:"
 done
 
@@ -157,7 +164,7 @@ section "release.yml — servicios empaquetados"
 # ─────────────────────────────────────────────────────────────────────────────
 
 RELEASE=".github/workflows/release.yml"
-for svc in dns mail desktop gophish gitea portal; do
+for svc in dns mail desktop gophish gitea portal api docs; do
     assert_file_contains "release.yml incluye $svc" "$RELEASE" "$svc"
 done
 
@@ -168,6 +175,8 @@ section "Makefile — targets"
 for svc in gitea portal; do
     assert_file_contains "Makefile SERVICES incluye $svc" "Makefile" "$svc"
 done
+assert_file_contains "Makefile SERVICES incluye api" "Makefile" "api"
+assert_file_contains "Makefile SERVICES incluye docs" "Makefile" "docs"
 
 assert_file_contains "Makefile tiene target validate" "Makefile" "validate:"
 assert_file_contains "Makefile tiene target release"  "Makefile"  "release:"
