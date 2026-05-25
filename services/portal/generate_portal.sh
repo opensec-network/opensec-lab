@@ -182,6 +182,52 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
       color: var(--text-primary);
     }
 
+    .mode-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.6rem;
+    }
+
+    .mode-block {
+      background: var(--bg-card);
+      padding: 1rem 1.2rem;
+    }
+
+    .mode-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.45rem;
+    }
+
+    .mode-block h1,
+    .mode-block h2 {
+      font-size: 1.05rem;
+      line-height: 1.25;
+      margin-bottom: 0.45rem;
+    }
+
+    .mode-block p {
+      color: var(--text-secondary);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      margin-bottom: 0.75rem;
+    }
+
+    .mode-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
     .section-header {
       display: flex;
       align-items: center;
@@ -398,6 +444,7 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
     @media (max-width: 600px) {
       body { padding: 1.5rem 1rem 3rem; }
       .logo-wrap img { height: 42px; }
+      .mode-panel { grid-template-columns: 1fr; }
       .grid { grid-template-columns: 1fr; }
       .header { flex-direction: column; align-items: flex-start; }
       th, td { padding: 0.5rem 0.8rem; }
@@ -426,6 +473,26 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
       </a>
     </div>
   </header>
+
+  <section class="mode-panel" aria-label="Modos de uso de OpenSec Lab">
+    <div class="mode-block">
+      <div class="mode-kicker">Explorar libremente</div>
+      <h1>Acceso directo a servicios</h1>
+      <p>Abre targets, herramientas, documentacion y paneles del lab sin seguir una secuencia obligatoria.</p>
+      <div class="mode-actions">
+        <a class="btn btn-primary" href="#servicios">Ver servicios</a>
+        <a class="btn btn-secondary" href="http://localhost:${PORT_DOCS}" target="_blank">Abrir documentacion</a>
+      </div>
+    </div>
+    <div class="mode-block">
+      <div class="mode-kicker">Talleres guiados</div>
+      <h2>Taller: Ataque y deteccion en APIs</h2>
+      <p>Practica BOLA, mass assignment y autorizacion rota; luego revisa eventos y reglas defensivas.</p>
+      <div class="mode-actions">
+        <a class="btn btn-primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller</a>
+      </div>
+    </div>
+  </section>
 
   <div id="servicios"></div>
 

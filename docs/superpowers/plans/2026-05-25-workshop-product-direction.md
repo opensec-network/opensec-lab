@@ -36,7 +36,7 @@ Update this ledger when a phase is complete. Each phase has an explicit final co
 | --- | --- | --- |
 | Phase 0: Baseline Cleanup | Done | `test: align static portal expectations with current Spanish copy` |
 | Phase 1: Spanish Workshop Docs | Done | `docs: add api breach workshop guides` |
-| Phase 2: Portal Structure Update | Not started | |
+| Phase 2: Portal Structure Update | Done | `feat: expose free exploration and guided workshops in portal` |
 | Phase 3: API Breach Readiness Helper | Not started | |
 | Phase 4: Final Validation and Handoff | Not started | |
 

@@ -197,6 +197,26 @@ assert_file_contains \
     "services/portal/generate_portal.sh" \
     "Blue Team"
 
+assert_file_contains \
+    "portal muestra exploracion libre" \
+    "services/portal/generate_portal.sh" \
+    "Explorar libremente"
+
+assert_file_contains \
+    "portal muestra talleres guiados" \
+    "services/portal/generate_portal.sh" \
+    "Talleres guiados"
+
+assert_file_contains \
+    "portal enlaza taller de APIs" \
+    "services/portal/generate_portal.sh" \
+    "Taller: Ataque y deteccion en APIs"
+
+assert_file_contains \
+    "portal conserva acceso directo a servicios" \
+    "services/portal/generate_portal.sh" \
+    "Acceso directo a servicios"
+
 # La nueva direccion del producto no usa puntos, insignias ni rankings.
 for forbidden in leaderboard leaderboards ranking rankings badge badges puntos puntaje insignias; do
     if rg -n -i "$forbidden" README.md ROADMAP.md USER_GUIDE.md services/docs/docs services/portal/generate_portal.sh 2>/dev/null \
