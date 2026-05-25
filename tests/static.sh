@@ -54,6 +54,10 @@ assert_file_exists "docs scenarios/phishing.md"  "services/docs/docs/scenarios/p
 assert_file_exists "docs scenarios/api.md"       "services/docs/docs/scenarios/api.md"
 assert_file_exists "docs scenarios/web.md"       "services/docs/docs/scenarios/web.md"
 
+# Docs - talleres guiados
+assert_file_exists "docs workshops/api-breach.md" "services/docs/docs/workshops/api-breach.md"
+assert_file_exists "docs workshops/api-breach-instructor.md" "services/docs/docs/workshops/api-breach-instructor.md"
+
 # Docs — servicios (Plan 3)
 for svc in dvwa juiceshop api wazuh gophish mail; do
     assert_file_exists "docs services/${svc}.md" "services/docs/docs/services/${svc}.md"
@@ -227,6 +231,21 @@ assert_file_contains \
     "mkdocs.yml tiene nav de cheatsheets" \
     "services/docs/mkdocs.yml" \
     "cheatsheets/curl.md"
+
+assert_file_contains \
+    "mkdocs.yml tiene nav de talleres" \
+    "services/docs/mkdocs.yml" \
+    "Talleres"
+
+assert_file_contains \
+    "mkdocs.yml enlaza taller api-breach" \
+    "services/docs/mkdocs.yml" \
+    "workshops/api-breach.md"
+
+assert_file_contains \
+    "mkdocs.yml enlaza guia de instructor api-breach" \
+    "services/docs/mkdocs.yml" \
+    "workshops/api-breach-instructor.md"
 
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
