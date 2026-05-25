@@ -1,7 +1,7 @@
 # OpenSec Lab — Roadmap de Expansion v2
 
 > Documento vivo. Actualizar el estado de cada item al completarlo.
-> Ultima actualizacion: 2026-03-31 (Cabos sueltos Fases 1-3 cerrados: sidecar Wazuh, reto #8 CTFd, guia BookStack, widget leaderboard, meta-profiles, release.yml alineado)
+> Ultima actualizacion: 2026-03-31 (Cabos sueltos Fases 1-3 cerrados: sidecar Wazuh, reto #8 CTFd, guia BookStack, meta-profiles, release.yml alineado)
 >
 > **Como usar este documento:**
 > Al iniciar una sesion de desarrollo, leer este archivo para saber donde quedamos.
@@ -15,7 +15,6 @@ Transformar OpenSec Lab de un simulador de phishing + apps vulnerables en una
 plataforma completa de entrenamiento en ciberseguridad con:
 
 - Ejercicios pre-creados y conectados entre servicios (flags plantados)
-- Gamificacion con scoring y leaderboard (CTFd)
 - Deteccion y analisis (Wazuh SIEM + Suricata IDS)
 - Respuesta a incidentes (TheHive)
 - Aprendizaje guiado (BookStack + Gitea)
@@ -92,7 +91,7 @@ Portal       → requiere DNS
 
 ---
 
-## Fase 2 — Gamificacion y Aprendizaje (con init scripts)
+## Fase 2 — Aprendizaje (con init scripts)
 
 > Prioridad alta. Requiere scripts de configuracion automatica via API.
 
@@ -106,26 +105,6 @@ Portal       → requiere DNS
 | 2.4 | Portal Central | opsn-portal | nginx:alpine | 8443 | ~30 MB | portal-init | [x] Completado 2026-03-28 |
 
 ### Contenido pre-cargado (init sidecars)
-
-**CTFd — Retos pre-creados con flags:**
-
-| Reto | Categoria | Fuente del Flag | Puntos |
-|------|-----------|-----------------|--------|
-| Analisis de campana de phishing | Social Engineering | Flag en source HTML del landing page GoPhish | 100 |
-| SQL Injection en DVWA | Web | Flag plantado en BD de DVWA via init | 150 |
-| Score Board de Juice Shop | Web | Reto nativo de Juice Shop | 200 |
-| Lecciones de WebGoat | Learning | Completar leccion especifica | 50 c/u |
-| BOLA en crAPI | API Security | Flag en objeto de usuario crAPI | 200 |
-| Analisis de headers de email | Forensics | Flag en headers del mail de GoPhish | 100 |
-| Zone Transfer DNS | Recon | Flag como TXT record en Technitium | 75 |
-| Triage de alertas Suricata | Blue Team | Identificar patron de alerta especifico | 150 |
-
-**CTFd — Achievement badges por categoria (se desbloquean al completar todos los retos de una categoria):**
-- [ ] Badge "Phisher" — completar Social Engineering (requiere CTFd plugins, dejar para Fase 5)
-- [ ] Badge "Web Hacker" — completar Web
-- [ ] Badge "API Ninja" — completar API Security
-- [ ] Badge "Detective" — completar Forensics
-- [ ] Badge "Blue Teamer" — completar Blue Team
 
 **BookStack — Contenido pre-cargado:**
 - [x] Guia: Bienvenido a OpenSec Lab (intro con tabla de servicios y credenciales) — 2026-03-28
@@ -147,7 +126,6 @@ Portal       → requiere DNS
 **Portal — Dashboard central:**
 - [x] Cards con link a cada servicio (organizadas por seccion) — 2026-03-28
 - [x] Tabla de credenciales por defecto — 2026-03-28
-- [x] Widget de leaderboard CTFd (iframe o API fetch) — 2026-03-31
 - [x] Estado de salud (verde/rojo) via JavaScript fetch en el browser — 2026-03-28
 
 ### Nuevo archivo compartido

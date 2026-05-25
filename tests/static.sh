@@ -189,9 +189,19 @@ assert_file_contains \
     "ATAQUE"
 
 assert_file_contains \
-    "portal tiene seccion DEFENSA" \
+    "portal tiene seccion Blue Team - Defensa y Aprendizaje" \
     "services/portal/generate_portal.sh" \
-    "DEFENSA"
+    "Blue Team"
+
+# La nueva direccion del producto no usa puntos, insignias ni rankings.
+for forbidden in leaderboard leaderboards ranking rankings badge badges puntos puntaje insignias; do
+    if rg -n -i "$forbidden" README.md ROADMAP.md USER_GUIDE.md services/docs/docs services/portal/generate_portal.sh 2>/dev/null \
+        | rg -v -i "(\\.badge|class=\"badge)" >/dev/null 2>&1; then
+        fail "terminologia de scoring reintroducida: ${forbidden}"
+    else
+        pass "terminologia de scoring ausente: ${forbidden}"
+    fi
+done
 
 # Variables eliminadas en plan1 no deben estar en el portal
 for dead_var in PORT_CRAPI PORT_PORTAINER PORT_WIKI PASS_PORTAINER PORT_GITEA PORT_WEBGOAT; do

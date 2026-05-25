@@ -195,7 +195,7 @@ OWASP Juice Shop es una aplicación web intencionalmente vulnerable con más de 
 
 **Acceso:** http://localhost:3000
 
-No requiere credenciales para empezar. Tiene un sistema de puntaje integrado que registra tus logros.
+No requiere credenciales para empezar. Incluye desafios internos para practicar de forma libre.
 
 Categorías incluidas: Injection, Broken Authentication, XSS, Insecure Deserialization, Broken Access Control, y más.
 
