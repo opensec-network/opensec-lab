@@ -48,6 +48,7 @@ assert_file_exists "services/api/requirements.txt"             "services/api/req
 assert_file_exists "services/docs/mkdocs.yml"                  "services/docs/mkdocs.yml"
 assert_file_exists "services/docs/nginx.conf"                  "services/docs/nginx.conf"
 assert_file_exists "services/docs/docs/index.md"               "services/docs/docs/index.md"
+assert_file_exists "api breach readiness helper"               "tests/api-breach-readiness.sh"
 
 # Docs — escenarios (Plan 3)
 assert_file_exists "docs scenarios/phishing.md"  "services/docs/docs/scenarios/phishing.md"
@@ -79,6 +80,7 @@ for script in \
     services/gophish/configure_gophish.sh \
     services/gitea/configure_gitea.sh \
     services/portal/generate_portal.sh \
+    tests/api-breach-readiness.sh \
     services/mail/entrypoint.sh \
     services/desktop/custom-init.sh \
     services/desktop/init.sh
