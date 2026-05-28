@@ -50,7 +50,7 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 | Desktop | `abc` | `abc` | http://localhost:3100 |
 | DNS | `admin` | `Password` | http://localhost:5380 |
 | Mail / Roundcube | `admin` | `Password` | http://localhost:8888 |
-| Wazuh | `admin` | `SecretPassword` | https://localhost:5601 |
+| Wazuh | `admin` | `admin` | https://localhost:5601 |
 | Docs | — | — | http://localhost:4000 |
 
 Para ver la contraseña de GoPhish después de instalar:

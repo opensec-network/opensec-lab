@@ -140,7 +140,7 @@ services:
     networks:
       - openseclab
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/api/health > /dev/null 2>&1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')\" 2>/dev/null"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -562,16 +562,17 @@ services:
     hostname: opsn-wazuh-dashboard
     environment:
       - INDEXER_USERNAME=admin
-      - INDEXER_PASSWORD=${OPSN_WAZUH_PASSWORD:-Password1.}
+      - INDEXER_PASSWORD=${OPSN_WAZUH_PASSWORD:-admin}
       - WAZUH_API_URL=https://opsn-wazuh-manager
       - DASHBOARD_USERNAME=kibanaserver
-      - DASHBOARD_PASSWORD=${OPSN_WAZUH_PASSWORD:-Password1.}
+      - DASHBOARD_PASSWORD=${OPSN_WAZUH_KIBANA_PASSWORD:-kibanaserver}
       - API_USERNAME=wazuh-wui
       - API_PASSWORD=${OPSN_WAZUH_API_PASSWORD:-WazuhApiP4ss.}
     volumes:
       - ./services/wazuh/certs:/usr/share/wazuh-dashboard/certs:ro
       - ./services/wazuh/config/opensearch_dashboards.yml:/usr/share/wazuh-dashboard/config/opensearch_dashboards.yml:ro
       - ./services/wazuh/config/wazuh.yml:/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml:ro
+      - ./services/wazuh/dashboards:/opsn-dashboards:ro
     ports:
       - "${OPSN_WAZUH_DASH_PORT:-5601}:5601"
     networks:
@@ -596,10 +597,14 @@ services:
         condition: service_started
       opsn-wazuh-manager:
         condition: service_started
+      opsn-wazuh-dashboard:
+        condition: service_started
     environment:
       - OPSN_WAZUH_INDEXER_HOST=opsn-wazuh-indexer
       - OPSN_WAZUH_INDEXER_PORT=9200
       - OPSN_WAZUH_PASSWORD=${OPSN_WAZUH_PASSWORD:-Password1.}
+      - OPSN_WAZUH_DASHBOARD_HOST=opsn-wazuh-dashboard
+      - OPSN_WAZUH_DASHBOARD_PORT=5601
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/wazuh/configure_wazuh.sh:/configure_wazuh.sh:ro

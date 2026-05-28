@@ -14,8 +14,11 @@ set -e
 
 INDEXER_HOST="${OPSN_WAZUH_INDEXER_HOST:-opsn-wazuh-indexer}"
 INDEXER_PORT="${OPSN_WAZUH_INDEXER_PORT:-9200}"
+DASHBOARD_HOST="${OPSN_WAZUH_DASHBOARD_HOST:-opsn-wazuh-dashboard}"
+DASHBOARD_PORT="${OPSN_WAZUH_DASHBOARD_PORT:-5601}"
 WAZUH_PASSWORD="${OPSN_WAZUH_PASSWORD:-Password1.}"
 TIMEOUT=180
+DASHBOARD_TIMEOUT=300
 
 # ─── 1. Esperar que el Indexer responda ──────────────────────────────────────
 
@@ -77,5 +80,46 @@ docker exec opsn-wazuh-manager bash -c \
        /var/ossec/logs/alerts \
        /var/ossec/logs/archives \
        /var/ossec/logs/firewall" 2>/dev/null || true
+
+# ─── 4. Importar dashboards y saved searches del lab ─────────────────────────
+# Los .ndjson estan montados en /opsn-dashboards dentro del contenedor del
+# dashboard. El import es idempotente (overwrite=true): seguro en cada arranque.
+
+log_step "Esperando Wazuh Dashboard en ${DASHBOARD_HOST}:${DASHBOARD_PORT} (max ${DASHBOARD_TIMEOUT}s)..."
+
+elapsed=0
+dash_ready=0
+while [ "$elapsed" -lt "$DASHBOARD_TIMEOUT" ]; do
+    code=$(docker exec "$DASHBOARD_HOST" \
+        curl -sk -o /dev/null -w '%{http_code}' \
+        -u "admin:${WAZUH_PASSWORD}" \
+        "https://localhost:${DASHBOARD_PORT}/api/status" 2>/dev/null || echo "000")
+    if [ "$code" = "200" ]; then
+        dash_ready=1
+        break
+    fi
+    sleep 5
+    elapsed=$((elapsed + 5))
+    printf "\r  [%ds/%ds] Esperando dashboard (HTTP %s)..." "$elapsed" "$DASHBOARD_TIMEOUT" "$code"
+done
+echo ""
+
+if [ "$dash_ready" = "1" ]; then
+    log_info "Wazuh Dashboard disponible — importando objetos guardados..."
+    docker exec "$DASHBOARD_HOST" sh -c '
+        for f in /opsn-dashboards/*.ndjson; do
+            [ -e "$f" ] || continue
+            name=$(basename "$f")
+            result=$(curl -sk -u "admin:'"${WAZUH_PASSWORD}"'" \
+                -X POST "https://localhost:'"${DASHBOARD_PORT}"'/api/saved_objects/_import?overwrite=true" \
+                -H "osd-xsrf: true" --form file=@"$f" 2>/dev/null)
+            echo "  [import] $name -> $result"
+        done' 2>&1 | grep -o "\"success\":[a-z]*\|\[import\] [^ ]*" | tr "\n" " "
+    echo ""
+    log_info "Dashboards del lab importados."
+else
+    log_error "Wazuh Dashboard no respondio en ${DASHBOARD_TIMEOUT}s — omitiendo import de dashboards."
+    log_error "Reintenta luego con: docker restart opsn-wazuh-init"
+fi
 
 log_info "Wazuh configurado correctamente."

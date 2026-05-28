@@ -334,11 +334,6 @@ if container_running "opsn-portal" || [ "$PROFILE" = "portal" ] || [ "$PROFILE" 
         "OpenSec Lab"
 
     assert_contains \
-        "Portal — sección Gamificacion" \
-        "http://localhost:${PORT_PORTAL}" \
-        "Gamificacion"
-
-    assert_contains \
         "Portal — sección Red Team" \
         "http://localhost:${PORT_PORTAL}" \
         "Red Team"

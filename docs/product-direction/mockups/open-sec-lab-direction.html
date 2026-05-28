@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenSec Lab Direction Mockup</title>
+  <style>
+    :root {
+      --ink: #10151c;
+      --paper: #f5f1e8;
+      --paper-deep: #ebe3d4;
+      --line: #252b33;
+      --muted: #5f6874;
+      --green: #0f8a5f;
+      --green-soft: #d8f1e2;
+      --blue: #315cbb;
+      --blue-soft: #dfe8ff;
+      --red: #d04b3a;
+      --red-soft: #ffe3dd;
+      --gold: #bf7b16;
+      --gold-soft: #f8e3bd;
+      --panel: #fffaf0;
+      --shadow: 8px 8px 0 var(--line);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(16, 21, 28, 0.04) 1px, transparent 1px),
+        linear-gradient(rgba(16, 21, 28, 0.04) 1px, transparent 1px),
+        var(--paper);
+      background-size: 22px 22px;
+      color: var(--ink);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      line-height: 1.45;
+    }
+
+    .shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 52px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: var(--ink);
+      color: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--paper);
+      background: var(--green);
+      color: var(--paper);
+      font-weight: 900;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #d9dfec;
+      font-size: 12px;
+    }
+
+    .nav span {
+      padding: 5px 8px;
+      border: 1px solid rgba(245, 241, 232, 0.35);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+      gap: 28px;
+      margin-top: 44px;
+      align-items: stretch;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      font-size: clamp(40px, 7vw, 82px);
+      line-height: 0.92;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      justify-content: space-between;
+    }
+
+    .lead {
+      max-width: 660px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border: 2px solid var(--line);
+      box-shadow: var(--shadow);
+      background: var(--panel);
+    }
+
+    .mode {
+      padding: 22px;
+      min-height: 214px;
+    }
+
+    .mode + .mode {
+      border-left: 2px solid var(--line);
+    }
+
+    .mode strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+
+    .mode p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .mode-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 12px;
+      border: 2px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 12px;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 var(--line);
+    }
+
+    .button.primary {
+      background: var(--green);
+      color: white;
+    }
+
+    .button.blue {
+      background: var(--blue);
+      color: white;
+    }
+
+    .lab-panel {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      border: 2px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--line);
+      background: var(--paper-deep);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 7px;
+      border: 2px solid var(--line);
+      background: var(--green);
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .service {
+      border: 2px solid var(--line);
+      padding: 12px;
+      background: white;
+      min-height: 94px;
+    }
+
+    .service.attack {
+      background: var(--red-soft);
+    }
+
+    .service.defense {
+      background: var(--blue-soft);
+    }
+
+    .service.learn {
+      background: var(--green-soft);
+    }
+
+    .service.infra {
+      background: var(--gold-soft);
+    }
+
+    .service span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .section {
+      margin-top: 34px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(24px, 3vw, 38px);
+      text-transform: uppercase;
+    }
+
+    .section-title p {
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .workshop {
+      display: grid;
+      grid-template-columns: minmax(0, 0.78fr) minmax(360px, 1.22fr);
+      border: 2px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .workshop-aside {
+      padding: 22px;
+      border-right: 2px solid var(--line);
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 5px 8px;
+      border: 1px solid currentColor;
+      color: #c9f5db;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .workshop-aside h2 {
+      margin-top: 18px;
+      font-size: 34px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .workshop-aside p {
+      margin-top: 16px;
+      color: #cbd3dd;
+      font-size: 14px;
+    }
+
+    .readiness {
+      display: grid;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(245, 241, 232, 0.3);
+      color: #e7ecf5;
+      font-size: 12px;
+    }
+
+    .workshop-main {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .step {
+      min-height: 150px;
+      padding: 18px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .step:nth-child(odd) {
+      border-right: 2px solid var(--line);
+    }
+
+    .step:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 12px;
+      border: 2px solid var(--line);
+      background: var(--gold);
+      color: white;
+      font-weight: 900;
+    }
+
+    .step h3 {
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .evidence {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .evidence-card {
+      min-height: 150px;
+      padding: 16px;
+      border: 2px solid var(--line);
+      background: var(--panel);
+      box-shadow: 4px 4px 0 var(--line);
+    }
+
+    .evidence-card h3 {
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .evidence-card code {
+      display: block;
+      margin-top: 14px;
+      padding: 10px;
+      background: var(--ink);
+      color: #d8f1e2;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      padding: 16px 18px;
+      border: 2px dashed var(--line);
+      background: rgba(255, 250, 240, 0.78);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .workshop,
+      .evidence {
+        grid-template-columns: 1fr;
+      }
+
+      .workshop-aside,
+      .mode + .mode {
+        border-right: 0;
+      }
+
+      .mode-switch,
+      .workshop-main {
+        grid-template-columns: 1fr;
+      }
+
+      .mode + .mode,
+      .step:nth-child(odd) {
+        border-left: 0;
+        border-right: 0;
+      }
+
+      .mode + .mode {
+        border-top: 2px solid var(--line);
+      }
+
+      .step:nth-last-child(2) {
+        border-bottom: 2px solid var(--line);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100vw - 20px, 1180px);
+        padding-top: 12px;
+      }
+
+      .topbar,
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .service-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">OS</div>
+        <div>OpenSec Lab</div>
+      </div>
+      <nav class="nav" aria-label="Mock navigation">
+        <span>Portal</span>
+        <span>Services</span>
+        <span>Workshops</span>
+        <span>Readiness</span>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <div>
+          <h1>Choose your lab mode</h1>
+          <p class="lead">
+            A cybersecurity lab that supports self-directed exploration and
+            structured workshops without making either path feel secondary.
+          </p>
+        </div>
+
+        <div class="mode-switch" aria-label="Mode selection mockup">
+          <article class="mode">
+            <strong>Free exploration</strong>
+            <p>
+              Open any service, run your own payloads, inspect traffic, follow
+              your curiosity, and use docs only when you need context.
+            </p>
+            <div class="mode-actions">
+              <a class="button primary" href="#services">Open services</a>
+              <a class="button" href="#evidence">Browse docs</a>
+            </div>
+          </article>
+          <article class="mode">
+            <strong>Guided workshops</strong>
+            <p>
+              Follow a repeatable learning path with objectives, commands,
+              expected alerts, instructor notes, and reset steps.
+            </p>
+            <div class="mode-actions">
+              <a class="button blue" href="#workshop">Start API workshop</a>
+              <a class="button" href="#workshop">Run readiness</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <aside class="lab-panel" id="services">
+        <div class="panel-head">
+          <span><i class="status-dot"></i>Lab services</span>
+          <span>Free exploration stays direct</span>
+        </div>
+        <div class="service-grid">
+          <div class="service attack"><b>DVWA</b><span>Web attack target</span></div>
+          <div class="service attack"><b>Juice Shop</b><span>OWASP web target</span></div>
+          <div class="service learn"><b>API Vulnerable</b><span>OWASP API Top 10</span></div>
+          <div class="service defense"><b>Wazuh</b><span>Detection and analysis</span></div>
+          <div class="service defense"><b>Suricata</b><span>Network telemetry</span></div>
+          <div class="service infra"><b>Mail + DNS</b><span>Lab infrastructure</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="workshop">
+      <div class="section-title">
+        <h2>Workshop preview</h2>
+        <p>
+          The first guided path turns the existing API service into a complete
+          attack-to-detection exercise, while linking back to free exploration.
+        </p>
+      </div>
+
+      <div class="workshop">
+        <aside class="workshop-aside">
+          <span class="badge">API breach to detection</span>
+          <h2>Exploit the API. Find the evidence.</h2>
+          <p>
+            Learners abuse BOLA, mass assignment, and broken function
+            authorization, then investigate the logs and Wazuh rules that prove
+            what happened.
+          </p>
+          <div class="readiness" aria-label="Readiness mockup">
+            <div class="check"><span>opsn-api</span><b>ready</b></div>
+            <div class="check"><span>opsn-wazuh</span><b>starting</b></div>
+            <div class="check"><span>api log volume</span><b>ready</b></div>
+            <div class="check"><span>workshop docs</span><b>ready</b></div>
+          </div>
+        </aside>
+
+        <div class="workshop-main">
+          <article class="step">
+            <span class="num">1</span>
+            <h3>Prepare</h3>
+            <p>Install the required profiles and run a readiness check.</p>
+          </article>
+          <article class="step">
+            <span class="num">2</span>
+            <h3>Authenticate</h3>
+            <p>Log in as Alice and capture the static API token.</p>
+          </article>
+          <article class="step">
+            <span class="num">3</span>
+            <h3>Abuse objects</h3>
+            <p>Read another user's profile and inspect exposed data.</p>
+          </article>
+          <article class="step">
+            <span class="num">4</span>
+            <h3>Escalate</h3>
+            <p>Use mass assignment and a weak admin endpoint.</p>
+          </article>
+          <article class="step">
+            <span class="num">5</span>
+            <h3>Investigate</h3>
+            <p>Find the API events and Wazuh detections.</p>
+          </article>
+          <article class="step">
+            <span class="num">6</span>
+            <h3>Reflect</h3>
+            <p>Map the vulnerability to the fix and the detection logic.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="evidence">
+      <div class="section-title">
+        <h2>Evidence model</h2>
+        <p>
+          Each workshop step should teach what to do, what to observe, and how
+          defenders know it happened.
+        </p>
+      </div>
+      <div class="evidence">
+        <article class="evidence-card">
+          <h3>Request</h3>
+          <code>GET /api/users/2/profile</code>
+        </article>
+        <article class="evidence-card">
+          <h3>Vulnerable behavior</h3>
+          <code>Alice reads Bob's profile</code>
+        </article>
+        <article class="evidence-card">
+          <h3>Log event</h3>
+          <code>{"event":"bola_attempt"}</code>
+        </article>
+        <article class="evidence-card">
+          <h3>Detection</h3>
+          <code>Wazuh rule 100061</code>
+        </article>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      Mockup intent: the product should not force users into workshops. The
+      portal makes direct service access and guided paths equally visible, then
+      lets the user choose.
+    </p>
+  </main>
+</body>
+</html>

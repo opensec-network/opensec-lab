@@ -36,7 +36,7 @@ Los servicios también se pueden usar de forma independiente para práctica libr
 
 | Servicio | Razón |
 |----------|-------|
-| CTFd + su BD (MariaDB `opsn-ctfd-db`) | Eliminado — no hay gamificación en esta visión. Ambos contenedores salen. |
+| CTFd + su BD (MariaDB `opsn-ctfd-db`) | Eliminado de esta visión. Ambos contenedores salen. |
 | Portainer | Herramienta admin sin propósito pedagógico. Monta docker.sock innecesariamente |
 | crAPI (7 contenedores, ~1.5 GB) | Reemplazado por servicio custom más ligero y mejor integrado |
 | TheHive + Cortex + Elasticsearch | Fuera del roadmap — demasiado pesado y avanzado para la audiencia |
