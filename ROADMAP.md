@@ -1,7 +1,7 @@
 # OpenSec Lab — Roadmap de Expansion v2
 
 > Documento vivo. Actualizar el estado de cada item al completarlo.
-> Ultima actualizacion: 2026-03-31 (Cabos sueltos Fases 1-3 cerrados: sidecar Wazuh, reto #8 CTFd, guia BookStack, meta-profiles, release.yml alineado)
+> Ultima actualizacion: 2026-05-29 (Taller API Breach + dashboards Wazuh auto-importados, fixes de instalacion limpia del init sidecar, rediseno del portal claro estilo-Wazuh)
 >
 > **Como usar este documento:**
 > Al iniciar una sesion de desarrollo, leer este archivo para saber donde quedamos.
@@ -174,7 +174,7 @@ Portal       → requiere DNS
 - [x] Suricata escribe `eve.json` en volumen compartido (`opsn_suricata_logs`) — Wazuh lee via localfile — 2026-03-29
 - [x] Reglas custom en Wazuh: DVWA (SQLi, CMDi, XSS, FI), Juice Shop, GoPhish, WebGoat, crAPI, Suricata alerts — 2026-03-29
 - [x] Reglas custom en Suricata: SQLi, CMDi, XSS, BOLA crAPI, port scan, brute force HTTP, DNS flag CTF — 2026-03-29
-- [ ] Dashboards pre-construidos en Wazuh (pendiente — Wazuh tiene dashboards por defecto)
+- [x] Dashboards pre-construidos en Wazuh — 2026-05-29: dashboard "API Breach to Detection" + "OpenSec Lab Overview" + 4 saved searches + index-pattern `wazuh-alerts-*`, auto-importados por el init sidecar desde `services/wazuh/dashboards/*.ndjson` (idempotente, overwrite=true). Generadores reproducibles `build_api_breach_dashboard.py` y `build_lab_dashboards.py`. Verificado end-to-end en arranque limpio.
 - [ ] Reto de Blue Team en CTFd: "Identifica el ataque" (pendiente Fase 5)
 
 ### Tareas transversales Fase 3
@@ -195,6 +195,7 @@ Portal       → requiere DNS
 - [x] Actualizar `configure_dns.sh` con registro A para wazuh.opensec.lab — 2026-03-29
 - [x] Actualizar `Makefile` SERVICES para incluir wazuh + suricata — 2026-03-29
 - [x] Test en sistema de 16 GB Docker Desktop — 64/65 smoke tests (crAPI no levantado en esa sesion) — 2026-03-29
+- [x] Fixes de instalacion limpia del init sidecar — 2026-05-29: (1) `docker:cli` no trae curl → los health-checks ahora corren via `docker exec opsn-wazuh-indexer curl` (timeout 180s→300s para Rosetta); (2) crear `etc/shared/ar.conf` + reiniciar manager para que los daemons arranquen en primer boot; (3) generar `00-index-pattern-wazuh-alerts.ndjson` (import primero) para que los dashboards resuelvan referencias. Password del indexer reconciliado por `defaults.env` (admin/kibanaserver = defaults de la imagen, sin paso de reconciliacion). Verificado: filebeat sin 401, alertas indexadas (reglas 100061/100063/100064).
 
 ---
 
@@ -306,3 +307,4 @@ Se implementan en `opensec-lab.sh` como expansion de profiles antes de llamar a 
 - [x] MkDocs: 6 páginas de servicio (DVWA, Juice Shop, API, Wazuh, GoPhish, Mail)
 - [x] MkDocs: 4 cheat sheets (curl, nmap, Burp Suite, Wazuh)
 - [x] README actualizado con todos los servicios actuales (API, Wazuh, Suricata, Docs)
+- [x] Rediseño del portal — 2026-05-29: reemplazado el look "neón/terminal" por un tema claro y sobrio alineado con la marca Wazuh (un solo acento, rojo solo como semántica de ataque, tipografía Hanken Grotesk con jerarquía, monospace solo en código, iconos SVG en vez de emojis). Taller mostrado como vista enfrentada "ataque ↔ detección" con el orden de eventos corregido. Investigación de referencia: Linear + web de Wazuh.
