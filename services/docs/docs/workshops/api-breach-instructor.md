@@ -46,8 +46,8 @@ bash tests/api-breach-readiness.sh
 | Paso | Request | Evento esperado | Regla Wazuh |
 | --- | --- | --- | --- |
 | BOLA | `GET /api/users/2/profile` con token de Alice | `bola_attempt` | `100061` |
-| Mass assignment | `PUT /api/users/1/profile` con campo `role` | `mass_assignment_attempt` | `100063` |
 | Broken function auth | `GET /api/admin/users` con token de Alice | `broken_function_auth` | `100064` |
+| Mass assignment | `PUT /api/users/1/profile` con campo `role` | `mass_assignment_attempt` | `100063` |
 
 ## Temas de explicacion
 

@@ -70,7 +70,21 @@ Observacion esperada:
 - La respuesta incluye campos sensibles como `credit_card`, `ssn` y `salary`.
 - La API escribe un evento `bola_attempt`.
 
-## 4. Disparar mass assignment
+## 4. Disparar broken function authorization
+
+Alice llama un endpoint administrativo antes de cambiar su rol:
+
+```bash
+curl -s http://localhost:8025/api/admin/users \
+  -H "Authorization: Bearer ${TOKEN}"
+```
+
+Observacion esperada:
+
+- La API devuelve la lista de usuarios.
+- La API escribe un evento `broken_function_auth`.
+
+## 5. Disparar mass assignment
 
 Alice actualiza su perfil y cambia el campo `role`:
 
@@ -86,20 +100,6 @@ Observacion esperada:
 - La API acepta el cambio.
 - La respuesta muestra `role` modificado.
 - La API escribe un evento `mass_assignment_attempt`.
-
-## 5. Disparar broken function authorization
-
-Alice llama un endpoint administrativo:
-
-```bash
-curl -s http://localhost:8025/api/admin/users \
-  -H "Authorization: Bearer ${TOKEN}"
-```
-
-Observacion esperada:
-
-- La API devuelve la lista de usuarios.
-- La API escribe un evento `broken_function_auth`.
 
 ## 6. Revisar eventos de la API
 
