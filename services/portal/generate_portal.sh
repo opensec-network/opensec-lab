@@ -27,666 +27,253 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
   <title>OpenSec Lab — Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-deep:      #05080d;
-      --bg-surface:   #0a0f1a;
-      --bg-card:      #0d1320;
-      --bg-card-hov:  #111928;
-      --border:       rgba(255,255,255,0.07);
-      --text-primary: #dde7f5;
-      --text-secondary:#7a8eab;
-      --text-muted:   #3d4f68;
-      --cyan:         #00e5b3;
-      --cyan-dim:     rgba(0,229,179,0.10);
-      --cyan-glow:    rgba(0,229,179,0.25);
-      --red:          #ff4655;
-      --red-dim:      rgba(255,70,85,0.10);
-      --blue:         #4fa3ff;
-      --blue-dim:     rgba(79,163,255,0.10);
-      --gold:         #f0b429;
-      --gold-dim:     rgba(240,180,41,0.10);
-      --font-ui:      'Chakra Petch', sans-serif;
-      --font-mono:    'JetBrains Mono', monospace;
+      --bg:#f5f7f9; --surface:#ffffff; --surface-2:#fbfcfd; --line:#e5e8ec;
+      --ink:#0e1726; --ink2:#566173; --ink3:#9aa4b2;
+      --accent:#1d4ed8; --accent-ink:#1e40af; --accent-soft:#e8eefc;
+      --danger:#d92d20; --danger-soft:#fdeceb; --danger-ink:#b42318;
+      --ok:#16a34a;
+      --font:'Hanken Grotesk', system-ui, sans-serif;
+      --mono:'JetBrains Mono', monospace;
+      --r:12px;
     }
 
     html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; padding-bottom: 2.5rem; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    svg { display: block; }
+    .ic { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    a { color: inherit; }
 
-    body {
-      font-family: var(--font-ui);
-      background-color: var(--bg-deep);
-      color: var(--text-primary);
-      min-height: 100vh;
-      padding: 0 0 4rem;
-      position: relative;
-      overflow-x: hidden;
-    }
+    /* top bar */
+    header.bar { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -.01em; text-decoration: none; }
+    .brand .mark { width: 28px; height: 28px; border-radius: 7px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; }
+    .brand .mark .ic { width: 17px; height: 17px; stroke-width: 2.2; }
+    .brand .dom { font-family: var(--mono); font-weight: 500; font-size: 12px; color: var(--ink3); margin-left: 4px; }
+    .navlinks { display: flex; gap: 8px; }
+    .btn { font-family: var(--font); font-weight: 600; font-size: 14px; border-radius: 8px; padding: 9px 15px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; transition: .15s; }
+    .btn:hover { border-color: #cfd5dd; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { background: var(--accent-ink); }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-      z-index: 0;
-    }
+    /* hero */
+    .hero { padding: 52px 0 36px; }
+    .eyebrow { font-size: 13px; font-weight: 600; color: var(--accent-ink); letter-spacing: .02em; margin-bottom: 12px; }
+    .hero h1 { font-size: 40px; line-height: 1.08; letter-spacing: -.025em; font-weight: 800; max-width: 18ch; margin-bottom: 14px; }
+    .hero p { font-size: 17px; color: var(--ink2); max-width: 56ch; margin-bottom: 24px; }
+    .hero .cta { display: flex; gap: 12px; flex-wrap: wrap; }
 
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
+    /* modes */
+    .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .mode { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; }
+    .mode .label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); margin-bottom: 10px; }
+    .mode h3 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 6px; }
+    .mode p { font-size: 14px; color: var(--ink2); margin-bottom: 16px; }
 
-    /* ── HEADER ── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1rem 0 1rem;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 2rem;
-      animation: fadeDown 0.5s ease both;
-    }
+    /* section heading */
+    .sec { margin-top: 46px; }
+    .sec-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+    .sec-h h2 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .sec-h .meta { font-size: 13px; color: var(--ink3); white-space: nowrap; }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-    }
+    /* service cards */
+    .svc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; text-decoration: none; color: inherit; transition: .15s; display: block; }
+    .card:hover { border-color: #cfd5dd; box-shadow: 0 1px 2px rgba(16,23,38,.04), 0 8px 24px rgba(16,23,38,.05); }
+    .card .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .ico { width: 38px; height: 38px; border-radius: 9px; background: var(--accent-soft); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; }
+    .ico.atk { background: var(--danger-soft); color: var(--danger-ink); }
+    .card h4 { font-size: 15.5px; font-weight: 700; margin-bottom: 4px; }
+    .card p { font-size: 13.5px; color: var(--ink2); }
+    .card p code { font-family: var(--mono); font-size: 12px; color: var(--accent-ink); }
+    .foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .tag { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: #eef1f4; color: var(--ink2); }
+    .tag.atk { background: var(--danger-soft); color: var(--danger-ink); }
+    .port { font-family: var(--mono); font-size: 12px; color: var(--ink3); margin-left: auto; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink3); flex-shrink: 0; transition: background .3s; }
+    .status-dot.up { background: var(--ok); }
+    .status-dot.down { background: var(--danger); }
 
-    .logo-mark {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      text-decoration: none;
-    }
+    /* workshop: attack -> detection */
+    .lab { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 6px; overflow: hidden; }
+    .lab-head { display: grid; grid-template-columns: 1fr 64px 1fr; padding: 14px 20px 4px; }
+    .lab-head .red { color: var(--danger-ink); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; display: flex; align-items: center; gap: 7px; }
+    .lab-head .blue { color: var(--accent-ink); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; display: flex; align-items: center; justify-content: flex-end; gap: 7px; }
+    .pdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .pdot.r { background: var(--danger); } .pdot.g { background: var(--accent); }
+    .lab-row { display: grid; grid-template-columns: 1fr 64px 1fr; align-items: stretch; }
+    .lab-row + .lab-row { border-top: 1px solid var(--line); }
+    .lab-side { padding: 18px 20px; }
+    .lab-side .h { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 9px; }
+    .atkh { color: var(--danger-ink); }
+    .lab-side code { font-family: var(--mono); font-size: 13.5px; color: var(--ink); display: block; margin-bottom: 5px; }
+    .lab-side .note { font-size: 13px; color: var(--ink2); }
+    .lab-def { text-align: right; }
+    .lab-def .h { color: var(--accent-ink); }
+    .lab-mid { display: flex; align-items: center; justify-content: center; }
+    .lab-mid .conn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+    .ruletag { font-family: var(--mono); font-size: 11.5px; color: var(--accent-ink); background: var(--accent-soft); padding: 2px 8px; border-radius: 5px; display: inline-block; margin-bottom: 8px; }
 
-    .logo-mark img {
-      height: 26px;
-      width: auto;
-      display: block;
-    }
-
-    .logo-wordmark {
-      font-family: var(--font-ui);
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    .logo-wordmark span {
-      color: var(--cyan);
-    }
-
-    .domain-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: rgba(0,229,179,0.05);
-      border: 1px solid rgba(0,229,179,0.18);
-      border-radius: 999px;
-      padding: 0.22rem 0.75rem;
-      font-family: var(--font-mono);
-      font-size: 0.68rem;
-      color: var(--cyan);
-    }
-
-    .domain-pill .pulse {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--cyan);
-      animation: pulse-green 2s ease-in-out infinite;
-      flex-shrink: 0;
-    }
-
-    .header-ctas {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 1rem;
-      border-radius: 6px;
-      font-family: var(--font-ui);
-      font-size: 0.74rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.15s ease;
-      border: 1px solid;
-    }
-
-    .btn-primary {
-      background: rgba(0,229,179,0.10);
-      border-color: rgba(0,229,179,0.32);
-      color: var(--cyan);
-    }
-    .btn-primary:hover {
-      background: rgba(0,229,179,0.18);
-      border-color: rgba(0,229,179,0.55);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.03);
-      border-color: rgba(255,255,255,0.10);
-      color: var(--text-secondary);
-    }
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.07);
-      color: var(--text-primary);
-    }
-
-    .mode-panel {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 1.6rem;
-    }
-
-    .mode-block {
-      background: var(--bg-card);
-      padding: 1rem 1.2rem;
-    }
-
-    .mode-kicker {
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      color: var(--cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.45rem;
-    }
-
-    .mode-block h1,
-    .mode-block h2 {
-      font-size: 1.05rem;
-      line-height: 1.25;
-      margin-bottom: 0.45rem;
-    }
-
-    .mode-block p {
-      color: var(--text-secondary);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 0.78rem;
-      line-height: 1.55;
-      margin-bottom: 0.75rem;
-    }
-
-    .mode-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-    }
-
-    /* ── SECTION LABELS ── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      margin: 1.8rem 0 0.9rem;
-    }
-
-    .section-header .sh-line { flex: 1; height: 1px; background: var(--border); }
-
-    .section-header .sh-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      white-space: nowrap;
-      padding: 0.22rem 0.8rem;
-      border-radius: 3px;
-      border: 1px solid;
-    }
-
-    .section-header.cat-attack  .sh-label { color: var(--red);   border-color: rgba(255,70,85,0.25);  background: var(--red-dim);  }
-    .section-header.cat-blue    .sh-label { color: var(--cyan);  border-color: rgba(0,229,179,0.25);  background: var(--cyan-dim); }
-    .section-header.cat-infra   .sh-label { color: var(--blue);  border-color: rgba(79,163,255,0.25); background: var(--blue-dim); }
-
-    /* ── GRID ── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    /* ── CARDS ── */
-    .card {
-      background: var(--bg-card);
-      padding: 1.1rem 1.3rem 1rem;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.9rem;
-      position: relative;
-      transition: background 0.15s ease;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 2px;
-      background: transparent;
-      transition: background 0.18s ease;
-    }
-
-    .card:hover { background: var(--bg-card-hov); }
-
-    .card.cat-attack:hover::before { background: var(--red);  }
-    .card.cat-blue:hover::before   { background: var(--cyan); }
-    .card.cat-infra:hover::before  { background: var(--blue); }
-
-    .card-icon {
-      font-size: 1.35rem;
-      line-height: 1;
-      flex-shrink: 0;
-      margin-top: 0.05rem;
-      opacity: 0.9;
-    }
-
-    .card-body { flex: 1; min-width: 0; }
-
-    .card-title-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.2rem;
-    }
-
-    .card-body h3 {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-body p {
-      font-size: 0.74rem;
-      color: var(--text-secondary);
-      line-height: 1.55;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-
-    .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.55rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 0.58rem;
-      font-weight: 500;
-      padding: 0.12rem 0.5rem;
-      border-radius: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .badge-red  { background: var(--red-dim);  color: var(--red);  }
-    .badge-cyan { background: var(--cyan-dim); color: var(--cyan); }
-    .badge-blue { background: var(--blue-dim); color: var(--blue); }
-    .badge-gold { background: var(--gold-dim); color: var(--gold); }
-
-    .port-tag {
-      font-family: var(--font-mono);
-      font-size: 0.62rem;
-      color: var(--text-muted);
-      margin-left: auto;
-    }
-
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      flex-shrink: 0;
-      transition: background 0.3s;
-    }
-    .status-dot.up {
-      background: var(--cyan);
-      box-shadow: 0 0 5px var(--cyan-glow);
-      animation: pulse-green 2.5s ease-in-out infinite;
-    }
-    .status-dot.down { background: var(--red); }
-
-    /* ── CREDENTIALS TABLE ── */
-    .creds-wrap { margin-top: 2.2rem; }
-
-    .creds-inner {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .creds-head {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1.2rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.13em;
-      color: var(--text-secondary);
-    }
-
+    /* credentials */
+    .creds { margin-top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
-    thead tr { border-bottom: 1px solid var(--border); }
-    th {
-      text-align: left;
-      padding: 0.5rem 1.1rem;
-      font-size: 0.61rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-    }
-    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.12s; }
+    thead tr { border-bottom: 1px solid var(--line); }
+    th { text-align: left; padding: 11px 18px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink3); }
+    tbody tr { border-bottom: 1px solid var(--line); }
     tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.025); }
-    td {
-      padding: 0.5rem 1.1rem;
-      color: var(--text-primary);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 0.78rem;
-    }
-    td:first-child { font-family: var(--font-ui); font-weight: 500; color: var(--text-secondary); font-size: 0.75rem; }
-    code {
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      color: var(--cyan);
-      background: var(--cyan-dim);
-      padding: 0.12rem 0.4rem;
-      border-radius: 3px;
-    }
+    tbody tr:hover { background: var(--surface-2); }
+    td { padding: 11px 18px; font-size: 14px; color: var(--ink); }
+    td:first-child { font-weight: 600; }
+    td code { font-family: var(--mono); font-size: 12.5px; color: var(--accent-ink); background: var(--accent-soft); padding: 2px 7px; border-radius: 5px; }
 
-    /* ── FOOTER ── */
-    .footer {
-      text-align: center;
-      margin-top: 3rem;
-      color: var(--text-muted);
-      font-size: 0.68rem;
-      font-family: var(--font-mono);
-    }
-    .footer a { color: var(--text-secondary); text-decoration: none; }
-    .footer a:hover { color: var(--cyan); }
+    footer { margin-top: 48px; text-align: center; color: var(--ink3); font-size: 13px; font-family: var(--mono); }
+    footer a { color: var(--ink2); text-decoration: none; }
+    footer a:hover { color: var(--accent-ink); }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeIn   { from { opacity: 0; transform: translateY(6px);  } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse-green {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.55; }
-    }
-
-    .card { animation: fadeIn 0.35s ease both; }
-    .card:nth-child(1) { animation-delay: 0.04s; }
-    .card:nth-child(2) { animation-delay: 0.08s; }
-    .card:nth-child(3) { animation-delay: 0.12s; }
-    .card:nth-child(4) { animation-delay: 0.16s; }
-
-    @media (max-width: 640px) {
-      .page-wrap { padding: 0 1rem; }
-      .logo-wordmark { display: none; }
-      .mode-panel { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: 1fr; }
-      .header { padding: 0.8rem 0; }
-      th, td { padding: 0.45rem 0.8rem; }
+    @media (max-width: 760px) {
+      .modes, .svc { grid-template-columns: 1fr; }
+      .lab-row, .lab-head { grid-template-columns: 1fr; }
+      .lab-def { text-align: left; }
+      .lab-def .h { justify-content: flex-start; }
+      .lab-mid { display: none; }
+      .hero h1 { font-size: 30px; }
     }
   </style>
 </head>
 <body>
-<div class="page-wrap">
+<div class="wrap">
 
-  <header class="header">
-    <div class="header-left">
-      <a class="logo-mark" href="/">
-        <img src="/assets/logo_text_white.svg" alt="OpenSec">
-      </a>
-      <div class="domain-pill">
-        <span class="pulse"></span>
-        <span>${DOMAIN}</span>
-      </div>
-    </div>
-    <div class="header-ctas">
-      <a class="btn btn-primary" href="http://localhost:${PORT_DOCS}" target="_blank">
-        Guías →
-      </a>
-      <a class="btn btn-secondary" href="#servicios">
-        Servicios
-      </a>
+  <header class="bar">
+    <a class="brand" href="/">
+      <span class="mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg></span>
+      OpenSec Lab <span class="dom">${DOMAIN}</span>
+    </a>
+    <div class="navlinks">
+      <a class="btn" href="http://localhost:${PORT_DOCS}" target="_blank">Documentación</a>
+      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </header>
 
-  <section class="mode-panel" aria-label="Modos de uso de OpenSec Lab">
-    <div class="mode-block">
-      <div class="mode-kicker">Explorar libremente</div>
-      <h1>Acceso directo a servicios</h1>
-      <p>Abre targets, herramientas, documentacion y paneles del lab sin seguir una secuencia obligatoria.</p>
-      <div class="mode-actions">
-        <a class="btn btn-primary" href="#servicios">Ver servicios</a>
-        <a class="btn btn-secondary" href="http://localhost:${PORT_DOCS}" target="_blank">Abrir documentacion</a>
-      </div>
+  <section class="hero">
+    <div class="eyebrow">Laboratorio de ciberseguridad · local · Kali Linux</div>
+    <h1>Practica el ataque. Encuentra la evidencia.</h1>
+    <p>Levanta targets vulnerables, lánzales ataques reales y observa cómo el SIEM los detecta. Explora a tu ritmo o sigue un taller guiado de principio a fin.</p>
+    <div class="cta">
+      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Empezar el taller de API</a>
+      <a class="btn" href="#servicios">Ver todos los servicios</a>
     </div>
-    <div class="mode-block">
-      <div class="mode-kicker">Talleres guiados</div>
-      <h2>Taller: Ataque y deteccion en APIs</h2>
-      <p>Practica BOLA, mass assignment y autorizacion rota; luego revisa eventos y reglas defensivas.</p>
-      <div class="mode-actions">
-        <a class="btn btn-primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller</a>
+  </section>
+
+  <section class="modes">
+    <div class="mode">
+      <div class="label"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Explorar libremente</div>
+      <h3>Acceso directo a servicios</h3>
+      <p>Abre cualquier target o herramienta sin seguir una secuencia. Tú decides qué romper.</p>
+      <a class="btn" href="#servicios">Ver servicios</a>
+    </div>
+    <div class="mode">
+      <div class="label"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Taller guiado</div>
+      <h3>Ataque en API → Detección en Wazuh</h3>
+      <p>Un recorrido reproducible: explota, genera logs, investiga la alerta, entiende la regla.</p>
+      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller</a>
+    </div>
+  </section>
+
+  <section class="sec" id="servicios">
+    <div class="sec-h"><h2>Ataque — targets vulnerables</h2><span class="meta">red team</span></div>
+    <div class="svc">
+      <a class="card" href="http://localhost:${PORT_DVWA}" target="_blank">
+        <div class="top"><span class="ico atk"><svg class="ic" viewBox="0 0 24 24"><path d="M8 6V4a4 4 0 018 0v2M5 10h14M6 10v6a6 6 0 0012 0v-6M3 13h3M18 13h3M4 18l3-1M20 18l-3-1"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_DVWA}"></span></div>
+        <h4>DVWA</h4><p>SQLi, XSS, CSRF y command injection en niveles graduados.</p>
+        <div class="foot"><span class="tag atk">Web hacking</span><span class="port">:${PORT_DVWA}</span></div>
+      </a>
+      <a class="card" href="http://localhost:${PORT_JUICE}" target="_blank">
+        <div class="top"><span class="ico atk"><svg class="ic" viewBox="0 0 24 24"><path d="M6 2l1 4h10l1-4M5 6h14l-1.5 14a2 2 0 01-2 2H8.5a2 2 0 01-2-2z"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_JUICE}"></span></div>
+        <h4>OWASP Juice Shop</h4><p>E-commerce con 100+ retos que cubren el OWASP Top 10.</p>
+        <div class="foot"><span class="tag atk">Web hacking</span><span class="port">:${PORT_JUICE}</span></div>
+      </a>
+      <a class="card" href="http://localhost:${PORT_API}" target="_blank">
+        <div class="top"><span class="ico atk"><svg class="ic" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_API}/api/health"></span></div>
+        <h4>API Vulnerable</h4><p>OWASP API Top 10: BOLA, tokens eternos, mass assignment, broken function auth.</p>
+        <div class="foot"><span class="tag atk">API security</span><span class="port">:${PORT_API}</span></div>
+      </a>
+      <a class="card" href="https://localhost:${PORT_GOPHISH}" target="_blank">
+        <div class="top"><span class="ico atk"><svg class="ic" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 7l9 6 9-6"/></svg></span><span class="status-dot" data-href="https://localhost:${PORT_GOPHISH}"></span></div>
+        <h4>GoPhish</h4><p>Campaña, email template y landing page pre-configurados. Listo para lanzar.</p>
+        <div class="foot"><span class="tag atk">Phishing</span><span class="port">:${PORT_GOPHISH}</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Blue team — defensa y aprendizaje</h2><span class="meta">detección · docs</span></div>
+    <div class="svc">
+      <a class="card" href="https://localhost:${PORT_WAZUH}" target="_blank">
+        <div class="top"><span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="status-dot" data-href="https://localhost:${PORT_WAZUH}"></span></div>
+        <h4>Wazuh — SIEM</h4><p>Cada ataque genera una alerta. Filtra por <code>rule.groups: openseclab</code>.</p>
+        <div class="foot"><span class="tag">Blue team</span><span class="port">:${PORT_WAZUH}</span></div>
+      </a>
+      <a class="card" href="http://localhost:${PORT_DOCS}" target="_blank">
+        <div class="top"><span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_DOCS}"></span></div>
+        <h4>Documentación</h4><p>Guías de talleres, cheat sheets y escenarios por servicio.</p>
+        <div class="foot"><span class="tag">Aprendizaje</span><span class="port">:${PORT_DOCS}</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Infraestructura del lab</h2><span class="meta">soporte</span></div>
+    <div class="svc">
+      <a class="card" href="http://localhost:${PORT_MAIL}" target="_blank">
+        <div class="top"><span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_MAIL}"></span></div>
+        <h4>Mail — Roundcube</h4><p>Correo interno del lab. Recibe los phishing de GoPhish. IMAP + SMTP listos.</p>
+        <div class="foot"><span class="tag">Infraestructura</span><span class="port">:${PORT_MAIL}</span></div>
+      </a>
+      <a class="card" href="http://localhost:${PORT_DESKTOP}" target="_blank">
+        <div class="top"><span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M3 4h18v12H3zM8 20h8M12 16v4"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_DESKTOP}"></span></div>
+        <h4>Desktop — XFCE</h4><p>Escritorio Linux en el navegador con Thunderbird pre-configurado.</p>
+        <div class="foot"><span class="tag">Infraestructura</span><span class="port">:${PORT_DESKTOP}</span></div>
+      </a>
+      <a class="card" href="http://localhost:${PORT_DNS}" target="_blank">
+        <div class="top"><span class="ico"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span><span class="status-dot" data-href="http://localhost:${PORT_DNS}"></span></div>
+        <h4>DNS — Technitium</h4><p>Servidor DNS del lab. Gestiona la zona ${DOMAIN} para todos los servicios.</p>
+        <div class="foot"><span class="tag">Infraestructura</span><span class="port">:${PORT_DNS}</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><h2>Taller: ataque y su detección</h2><span class="meta">cada acción ofensiva ↔ su regla en Wazuh</span></div>
+    <div class="lab">
+      <div class="lab-head"><div class="red"><span class="pdot r"></span>Red team — la acción</div><div></div><div class="blue">Blue team — lo que ve Wazuh<span class="pdot g"></span></div></div>
+      <div class="lab-row">
+        <div class="lab-side"><div class="h atkh">API1 · BOLA</div><code>GET /api/users/2/profile</code><div class="note">Alice lee el perfil de Bob (objeto ajeno).</div></div>
+        <div class="lab-mid"><span class="conn"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        <div class="lab-side lab-def"><span class="ruletag">regla 100061 · nivel 10</span><code>{"event":"bola_attempt"}</code><div class="note">IDOR: acceso a objeto no autorizado.</div></div>
+      </div>
+      <div class="lab-row">
+        <div class="lab-side"><div class="h atkh">API5 · Función sin control</div><code>GET /api/admin/users</code><div class="note">Sin rol admin, lista todos los usuarios.</div></div>
+        <div class="lab-mid"><span class="conn"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        <div class="lab-side lab-def"><span class="ruletag">regla 100064 · nivel 10</span><code>{"event":"broken_function_auth"}</code><div class="note">Broken function level authorization.</div></div>
+      </div>
+      <div class="lab-row">
+        <div class="lab-side"><div class="h atkh">API3 · Mass assignment</div><code>PUT /profile · role=admin</code><div class="note">Escala su propio rol a administrador.</div></div>
+        <div class="lab-mid"><span class="conn"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+        <div class="lab-side lab-def"><span class="ruletag">regla 100063 · nivel 12</span><code>{"event":"mass_assignment_attempt"}</code><div class="note">Modifica campo protegido sin lista blanca.</div></div>
       </div>
     </div>
   </section>
 
-  <div id="servicios"></div>
-
-  <!-- ATAQUE -->
-  <div class="section-header cat-attack">
-    <div class="sh-line"></div>
-    <div class="sh-label">Ataque — Targets Vulnerables</div>
-    <div class="sh-line"></div>
-  </div>
-
-  <div class="grid">
-    <a class="card cat-attack" href="http://localhost:${PORT_DVWA}" target="_blank">
-      <div class="card-icon">💀</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>DVWA</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_DVWA}"></span>
-        </div>
-        <p>SQLi, XSS, CSRF, Command Injection. Niveles Low / Medium / High.</p>
-        <div class="card-meta">
-          <span class="badge badge-red">Web Hacking</span>
-          <span class="port-tag">:${PORT_DVWA}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-attack" href="http://localhost:${PORT_JUICE}" target="_blank">
-      <div class="card-icon">🧃</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>OWASP Juice Shop</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_JUICE}"></span>
-        </div>
-        <p>E-commerce vulnerable con 100+ retos. Cubre todo el OWASP Top 10.</p>
-        <div class="card-meta">
-          <span class="badge badge-red">Web Hacking</span>
-          <span class="port-tag">:${PORT_JUICE}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-attack" href="http://localhost:${PORT_API}" target="_blank">
-      <div class="card-icon">🔌</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>API Vulnerable</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_API}/api/health"></span>
-        </div>
-        <p>OWASP API Top 10: BOLA, tokens que no expiran, mass assignment, broken function auth.</p>
-        <div class="card-meta">
-          <span class="badge badge-red">API Security</span>
-          <span class="port-tag">:${PORT_API}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-attack" href="https://localhost:${PORT_GOPHISH}" target="_blank">
-      <div class="card-icon">🎣</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>GoPhish</h3>
-          <span class="status-dot" data-href="https://localhost:${PORT_GOPHISH}"></span>
-        </div>
-        <p>Campaña, email template y landing page pre-configurados. Listo para lanzar.</p>
-        <div class="card-meta">
-          <span class="badge badge-red">Phishing</span>
-          <span class="port-tag">:${PORT_GOPHISH}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <!-- BLUE TEAM -->
-  <div class="section-header cat-blue">
-    <div class="sh-line"></div>
-    <div class="sh-label">Blue Team — Defensa y Aprendizaje</div>
-    <div class="sh-line"></div>
-  </div>
-
-  <div class="grid">
-    <a class="card cat-blue" href="https://localhost:${PORT_WAZUH}" target="_blank">
-      <div class="card-icon">🔍</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>Wazuh — SIEM</h3>
-          <span class="status-dot" data-href="https://localhost:${PORT_WAZUH}"></span>
-        </div>
-        <p>Cada ataque que ejecutes genera una alerta aquí. Filtra por group:openseclab_api, openseclab_dvwa, openseclab_gophish.</p>
-        <div class="card-meta">
-          <span class="badge badge-cyan">Blue Team</span>
-          <span class="port-tag">:${PORT_WAZUH}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-blue" href="http://localhost:${PORT_DOCS}" target="_blank">
-      <div class="card-icon">📖</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>Documentación — MkDocs</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_DOCS}"></span>
-        </div>
-        <p>Escenarios guiados de Phishing, API Security y Web Hacking. Cheat sheets por servicio.</p>
-        <div class="card-meta">
-          <span class="badge badge-cyan">Guiado</span>
-          <span class="port-tag">:${PORT_DOCS}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <!-- INFRAESTRUCTURA -->
-  <div class="section-header cat-infra">
-    <div class="sh-line"></div>
-    <div class="sh-label">Infraestructura del Lab</div>
-    <div class="sh-line"></div>
-  </div>
-
-  <div class="grid">
-    <a class="card cat-infra" href="http://localhost:${PORT_MAIL}" target="_blank">
-      <div class="card-icon">✉️</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>Mail — Roundcube</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_MAIL}"></span>
-        </div>
-        <p>Correo interno del lab. Recibe los emails de phishing de GoPhish. IMAP + SMTP configurados.</p>
-        <div class="card-meta">
-          <span class="badge badge-blue">Infraestructura</span>
-          <span class="port-tag">:${PORT_MAIL}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-infra" href="http://localhost:${PORT_DESKTOP}" target="_blank">
-      <div class="card-icon">🖥️</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>Desktop — XFCE</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_DESKTOP}"></span>
-        </div>
-        <p>Escritorio Linux en el navegador con Thunderbird pre-configurado al mail server.</p>
-        <div class="card-meta">
-          <span class="badge badge-blue">Infraestructura</span>
-          <span class="port-tag">:${PORT_DESKTOP}</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="card cat-infra" href="http://localhost:${PORT_DNS}" target="_blank">
-      <div class="card-icon">🌐</div>
-      <div class="card-body">
-        <div class="card-title-row">
-          <h3>DNS — Technitium</h3>
-          <span class="status-dot" data-href="http://localhost:${PORT_DNS}"></span>
-        </div>
-        <p>Servidor DNS del lab. Gestiona la zona ${DOMAIN} con registros para todos los servicios.</p>
-        <div class="card-meta">
-          <span class="badge badge-blue">Infraestructura</span>
-          <span class="port-tag">:${PORT_DNS}</span>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <!-- CREDENCIALES -->
-  <div class="creds-wrap">
-    <div class="creds-inner">
-      <div class="creds-head">
-        <span>Credenciales por defecto</span>
-      </div>
+  <section class="sec">
+    <div class="sec-h"><h2>Credenciales por defecto</h2><span class="meta">solo para el lab local</span></div>
+    <div class="creds">
       <table>
-        <thead>
-          <tr>
-            <th>Servicio</th>
-            <th>Usuario</th>
-            <th>Contraseña</th>
-            <th>URL</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Servicio</th><th>Usuario</th><th>Contraseña</th><th>URL</th></tr></thead>
         <tbody>
           <tr><td>DVWA</td><td><code>admin</code></td><td><code>admin</code></td><td>localhost:${PORT_DVWA}</td></tr>
           <tr><td>Juice Shop</td><td>—</td><td>(es un reto)</td><td>localhost:${PORT_JUICE}</td></tr>
@@ -699,11 +286,9 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
 
-  <footer class="footer">
-    <p><a href="https://github.com/opensec-network/opensec-lab" target="_blank">github.com/opensec-network/opensec-lab</a></p>
-  </footer>
+  <footer><a href="https://github.com/opensec-network/opensec-lab" target="_blank">github.com/opensec-network/opensec-lab</a></footer>
 
 </div>
 
