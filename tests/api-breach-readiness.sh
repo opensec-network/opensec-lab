@@ -86,6 +86,12 @@ fi
 
 section "Eventos del taller"
 
+# La API guarda los usuarios en memoria: una corrida previa pudo dejar a alice
+# como admin (via mass assignment). Reseteamos su rol a "user" para que el check
+# sea reejecutable y para que broken_function_auth (que exige rol != admin)
+# dispare de verdad en runtime.
+api_request PUT /api/users/1/profile "$token" '{"role":"user"}' >/dev/null
+
 bola_body="$(api_request GET /api/users/2/profile "$token")"
 if printf '%s' "$bola_body" | grep -q '"username":"bob"\|"username": "bob"'; then
     pass "BOLA responde con perfil de bob"
@@ -93,18 +99,21 @@ else
     fail "BOLA no devolvio perfil de bob"
 fi
 
-mass_body="$(api_request PUT /api/users/1/profile "$token" '{"email":"alice+lab@opensec.lab","role":"admin"}')"
-if printf '%s' "$mass_body" | grep -q '"role":"admin"\|"role": "admin"'; then
-    pass "Mass assignment modifica role"
-else
-    fail "Mass assignment no mostro role admin"
-fi
-
+# Broken function auth DEBE ir antes de mass assignment: si escalamos a alice a
+# admin primero, su rol deja de ser "user" y la API ya no registra el evento
+# broken_function_auth (rule 100064). Este es el orden correcto del taller.
 admin_body="$(api_request GET /api/admin/users "$token")"
 if printf '%s' "$admin_body" | grep -q '"username":"admin"\|"username": "admin"'; then
     pass "Broken function auth devuelve lista administrativa"
 else
     fail "Broken function auth no devolvio lista administrativa"
+fi
+
+mass_body="$(api_request PUT /api/users/1/profile "$token" '{"email":"alice+lab@opensec.lab","role":"admin"}')"
+if printf '%s' "$mass_body" | grep -q '"role":"admin"\|"role": "admin"'; then
+    pass "Mass assignment modifica role"
+else
+    fail "Mass assignment no mostro role admin"
 fi
 
 section "Log de API"
