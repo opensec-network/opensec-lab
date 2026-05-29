@@ -17,7 +17,7 @@ INDEXER_PORT="${OPSN_WAZUH_INDEXER_PORT:-9200}"
 DASHBOARD_HOST="${OPSN_WAZUH_DASHBOARD_HOST:-opsn-wazuh-dashboard}"
 DASHBOARD_PORT="${OPSN_WAZUH_DASHBOARD_PORT:-5601}"
 WAZUH_PASSWORD="${OPSN_WAZUH_PASSWORD:-Password1.}"
-TIMEOUT=180
+TIMEOUT=300
 DASHBOARD_TIMEOUT=300
 
 # ─── 1. Esperar que el Indexer responda ──────────────────────────────────────
@@ -26,8 +26,11 @@ log_step "Esperando Wazuh Indexer en ${INDEXER_HOST}:${INDEXER_PORT} (max ${TIME
 
 elapsed=0
 while [ "$elapsed" -lt "$TIMEOUT" ]; do
-    code=$(curl -sk -o /dev/null -w '%{http_code}' \
-        "https://${INDEXER_HOST}:${INDEXER_PORT}" 2>/dev/null || echo "000")
+    # La imagen docker:cli de este sidecar NO trae curl; ejecutamos curl dentro
+    # del contenedor del indexer (que sí lo tiene) vía docker exec.
+    code=$(docker exec "$INDEXER_HOST" \
+        curl -sk -o /dev/null -w '%{http_code}' \
+        "https://localhost:${INDEXER_PORT}" 2>/dev/null || echo "000")
     # 401 = arriba con auth requerida; 503 = security index sin inicializar
     if [ "$code" = "401" ] || [ "$code" = "503" ]; then
         break
@@ -48,8 +51,9 @@ log_info "Wazuh Indexer disponible (HTTP ${code})."
 
 # ─── 2. Inicializar indice de seguridad (solo primera vez) ───────────────────
 
-idx_status=$(curl -sk -u "admin:${WAZUH_PASSWORD}" -o /dev/null -w '%{http_code}' \
-    "https://${INDEXER_HOST}:${INDEXER_PORT}/.opendistro_security" 2>/dev/null || echo "000")
+idx_status=$(docker exec "$INDEXER_HOST" \
+    curl -sk -u "admin:${WAZUH_PASSWORD}" -o /dev/null -w '%{http_code}' \
+    "https://localhost:${INDEXER_PORT}/.opendistro_security" 2>/dev/null || echo "000")
 
 if [ "$idx_status" = "200" ]; then
     log_info "Indice de seguridad ya existe — omitiendo inicializacion."
@@ -67,19 +71,33 @@ else
     log_info "Indice de seguridad inicializado."
 fi
 
-# ─── 3. Crear directorios de logs en el Manager ──────────────────────────────
+# ─── 3. Preparar el Manager (dirs de logs + ar.conf) ─────────────────────────
+# En primer arranque el volumen etc/ del manager está vacío: falta
+# etc/shared/ar.conf, lo que provoca wazuh-analysisd ERROR 1103 → CRITICAL 1202
+# → TODOS los daemons caídos. También faltan los dirs de logs por año/mes.
+# Creamos ambos y reiniciamos el manager para que los daemons arranquen.
 
-log_step "Creando directorios de logs en opsn-wazuh-manager..."
+log_step "Preparando opsn-wazuh-manager (dirs de logs + ar.conf)..."
 
 year=$(date +%Y)
 mon=$(date +%b)
 
-docker exec opsn-wazuh-manager bash -c \
-    "mkdir -p /var/ossec/logs/{alerts,archives,firewall}/${year}/${mon} && \
+needs_restart=$(docker exec opsn-wazuh-manager bash -c \
+    "if [ ! -f /var/ossec/etc/shared/ar.conf ]; then echo yes; fi
+     mkdir -p /var/ossec/logs/{alerts,archives,firewall}/${year}/${mon}
+     mkdir -p /var/ossec/etc/shared
+     touch /var/ossec/etc/shared/ar.conf
      chown -R wazuh:wazuh \
        /var/ossec/logs/alerts \
        /var/ossec/logs/archives \
-       /var/ossec/logs/firewall" 2>/dev/null || true
+       /var/ossec/logs/firewall \
+       /var/ossec/etc/shared" 2>/dev/null || true)
+
+if [ "$needs_restart" = "yes" ]; then
+    log_step "Reiniciando opsn-wazuh-manager para levantar daemons..."
+    docker restart opsn-wazuh-manager >/dev/null 2>&1 || true
+    log_info "Manager reiniciado."
+fi
 
 # ─── 4. Importar dashboards y saved searches del lab ─────────────────────────
 # Los .ndjson estan montados en /opsn-dashboards dentro del contenedor del

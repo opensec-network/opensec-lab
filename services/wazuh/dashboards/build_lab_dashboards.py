@@ -75,6 +75,22 @@ def write_ndjson(path, objects):
     print(f"Escrito {path} con {len(objects)} saved objects")
 
 
+# ─── Index-pattern base ──────────────────────────────────────────────────────
+# En una instalación limpia el index-pattern wazuh-alerts-* aún no existe, así que
+# los dashboards/búsquedas fallarían el import por missing_references. Generamos
+# este archivo con prefijo 00- para que el sidecar lo importe PRIMERO (orden
+# alfabético del glob); una vez creado, las referencias de los demás .ndjson
+# resuelven contra el objeto ya existente en el sistema.
+index_pattern = {
+    "id": INDEX_PATTERN_ID,
+    "type": "index-pattern",
+    "attributes": {"title": INDEX_PATTERN_ID, "timeFieldName": TIME_FIELD},
+    "references": [],
+}
+write_ndjson(os.path.join(HERE, "00-index-pattern-wazuh-alerts.ndjson"),
+             [index_pattern])
+
+
 # ─── Dashboard Overview ──────────────────────────────────────────────────────
 
 overview = []
