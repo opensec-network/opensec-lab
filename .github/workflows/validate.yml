@@ -1,0 +1,24 @@
+name: Validate
+
+# Lint del compose y del script en cada PR y push a main.
+# Corre `make validate`: valida docker-compose.yml (interpolación con defaults.env)
+# y la sintaxis de opensec-lab.sh.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Docker Compose v2 is available
+        run: docker compose version
+
+      - name: make validate
+        run: make validate

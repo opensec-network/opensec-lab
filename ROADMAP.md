@@ -225,13 +225,13 @@ Portal       → requiere DNS
 
 ## Fase 5 — Polish y documentacion
 
-- [ ] Comprimir `services/desktop/opsn-background.jpg` a menos de 1 MB (actualmente ~15 MB)
+- [x] Comprimir `services/desktop/opsn-background.jpg` a menos de 1 MB — ya resuelto (807 KB al 2026-05-29; comprimido previamente)
 - [ ] Publicar `opensecnetwork/mail:multi-arch` y cambiar `build:` por `image:` en compose
 - [ ] Contenido completo en BookStack (todas las guias de ejercicios)
 - [ ] Repos completos en Gitea (codigo vulnerable bien documentado)
 - [ ] Actualizar `USER_GUIDE.md` con todos los servicios nuevos
 - [ ] Actualizar `README.md` con tabla expandida de servicios
-- [ ] Agregar `make validate` al CI (lint en cada PR)
+- [x] Agregar `make validate` al CI (lint en cada PR) — 2026-05-29: `.github/workflows/validate.yml` corre `make validate` (compose config + `bash -n`) en cada PR y push a main
 - [ ] Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install`
 - [ ] **Modo taller:** Opcion en el script para que un instructor pre-configure servicios + retos CTFd y genere un comando de instalacion personalizado para sus estudiantes
 - [ ] Bookmarks de cheat sheets pre-instalados en el navegador del Desktop (`custom-init.sh`)
