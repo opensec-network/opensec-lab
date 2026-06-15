@@ -277,7 +277,7 @@ assert_file_contains \
 assert_file_contains \
     "script expone doctor del taller" \
     "opensec-lab.sh" \
-    "api-breach-readiness.sh"
+    "doctor_taller"
 
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"

@@ -997,25 +997,27 @@ taller_api_breach() {
     echo ""
     read -r -p "  Incluir el lado azul (Wazuh)? Requiere ~12 GB [s/N]: " incluir_azul
 
-    local perfiles=(--profile api --profile docs --profile portal)
+    # Construir la lista de servicios y rutear por instalar_servicios, que ya
+    # descarga los tarballs, verifica vm.max_map_count (Wazuh), resuelve
+    # dependencias (wazuh→dns+suricata), persiste .active_profiles y crea la red.
+    local servicios=(opsn-api opsn-docs opsn-portal)
     if [[ "$incluir_azul" =~ ^[sSyY]$ ]]; then
-        advertir_ram_si_necesario opsn-wazuh opsn-dns || true
-        perfiles+=(--profile dns --profile wazuh --profile suricata)
+        servicios+=(opsn-wazuh)
     fi
 
-    $SUDO_CMD docker compose -f "$DC_FILE" --env-file "$ENV_FILE" "${perfiles[@]}" up -d || {
-        log_error "Fallo el arranque del taller."
+    instalar_servicios "${servicios[@]}" || {
+        log_error "Fallo la instalacion del taller."
         return 1
     }
 
     echo ""
-    log_info "Taller instalado. Proximos pasos:"
+    log_info "Taller listo. Proximos pasos:"
     local docs_port portal_port wazuh_port
-    docs_port=$(grep "^OPSN_DOCS_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "4000")
-    portal_port=$(grep "^OPSN_PORTAL_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "8443")
-    wazuh_port=$(grep "^OPSN_WAZUH_DASH_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "5601")
+    docs_port=$(grep "^OPSN_DOCS_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"'); docs_port=${docs_port:-4000}
+    portal_port=$(grep "^OPSN_PORTAL_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"'); portal_port=${portal_port:-8443}
+    wazuh_port=$(grep "^OPSN_WAZUH_DASH_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"'); wazuh_port=${wazuh_port:-5601}
     echo "  1. Guia del estudiante:  http://localhost:${docs_port}/workshops/api-breach/"
-    echo "  2. Verifica el camino:   bash tests/api-breach-readiness.sh"
+    echo "  2. Verifica el camino:   vuelve al menu y elige [13] Doctor"
     echo "  3. Portal del lab:       http://localhost:${portal_port}"
     if [[ "$incluir_azul" =~ ^[sSyY]$ ]]; then
         echo "  4. Wazuh Dashboard:      https://localhost:${wazuh_port} (admin/admin)"
@@ -1023,9 +1025,60 @@ taller_api_breach() {
     fi
 }
 
+# Verificacion autocontenida del taller (no depende de tests/, que no se
+# empaqueta en el release). Dispara los 3 ataques y confirma sus eventos.
 doctor_taller() {
     log_step "Doctor: verificando el camino del taller API Breach"
-    bash "${LAB_DIR}/tests/api-breach-readiness.sh"
+    local api_port api_base token
+    api_port=$(grep "^OPSN_API_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"'); api_port=${api_port:-8025}
+    api_base="http://localhost:${api_port}"
+
+    if curl -s --max-time 8 "${api_base}/api/health" | grep -q '"status": *"ok"'; then
+        log_info "API responde en ${api_base}"
+    else
+        log_error "La API no responde en ${api_base}. Instala el taller con la opcion 12."
+        return 1
+    fi
+
+    token=$(curl -s --max-time 8 -X POST "${api_base}/api/auth/login" \
+        -H 'Content-Type: application/json' \
+        -d '{"username":"alice","password":"alice123"}' \
+        | sed -n 's/.*"token"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+    if [[ "$token" == "token_alice" ]]; then
+        log_info "Login de alice OK"
+    else
+        log_error "Login de alice fallo."
+        return 1
+    fi
+
+    # Reset de rol (reejecutable) y disparo de los 3 ataques en el orden correcto.
+    curl -s --max-time 8 -X PUT "${api_base}/api/users/1/profile" -H "Authorization: Bearer ${token}" -H 'Content-Type: application/json' -d '{"role":"user"}' >/dev/null
+    curl -s --max-time 8 "${api_base}/api/users/2/profile" -H "Authorization: Bearer ${token}" >/dev/null
+    curl -s --max-time 8 "${api_base}/api/admin/users" -H "Authorization: Bearer ${token}" >/dev/null
+    curl -s --max-time 8 -X PUT "${api_base}/api/users/1/profile" -H "Authorization: Bearer ${token}" -H 'Content-Type: application/json' -d '{"email":"alice+lab@opensec.lab","role":"admin"}' >/dev/null
+
+    local ok=true
+    for ev in bola_attempt mass_assignment_attempt broken_function_auth; do
+        if $SUDO_CMD docker exec opsn-api sh -lc "grep -q '\"event\": \"${ev}\"' /logs/api.log 2>/dev/null || grep -q '\"event\":\"${ev}\"' /logs/api.log 2>/dev/null"; then
+            log_info "Evento ${ev} registrado"
+        else
+            log_warn "Evento ${ev} no encontrado en el log de la API"
+            ok=false
+        fi
+    done
+
+    if $SUDO_CMD docker ps --format '{{.Names}}' 2>/dev/null | grep -qx opsn-wazuh-indexer; then
+        log_info "Wazuh activo — revisa el dashboard (filtro rule.groups: openseclab_api)"
+    else
+        log_warn "Wazuh no activo — camino solo-ofensivo (sin deteccion en SIEM)"
+    fi
+
+    if [[ "$ok" == "true" ]]; then
+        log_info "Doctor: camino del taller OK"
+    else
+        log_warn "Doctor: faltan eventos — revisa que opsn-api este corriendo"
+        return 1
+    fi
 }
 
 # ─────────────────────────────────────────────────────────────────
