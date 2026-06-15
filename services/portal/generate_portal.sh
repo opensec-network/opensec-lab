@@ -155,7 +155,8 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
     </a>
     <div class="navlinks">
       <a class="btn" href="http://localhost:${PORT_DOCS}" target="_blank">Documentación</a>
-      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Taller API</a>
+      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/web-hacking/" target="_blank">Taller Web <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
   </header>
 
@@ -164,7 +165,8 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
     <h1>Practica el ataque. Encuentra la evidencia.</h1>
     <p>Levanta targets vulnerables, lánzales ataques reales y observa cómo el SIEM los detecta. Explora a tu ritmo o sigue un taller guiado de principio a fin.</p>
     <div class="cta">
-      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Empezar el taller de API</a>
+      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/web-hacking/" target="_blank">Empezar el taller Web</a>
+      <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Taller de API</a>
       <a class="btn" href="#servicios">Ver todos los servicios</a>
     </div>
   </section>
@@ -177,10 +179,13 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
       <a class="btn" href="#servicios">Ver servicios</a>
     </div>
     <div class="mode">
-      <div class="label"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Taller guiado</div>
-      <h3>Ataque en API → Detección en Wazuh</h3>
-      <p>Un recorrido reproducible: explota, genera logs, investiga la alerta, entiende la regla.</p>
-      <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">Abrir taller</a>
+      <div class="label"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Talleres guiados</div>
+      <h3>Ataque → Detección en Wazuh</h3>
+      <p>Recorridos reproducibles: explota, genera logs, investiga la alerta, entiende la regla.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/web-hacking/" target="_blank">Web Hacking</a>
+        <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">API Breach</a>
+      </div>
     </div>
   </section>
 

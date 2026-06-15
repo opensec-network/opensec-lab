@@ -58,6 +58,8 @@ assert_file_exists "docs scenarios/web.md"       "services/docs/docs/scenarios/w
 # Docs - talleres guiados
 assert_file_exists "docs workshops/api-breach.md" "services/docs/docs/workshops/api-breach.md"
 assert_file_exists "docs workshops/api-breach-instructor.md" "services/docs/docs/workshops/api-breach-instructor.md"
+assert_file_exists "docs workshops/web-hacking.md" "services/docs/docs/workshops/web-hacking.md"
+assert_file_exists "docs workshops/web-hacking-instructor.md" "services/docs/docs/workshops/web-hacking-instructor.md"
 
 # Docs — servicios (Plan 3)
 for svc in dvwa juiceshop api wazuh gophish mail; do
@@ -81,6 +83,7 @@ for script in \
     services/gitea/configure_gitea.sh \
     services/portal/generate_portal.sh \
     tests/api-breach-readiness.sh \
+    tests/web-hacking-readiness.sh \
     services/mail/entrypoint.sh \
     services/desktop/custom-init.sh \
     services/desktop/init.sh
@@ -207,12 +210,17 @@ assert_file_contains \
 assert_file_contains \
     "portal muestra taller guiado" \
     "services/portal/generate_portal.sh" \
-    "Taller guiado"
+    "Talleres guiados"
 
 assert_file_contains \
     "portal enlaza taller de APIs" \
     "services/portal/generate_portal.sh" \
-    "Empezar el taller de API"
+    "Taller de API"
+
+assert_file_contains \
+    "portal enlaza taller Web Hacking" \
+    "services/portal/generate_portal.sh" \
+    "workshops/web-hacking/"
 
 assert_file_contains \
     "portal conserva acceso directo a servicios" \
@@ -268,6 +276,15 @@ assert_file_contains \
     "mkdocs.yml enlaza guia de instructor api-breach" \
     "services/docs/mkdocs.yml" \
     "workshops/api-breach-instructor.md"
+
+assert_file_contains \
+    "mkdocs nav incluye web-hacking" \
+    "services/docs/mkdocs.yml" \
+    "workshops/web-hacking.md"
+
+assert_file_exists \
+    "readiness web-hacking" \
+    "tests/web-hacking-readiness.sh"
 
 assert_file_contains \
     "script ofrece modo taller API Breach" \
