@@ -22,7 +22,9 @@ nav:
     - Hacking Web: scenarios/web.md
   - Talleres:
     - Ataque y deteccion en APIs: workshops/api-breach.md
-    - Guia de instructor: workshops/api-breach-instructor.md
+    - Guia de instructor (APIs): workshops/api-breach-instructor.md
+    - Hacking Web y Deteccion: workshops/web-hacking.md
+    - Guia de instructor (Web): workshops/web-hacking-instructor.md
   - Servicios:
     - DVWA: services/dvwa.md
     - Juice Shop: services/juiceshop.md
