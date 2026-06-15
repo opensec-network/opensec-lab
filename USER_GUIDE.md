@@ -1,6 +1,17 @@
 # Guía de Usuario — OpenSec Lab v1
 
-Laboratorio de ciberseguridad basado en Docker para simulaciones de phishing y entrenamiento en seguridad web.
+Laboratorio de ciberseguridad basado en Docker: practica ataques reales (web, API, phishing) y aprende a detectarlos en un SIEM real. Esta guía cubre los escenarios principales; el ejercicio de phishing es uno de ellos.
+
+---
+
+## API Vulnerable y el taller "API Breach to Detection"
+
+La experiencia insignia del lab es el taller **API Breach to Detection**: explotas fallas de una API REST vulnerable (BOLA, mass assignment, broken function auth) y luego investigas la evidencia en Wazuh SIEM en tiempo real. Es el loop ataque→detección en un solo entorno.
+
+El taller completo vive en `services/docs/docs/workshops/api-breach.md`. Cuando el servicio Docs está activo, accédelo en:
+`http://localhost:4000/workshops/api-breach/`
+
+> Para el catálogo completo de 12 servicios (API, Wazuh, Suricata, Portal, Docs, WebGoat, Gitea y más), consulta la tabla de servicios en el README.
 
 ---
 
@@ -66,6 +77,8 @@ Después de la instalación, el lab queda en `~/OpenSec_Lab/`.
 | DVWA | http://localhost:8080 | `admin` | `admin` |
 | Juice Shop | http://localhost:3000 | — | *(es un reto)* |
 | Technitium DNS | http://localhost:5380 | `admin` | `Password` |
+
+> Esta tabla cubre los servicios del ejercicio de phishing. El lab incluye 12 servicios en total (WebGoat, API Vulnerable, Wazuh, Suricata, Gitea, Portal, Docs). Consulta la tabla completa en el [README](README.md).
 
 ### Obtener la contraseña de GoPhish
 

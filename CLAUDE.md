@@ -10,6 +10,8 @@ Contexto y convenciones para trabajar en este repositorio.
 Reemplaza la cadena de repos independientes (`opensec-lab`, `opsn-mail`, `opsn-dns`, etc.)
 con un monorepo con un instalador tipo una línea.
 
+- **Identidad del producto:** lab de ciberseguridad centrado en el loop ataque→detección. La experiencia insignia es el taller "API Breach to Detection" (explotar fallas de API y detectarlas en Wazuh). No es solo un lab de phishing.
+- **Dirección del producto:** ver `docs/product-direction/` para decisiones y visión aprobadas.
 - **Audiencia:** Kali Linux (ARM64 / AMD64), mínimo 6 GB RAM, 20 GB disco
 - **Instalación:** `/bin/bash -c "$(curl -fsSL https://lab.opensec.network/install)"`
 - **GitHub:** `https://github.com/opensec-network/opensec-lab`
@@ -26,28 +28,46 @@ opensec-lab-v1/
 ├── config/
 │   └── defaults.env        # Valores por defecto (IPs, passwords, puertos, dominio)
 ├── services/
+│   ├── lib/common.sh       # Helpers compartidos entre init scripts
 │   ├── dns/configure_dns.sh
 │   ├── mail/               # Dockerfile + entrypoint + configs parametrizadas
 │   ├── desktop/            # init.sh + custom-init.sh + wallpaper
-│   └── gophish/            # configure_gophish.sh + templates HTML
+│   ├── gophish/            # configure_gophish.sh + templates HTML
+│   ├── gitea/              # configure_gitea.sh (repos con código vulnerable)
+│   ├── api/                # Dockerfile + app.py (API REST vulnerable, Flask)
+│   ├── wazuh/              # rules/openseclab.xml (reglas SIEM para el lab)
+│   ├── suricata/           # rules/openseclab.rules (reglas IDS para el lab)
+│   ├── portal/             # generate_portal.sh + nginx.conf
+│   └── docs/               # mkdocs.yml + docs/ (escenarios, talleres, cheatsheets)
+├── docs/
+│   └── product-direction/  # Visión del producto y decisiones de dirección
 ├── .github/workflows/
 │   ├── build-mail.yml      # Push de opensecnetwork/mail:multi-arch al tocar services/mail/
 │   └── release.yml         # Empaqueta tarballs + crea GitHub Release en git tag v*
-└── Makefile                # make release / make validate
+└── Makefile                # make release / make validate / make test-static
 ```
 
 ---
 
 ## Arquitectura de red
 
-| IP           | Contenedor       | Puerto(s) host              | Propósito                   |
-|--------------|------------------|-----------------------------|-----------------------------|
-| 172.18.0.2   | opsn-dns         | 5380, 53/udp, 53/tcp        | DNS (Technitium)            |
-| 172.18.0.3   | opsn-dvwa        | 8080                        | DVWA (app vulnerable)       |
-| 172.18.0.4   | opsn-juice-shop  | 3000                        | OWASP Juice Shop            |
-| 172.18.0.5   | opsn-gophish     | 3333, 80                    | GoPhish                     |
-| 172.18.0.6   | opsn-desktop     | 3100, 3101                  | Escritorio XFCE (Webtop)    |
-| 172.18.0.7   | opsn-mail        | 25, 143, 587, 8888→80       | Mail + Roundcube webmail    |
+Las IPs son ilustrativas — el compose actual asigna IPs dinámicamente dentro de `172.18.0.0/16`. Los servicios se localizan por nombre DNS (`*.opensec.lab`), no por IP fija.
+
+| Contenedor       | Puerto(s) host              | Propósito                              |
+|------------------|-----------------------------|----------------------------------------|
+| opsn-dns         | 5380, 53/udp, 53/tcp        | DNS (Technitium) — zona opensec.lab    |
+| opsn-dvwa        | 8080                        | DVWA (app vulnerable)                  |
+| opsn-juice-shop  | 3000                        | OWASP Juice Shop                       |
+| opsn-webgoat     | 8081                        | WebGoat (aprendizaje guiado OWASP)     |
+| opsn-api         | 8025                        | API REST vulnerable (Flask)            |
+| opsn-gophish     | 3333, 80                    | GoPhish                                |
+| opsn-desktop     | 3100, 3101                  | Escritorio XFCE (Webtop)              |
+| opsn-mail        | 25, 143, 587, 8888→80       | Mail + Roundcube webmail               |
+| opsn-gitea       | 3002, 2222                  | Repos con código vulnerable            |
+| opsn-wazuh       | 5601                        | Wazuh SIEM (Blue Team)                 |
+| opsn-suricata    | —                           | Suricata IDS (pasivo, junto a Wazuh)   |
+| opsn-portal      | 8443                        | Panel de inicio con acceso a servicios |
+| opsn-docs        | 4000                        | MkDocs con escenarios y talleres       |
 
 ---
 
@@ -84,7 +104,8 @@ mail
 - `gophish` → agrega `dns` + `mail`
 - `desktop` → agrega `dns`
 - `mail` → agrega `dns`
-- `dvwa` / `juice-shop` → independientes
+- `wazuh` → agrega `dns`
+- `dvwa` / `juice-shop` / `webgoat` / `api` / `gitea` / `portal` / `docs` → independientes
 
 ---
 
@@ -99,6 +120,10 @@ opsn-dns.tar.gz
 opsn-mail.tar.gz
 opsn-desktop.tar.gz
 opsn-gophish.tar.gz
+opsn-gitea.tar.gz
+opsn-portal.tar.gz
+opsn-api.tar.gz
+opsn-docs.tar.gz
 checksums.sha256
 ```
 
@@ -154,4 +179,4 @@ docker exec opsn-desktop nc -zv 172.18.0.7 25
 - Publicar `opensecnetwork/mail:multi-arch` → cambiar `build:` por `image:` en compose
 - Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install` → `opensec-lab.sh` del último release
 - Comprimir `services/desktop/opsn-background.jpg` a < 1 MB (actualmente ~15 MB) o usar Git LFS
-- Agregar `make validate` al CI (lint en cada PR)
+- Publicar `opensecnetwork/api:multi-arch` para eliminar el `build:` local de `opsn-api`

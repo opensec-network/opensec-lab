@@ -1,8 +1,8 @@
 # OpenSec Lab
 
-Laboratorio de ciberseguridad basado en Docker para simulaciones de phishing y entrenamiento en seguridad web.
+Laboratorio de ciberseguridad basado en Docker: practica ataques reales (web, API, phishing) y aprende a **detectarlos** en un SIEM real. Instala solo lo que necesitas, con un comando.
 
-Instala solo los servicios que necesitas. Un script hace todo.
+**Experiencia insignia:** el taller *API Breach to Detection* — explotas fallas de API (BOLA, mass assignment, broken function auth) y luego investigas la evidencia en Wazuh. Atacar y defender en un mismo loop.
 
 ---
 
