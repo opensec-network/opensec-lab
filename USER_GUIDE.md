@@ -74,7 +74,7 @@ Después de la instalación, el lab queda en `~/OpenSec_Lab/`.
 | GoPhish (admin) | https://localhost:3333 | `admin` | *(auto-generada — ver abajo)* |
 | Desktop (Webtop) | http://localhost:3100 | `abc` | `abc` |
 | Roundcube (webmail) | http://localhost:8888 | `admin` | `Password` |
-| DVWA | http://localhost:8080 | `admin` | `admin` |
+| DVWA | http://localhost:8080 | `admin` | `password` |
 | Juice Shop | http://localhost:3000 | — | *(es un reto)* |
 | Technitium DNS | http://localhost:5380 | `admin` | `Password` |
 

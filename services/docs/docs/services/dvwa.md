@@ -1,7 +1,7 @@
 # DVWA — Damn Vulnerable Web Application
 
 **URL:** http://localhost:8080
-**Credenciales:** `admin` / `admin`
+**Credenciales:** `admin` / `password`
 **Proposito:** Practicar OWASP Web Top 10 en un entorno controlado.
 
 ---

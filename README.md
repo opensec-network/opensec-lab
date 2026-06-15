@@ -43,7 +43,7 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 
 | Servicio | Usuario | Contraseña | URL |
 |----------|---------|------------|-----|
-| DVWA | `admin` | `admin` | http://localhost:8080 |
+| DVWA | `admin` | `password` | http://localhost:8080 |
 | Juice Shop | — | (es un reto) | http://localhost:3000 |
 | API — alice | `alice` | `alice123` | http://localhost:8025 |
 | API — admin | `admin` | `admin_secret` | http://localhost:8025 |
