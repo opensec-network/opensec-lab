@@ -227,6 +227,26 @@ verificar_puertos_host() {
     return 0
 }
 
+# Advierte si el lab se publica fuera de localhost (expone apps vulnerables a
+# toda la red). Por defecto OPSN_BIND_ADDR=127.0.0.1 y no muestra nada.
+advertir_exposicion_red() {
+    local bind_addr answer
+    bind_addr=$(grep '^OPSN_BIND_ADDR=' "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"')
+    bind_addr=${bind_addr:-127.0.0.1}
+    case "$bind_addr" in
+        127.0.0.1|localhost) return 0 ;;
+    esac
+    log_warn "OPSN_BIND_ADDR=${bind_addr}: el lab se expondrá fuera de esta máquina."
+    echo ""
+    echo "  Servicios deliberadamente vulnerables (DVWA, API, GoPhish, Juice Shop)"
+    echo "  quedarán accesibles desde otras máquinas de la red. Úsalo SOLO en una"
+    echo "  red aislada o de laboratorio controlada, nunca en redes no confiables."
+    echo ""
+    echo -n "  ¿Continuar con la exposición a ${bind_addr}? [s/N]: "
+    read -r answer
+    [[ "$answer" =~ ^[sS]$ ]] || return 1
+}
+
 # ─────────────────────────────────────────────────────────────────
 # ESTIMACIÓN DE RAM
 # ─────────────────────────────────────────────────────────────────
@@ -654,6 +674,9 @@ instalar_servicios() {
     # Ejecutar docker compose con los profiles activos
     local profile_flags
     profile_flags=$(profiles_to_flags)
+
+    # Advertir si el lab se expone fuera de localhost (apps vulnerables)
+    advertir_exposicion_red || return 1
 
     # Verificar colisiones de puertos del host antes de levantar contenedores
     verificar_puertos_host "$profile_flags" || return 1

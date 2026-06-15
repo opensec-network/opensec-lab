@@ -44,9 +44,9 @@ services:
         wait
       "
     ports:
-      - "${OPSN_DNS_CONSOLE_PORT:-5380}:5380"
-      - "53:53/udp"
-      - "53:53/tcp"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_DNS_CONSOLE_PORT:-5380}:5380"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:53:53/udp"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:53:53/tcp"
     networks:
       - openseclab
     restart: unless-stopped
@@ -82,7 +82,7 @@ services:
       - DB_USER=dvwa
       - DB_PASSWORD=p@ssw0rd
     ports:
-      - "${OPSN_DVWA_PORT:-8080}:80"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_DVWA_PORT:-8080}:80"
     networks:
       - openseclab
     restart: unless-stopped
@@ -96,7 +96,7 @@ services:
     container_name: opsn-juice-shop
     profiles: ["juice-shop", "all"]
     ports:
-      - "${OPSN_JUICE_PORT:-3000}:3000"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_JUICE_PORT:-3000}:3000"
     networks:
       - openseclab
     restart: unless-stopped
@@ -110,7 +110,7 @@ services:
     container_name: opsn-webgoat
     profiles: ["webgoat", "all"]
     ports:
-      - "${OPSN_WEBGOAT_PORT:-8081}:8080"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_WEBGOAT_PORT:-8081}:8080"
     networks:
       - openseclab
     healthcheck:
@@ -136,7 +136,7 @@ services:
     volumes:
       - opsn_api_logs:/logs
     ports:
-      - "${OPSN_API_PORT:-8025}:5000"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_API_PORT:-8025}:5000"
     networks:
       - openseclab
     healthcheck:
@@ -176,8 +176,8 @@ services:
       - opsn_gophish_data:/opt/gophish/data
       - ./services/gophish/config.json:/opt/gophish/config.json:ro
     ports:
-      - "${OPSN_GOPHISH_ADMIN_PORT:-3333}:3333"
-      - "${OPSN_GOPHISH_PHISH_PORT:-80}:80"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_GOPHISH_ADMIN_PORT:-3333}:3333"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_GOPHISH_PHISH_PORT:-80}:80"
     networks:
       openseclab:
         aliases:
@@ -244,8 +244,8 @@ services:
       - ./services/desktop/init.sh:/custom-cont-init.d/98-opsn-x11.sh:ro
       - ./services/desktop/opsn-background.jpg:/config/opsn-background.jpg:ro
     ports:
-      - "${OPSN_DESKTOP_PORT:-3100}:3000"
-      - "${OPSN_DESKTOP_HTTPS_PORT:-3101}:3001"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_DESKTOP_PORT:-3100}:3000"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_DESKTOP_HTTPS_PORT:-3101}:3001"
     networks:
       - openseclab
     healthcheck:
@@ -272,10 +272,10 @@ services:
       - opsn_mail_data:/var/mail
       - opsn_mail_roundcube:/var/www/html/roundcube/config
     ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "${OPSN_MAIL_WEBMAIL_PORT:-8888}:80"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:25:25"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:143:143"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:587:587"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_MAIL_WEBMAIL_PORT:-8888}:80"
     networks:
       openseclab:
         aliases:
@@ -318,8 +318,8 @@ services:
       - opsn_gitea_data:/data
       - ./services/gitea/gitea-entrypoint.sh:/gitea-entrypoint.sh:ro
     ports:
-      - "${OPSN_GITEA_PORT:-3002}:3000"
-      - "${OPSN_GITEA_SSH_PORT:-2222}:22"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_GITEA_PORT:-3002}:3000"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_GITEA_SSH_PORT:-2222}:22"
     networks:
       - openseclab
     healthcheck:
@@ -398,7 +398,7 @@ services:
       - ./services/portal/assets:/html/assets:ro
       - ./services/portal/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
-      - "${OPSN_PORTAL_PORT:-8443}:80"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_PORTAL_PORT:-8443}:80"
     networks:
       - openseclab
     restart: unless-stopped
@@ -434,7 +434,7 @@ services:
       - opsn_docs_html:/usr/share/nginx/html:ro
       - ./services/docs/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
-      - "${OPSN_DOCS_PORT:-4000}:80"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_DOCS_PORT:-4000}:80"
     networks:
       - openseclab
     restart: unless-stopped
@@ -532,10 +532,10 @@ services:
       - ./services/wazuh/config/ossec.conf:/wazuh-config-mount/etc/ossec.conf:ro
       - ./services/wazuh/rules/openseclab.xml:/var/ossec/etc/rules/openseclab.xml:ro
     ports:
-      - "1514:1514/udp"
-      - "1514:1514/tcp"
-      - "1515:1515"
-      - "${OPSN_WAZUH_API_PORT:-55000}:55000"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:1514:1514/udp"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:1514:1514/tcp"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:1515:1515"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_WAZUH_API_PORT:-55000}:55000"
     networks:
       openseclab:
         aliases:
@@ -574,7 +574,7 @@ services:
       - ./services/wazuh/config/wazuh.yml:/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml:ro
       - ./services/wazuh/dashboards:/opsn-dashboards:ro
     ports:
-      - "${OPSN_WAZUH_DASH_PORT:-5601}:5601"
+      - "${OPSN_BIND_ADDR:-127.0.0.1}:${OPSN_WAZUH_DASH_PORT:-5601}:5601"
     networks:
       openseclab:
         aliases:

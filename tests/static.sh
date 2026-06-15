@@ -284,6 +284,21 @@ assert_file_contains \
     "opensec-lab.sh" \
     "verificar_puertos_host"
 
+assert_file_contains \
+    "script advierte exposicion de red" \
+    "opensec-lab.sh" \
+    "advertir_exposicion_red"
+
+assert_file_contains \
+    "compose bindea puertos via OPSN_BIND_ADDR" \
+    "docker-compose.yml" \
+    "OPSN_BIND_ADDR"
+
+assert_file_contains \
+    "defaults.env define OPSN_BIND_ADDR seguro por defecto" \
+    "config/defaults.env" \
+    "OPSN_BIND_ADDR=127.0.0.1"
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────
