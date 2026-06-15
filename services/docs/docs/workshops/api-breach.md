@@ -165,14 +165,16 @@ Abre la alerta `100063` (mass assignment) y observa estos campos:
 
 ## Reset rapido
 
-La API usa datos en memoria. Para volver al estado inicial:
+La forma mas simple: en el menu del lab (`~/OpenSec_Lab/opensec-lab.sh`), elige
+la opcion **15) Reset del taller**. Reinicia la API al estado inicial, limpia su
+log y borra las alertas del taller en Wazuh.
+
+Manualmente, solo el lado ofensivo (la API usa datos en memoria):
 
 ```bash
-docker restart opsn-api
+docker restart opsn-api                          # usuarios al estado inicial
+docker exec opsn-api sh -lc ': > /logs/api.log'  # limpiar eventos previos
 ```
 
-Si tambien quieres limpiar eventos previos:
-
-```bash
-docker exec opsn-api sh -lc ': > /logs/api.log'
-```
+> Wazuh indexa con 1-3 min de retraso. Si reseteas justo despues de atacar, alguna
+> alerta "en vuelo" puede sobrevivir; vuelve a correr el reset (opcion 15) para barrerla.

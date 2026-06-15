@@ -295,6 +295,11 @@ assert_file_contains \
     "lab_doctor"
 
 assert_file_contains \
+    "script ofrece reset del taller" \
+    "opensec-lab.sh" \
+    "reset_taller"
+
+assert_file_contains \
     "compose bindea puertos via OPSN_BIND_ADDR" \
     "docker-compose.yml" \
     "OPSN_BIND_ADDR"

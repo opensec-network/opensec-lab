@@ -97,7 +97,16 @@ Wazuh puede tardar varios minutos en indexar eventos despues del arranque.
 
 ## Reset antes de repetir
 
+Usa la opcion **15) Reset del taller** del menu (`~/OpenSec_Lab/opensec-lab.sh`):
+reinicia la API, limpia su log y borra las alertas del taller en Wazuh, dejando el
+ejercicio listo para el siguiente grupo.
+
+Equivalente manual del lado ofensivo:
+
 ```bash
 docker restart opsn-api
 docker exec opsn-api sh -lc ': > /logs/api.log'
 ```
+
+> Wazuh indexa con 1-3 min de retraso. Resetea entre grupos con margen, o corre el
+> reset dos veces si lo haces inmediatamente tras la ultima corrida.

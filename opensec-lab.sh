@@ -1231,6 +1231,50 @@ lab_doctor() {
 }
 
 # ─────────────────────────────────────────────────────────────────
+# RESET DEL TALLER — estado limpio para re-correr (instructores)
+# ─────────────────────────────────────────────────────────────────
+# Deja el taller API Breach listo para una nueva corrida: reinicia la API
+# (usuarios en memoria → estado inicial), limpia su log y borra las alertas
+# del taller en Wazuh (que de otro modo se acumulan entre corridas).
+reset_taller() {
+    log_step "Reset del taller API Breach (estado limpio para re-correr)"
+    echo ""
+
+    # Lado ofensivo: API a estado inicial + log limpio
+    if $SUDO_CMD docker ps --format '{{.Names}}' 2>/dev/null | grep -qx opsn-api; then
+        $SUDO_CMD docker restart opsn-api >/dev/null 2>&1
+        $SUDO_CMD docker exec opsn-api sh -lc ': > /logs/api.log' 2>/dev/null || true
+        log_info "API reiniciada (usuarios al estado inicial) y log limpiado"
+    else
+        log_warn "opsn-api no está corriendo; nada que reiniciar del lado ofensivo"
+    fi
+
+    # Lado azul: borrar las alertas del taller (reglas 100061-100065) en Wazuh
+    if $SUDO_CMD docker ps --format '{{.Names}}' 2>/dev/null | grep -qx opsn-wazuh-indexer; then
+        local wp deleted
+        wp=$(grep '^OPSN_WAZUH_PASSWORD=' "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"')
+        wp=${wp:-admin}
+        # Quitar un posible read-only block (disco lleno) antes de borrar
+        $SUDO_CMD docker exec opsn-wazuh-indexer curl -sk -u "admin:${wp}" -X PUT \
+            'https://localhost:9200/wazuh-alerts-*/_settings' \
+            -H 'Content-Type: application/json' \
+            -d '{"index.blocks.read_only_allow_delete":null}' >/dev/null 2>&1
+        deleted=$($SUDO_CMD docker exec opsn-wazuh-indexer curl -sk -u "admin:${wp}" -X POST \
+            'https://localhost:9200/wazuh-alerts-*/_delete_by_query?refresh=true&conflicts=proceed' \
+            -H 'Content-Type: application/json' \
+            -d '{"query":{"terms":{"rule.id":["100061","100062","100063","100064","100065"]}}}' 2>/dev/null \
+            | grep -oE '"deleted":[0-9]+' | head -1 | cut -d: -f2)
+        log_info "Alertas del taller eliminadas de Wazuh (${deleted:-0})"
+    else
+        log_warn "Wazuh no está corriendo; sin alertas que limpiar"
+    fi
+
+    echo ""
+    log_info "Reset completo. El taller puede correrse de nuevo desde cero."
+    return 0
+}
+
+# ─────────────────────────────────────────────────────────────────
 # MENÚ PRINCIPAL — GESTIÓN (instalación existente)
 # ─────────────────────────────────────────────────────────────────
 menu_gestion() {
@@ -1255,6 +1299,7 @@ menu_gestion() {
         echo " 12) Modo taller — API Breach to Detection"
         echo " 13) Doctor — verificar el camino del taller"
         echo " 14) Lab Doctor — diagnóstico general del lab"
+        echo " 15) Reset del taller — estado limpio para re-correr"
         echo ""
         echo -n "  Opción: "
         read -r option
@@ -1341,6 +1386,9 @@ menu_gestion() {
                 ;;
             14)
                 lab_doctor
+                ;;
+            15)
+                reset_taller
                 ;;
             *)
                 log_warn "Opción inválida."
