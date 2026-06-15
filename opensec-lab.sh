@@ -41,6 +41,13 @@ declare -a SERVICES_CATALOG=(
     "opsn-wazuh|Wazuh SIEM + Suricata IDS — Blue Team (8+ GB RAM)|yes|opsn-dns opsn-suricata"
 )
 
+# Servicios que se empaquetan como tarball en el release (DEBE coincidir con
+# Makefile SERVICES y .github/workflows/release.yml). Fuente de verdad de
+# "necesita archivos": un servicio necesita descargar su tarball si y solo si
+# el compose monta/build-ea ./services/<svc>. dvwa/juice-shop/webgoat son
+# imagenes puras y no se empaquetan.
+PACKAGED_SERVICES="dns mail desktop gophish gitea portal wazuh suricata api docs"
+
 # ─────────────────────────────────────────────────────────────────
 # COLORES
 # ─────────────────────────────────────────────────────────────────
@@ -421,13 +428,11 @@ descargar_paquete_servicio() {
 }
 
 servicio_necesita_archivos() {
-    local svc="$1"
-    for entry in "${SERVICES_CATALOG[@]}"; do
-        if [[ "$(echo "$entry" | cut -d'|' -f1)" == "$svc" ]]; then
-            [[ "$(echo "$entry" | cut -d'|' -f3)" == "yes" ]] && return 0
-        fi
-    done
-    return 1
+    local svc="${1#opsn-}"
+    case " $PACKAGED_SERVICES " in
+        *" $svc "*) return 0 ;;
+        *)          return 1 ;;
+    esac
 }
 
 # ─────────────────────────────────────────────────────────────────
