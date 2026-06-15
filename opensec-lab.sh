@@ -181,6 +181,53 @@ verificar_puerto_53() {
 }
 
 # ─────────────────────────────────────────────────────────────────
+# VERIFICACIÓN DE PUERTOS DEL HOST
+# ─────────────────────────────────────────────────────────────────
+# ¿Está el puerto TCP escuchando en el host? Cascada ss → lsof → nc para
+# funcionar en Linux (Kali/Ubuntu) y macOS por igual.
+puerto_ocupado() {
+    local port="$1"
+    if command -v ss &>/dev/null; then
+        ss -ltnH 2>/dev/null | awk '{print $4}' | sed 's/.*://' | grep -qx "$port"
+    elif command -v lsof &>/dev/null; then
+        lsof -nP -iTCP:"$port" -sTCP:LISTEN &>/dev/null
+    elif command -v nc &>/dev/null; then
+        nc -z 127.0.0.1 "$port" &>/dev/null
+    else
+        return 1  # sin herramienta para verificar → no bloquear la instalación
+    fi
+}
+
+# Avisa si algún puerto del host que publicarán los servicios seleccionados ya
+# está en uso. Los puertos se derivan del compose resuelto (fuente unica de
+# verdad), no de un mapeo manual que se desincronice.
+verificar_puertos_host() {
+    local profile_flags="$1"
+    local puertos ocupados=() p answer
+    # shellcheck disable=SC2086
+    puertos=$($SUDO_CMD docker compose -f "$DC_FILE" --env-file "$ENV_FILE" $profile_flags config 2>/dev/null \
+        | grep -E '^[[:space:]]*published:' | grep -oE '[0-9]+' | sort -un)
+
+    for p in $puertos; do
+        puerto_ocupado "$p" && ocupados+=("$p")
+    done
+
+    if [ ${#ocupados[@]} -gt 0 ]; then
+        log_warn "Puertos del host ya en uso: ${ocupados[*]}"
+        echo ""
+        echo "  El lab no podrá publicar estos puertos; los servicios que los usan fallarán."
+        echo "  Opciones:"
+        echo "    1. Libera el puerto (detén el proceso o contenedor que lo ocupa)."
+        echo "    2. Cámbialo en ${ENV_FILE} (variables OPSN_*_PORT) y reintenta."
+        echo ""
+        echo -n "  ¿Continuar de todas formas? [s/N]: "
+        read -r answer
+        [[ "$answer" =~ ^[sS]$ ]] || return 1
+    fi
+    return 0
+}
+
+# ─────────────────────────────────────────────────────────────────
 # ESTIMACIÓN DE RAM
 # ─────────────────────────────────────────────────────────────────
 # RAM estimada por servicio (MB)
@@ -607,6 +654,9 @@ instalar_servicios() {
     # Ejecutar docker compose con los profiles activos
     local profile_flags
     profile_flags=$(profiles_to_flags)
+
+    # Verificar colisiones de puertos del host antes de levantar contenedores
+    verificar_puertos_host "$profile_flags" || return 1
 
     # Asegurar que la red external existe antes de compose up
     $SUDO_CMD docker network inspect openseclab >/dev/null 2>&1 || \

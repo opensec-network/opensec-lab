@@ -279,6 +279,11 @@ assert_file_contains \
     "opensec-lab.sh" \
     "doctor_taller"
 
+assert_file_contains \
+    "script verifica colisiones de puertos del host" \
+    "opensec-lab.sh" \
+    "verificar_puertos_host"
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────
