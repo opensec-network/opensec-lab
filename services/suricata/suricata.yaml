@@ -2,16 +2,18 @@
 ---
 # services/suricata/suricata.yaml
 # OpenSec Lab — Configuración de Suricata IDS
-# Monitorea la red Docker del laboratorio (172.18.0.0/16)
+# Monitorea la red Docker del lab. La subred es asignada dinámicamente por
+# Docker (no fija): HOME_NET cubre todo el rango privado para no depender de
+# una subred concreta (172.18, 172.21, etc. son todas /12 dentro de 172.16).
 
 # ── Grupos de IPs/puertos del lab ───────────────────────────────────
 vars:
   address-groups:
-    HOME_NET: "[172.18.0.0/16,172.21.0.0/16,127.0.0.0/8]"
+    HOME_NET: "[172.16.0.0/12,10.0.0.0/8,192.168.0.0/16,127.0.0.0/8]"
     EXTERNAL_NET: "!$HOME_NET"
     HTTP_SERVERS: "$HOME_NET"
     SQL_SERVERS: "$HOME_NET"
-    DNS_SERVERS: "[172.18.0.2,172.21.0.2]"
+    DNS_SERVERS: "$HOME_NET"
 
   port-groups:
     # Puertos de los servicios del lab
@@ -146,7 +148,7 @@ rule-files:
 
 # ── Sistema operativo objetivo (red Docker es Linux) ──────────────────
 host-os-policy:
-  linux: [172.18.0.0/16]
+  linux: [172.16.0.0/12,10.0.0.0/8,192.168.0.0/16]
   windows: [0.0.0.0/0]
 
 # ── Desfragmentación IP ───────────────────────────────────────────────
