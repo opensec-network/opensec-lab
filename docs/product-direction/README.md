@@ -1,7 +1,12 @@
 # OpenSec Lab Product Direction
 
-Date: 2026-05-24
-Status: Direction approved, implementation not started
+Date: 2026-05-24 (verificado 2026-06-15)
+Status: Direction approved; flagship "API Breach to Detection" implementado y verificado
+end-to-end el 2026-06-15 (macOS Docker Desktop / Apple Silicon). Camino ofensivo + indexación
+de alertas en Wazuh confirmados por `tests/api-breach-readiness.sh` (9/9, reglas 100061/100063/100064).
+Modo taller + doctor disponibles en el menú del script. Recorrido de las 3 audiencias (autoguiado
+docs:4000, instructor/demo portal:8443) responde HTTP 200. AMD64 es la plataforma primaria; esta
+corrida fue en ARM sin fallos ARM-específicos observados.
 
 ## Direction
 
