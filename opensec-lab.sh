@@ -1160,6 +1160,77 @@ doctor_taller() {
 }
 
 # ─────────────────────────────────────────────────────────────────
+# LAB DOCTOR — diagnóstico general del lab
+# ─────────────────────────────────────────────────────────────────
+# Revisa la salud de TODO el lab (no solo el taller): red, estado y health de
+# cada contenedor, y sidecars de inicialización que hayan fallado.
+lab_doctor() {
+    log_step "Lab Doctor — diagnóstico general del lab"
+    echo ""
+    local issues=0 c estado health rc
+
+    if $SUDO_CMD docker network inspect openseclab >/dev/null 2>&1; then
+        log_info "Red openseclab: OK"
+    else
+        log_error "Red openseclab: ausente — los servicios no se comunicarán"
+        issues=$((issues+1))
+    fi
+    echo ""
+
+    local contenedores
+    contenedores=$($SUDO_CMD docker ps -a --filter 'name=opsn-' --format '{{.Names}}' 2>/dev/null | sort)
+    if [ -z "$contenedores" ]; then
+        log_warn "No hay contenedores del lab (opsn-*). ¿Está instalado?"
+        return 0
+    fi
+
+    for c in $contenedores; do
+        estado=$($SUDO_CMD docker inspect -f '{{.State.Status}}' "$c" 2>/dev/null)
+        health=$($SUDO_CMD docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}-{{end}}' "$c" 2>/dev/null)
+        case "$estado" in
+            running)
+                if [ "$health" = "unhealthy" ]; then
+                    log_error "${c}: corriendo pero UNHEALTHY (docker logs ${c})"; issues=$((issues+1))
+                elif [ "$health" = "starting" ]; then
+                    log_warn "${c}: arrancando (health=starting)"
+                else
+                    log_info "${c}: corriendo${health:+ (health=$health)}"
+                fi
+                ;;
+            exited)
+                rc=$($SUDO_CMD docker inspect -f '{{.State.ExitCode}}' "$c" 2>/dev/null)
+                case "$c" in
+                    *-init|*-certs|*-build|*-volume-init)
+                        if [ "$rc" = "0" ]; then
+                            log_info "${c}: completado (sidecar de inicialización)"
+                        else
+                            log_error "${c}: sidecar FALLÓ (exit ${rc}) — la configuración pudo no aplicarse"; issues=$((issues+1))
+                        fi
+                        ;;
+                    *)
+                        log_error "${c}: DETENIDO (exit ${rc}) — docker logs ${c}"; issues=$((issues+1))
+                        ;;
+                esac
+                ;;
+            restarting)
+                log_error "${c}: en bucle de reinicio — docker logs ${c}"; issues=$((issues+1))
+                ;;
+            *)
+                log_warn "${c}: estado '${estado:-desconocido}'"
+                ;;
+        esac
+    done
+
+    echo ""
+    if [ "$issues" -eq 0 ]; then
+        log_info "Lab Doctor: sin problemas detectados."
+    else
+        log_warn "Lab Doctor: ${issues} problema(s) detectado(s). Revisa los contenedores marcados."
+    fi
+    return 0
+}
+
+# ─────────────────────────────────────────────────────────────────
 # MENÚ PRINCIPAL — GESTIÓN (instalación existente)
 # ─────────────────────────────────────────────────────────────────
 menu_gestion() {
@@ -1183,6 +1254,7 @@ menu_gestion() {
         echo ""
         echo " 12) Modo taller — API Breach to Detection"
         echo " 13) Doctor — verificar el camino del taller"
+        echo " 14) Lab Doctor — diagnóstico general del lab"
         echo ""
         echo -n "  Opción: "
         read -r option
@@ -1266,6 +1338,9 @@ menu_gestion() {
                 ;;
             13)
                 doctor_taller
+                ;;
+            14)
+                lab_doctor
                 ;;
             *)
                 log_warn "Opción inválida."

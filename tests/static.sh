@@ -290,6 +290,11 @@ assert_file_contains \
     "advertir_exposicion_red"
 
 assert_file_contains \
+    "script ofrece lab doctor general" \
+    "opensec-lab.sh" \
+    "lab_doctor"
+
+assert_file_contains \
     "compose bindea puertos via OPSN_BIND_ADDR" \
     "docker-compose.yml" \
     "OPSN_BIND_ADDR"
