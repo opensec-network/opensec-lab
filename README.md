@@ -24,17 +24,18 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 |---|----------|-------------|-----------|
 | 1 | **DVWA** | Damn Vulnerable Web Application | 8080 |
 | 2 | **Juice Shop** | OWASP Juice Shop — 100+ retos | 3000 |
-| 3 | **API Vulnerable** | API REST con OWASP API Top 10 | 8025 |
-| 4 | **GoPhish** | Framework de phishing con campaña pre-configurada | 3333, 80 |
-| 5 | **Desktop** | Escritorio XFCE con Thunderbird pre-configurado | 3100 |
-| 6 | **DNS** | Servidor DNS Technitium para la zona `opensec.lab` | 5380 |
-| 7 | **Mail** | Servidor de correo + Roundcube webmail | 8888 |
-| 8 | **Wazuh** | SIEM — detecta todos los ataques del lab en tiempo real | 5601 |
-| 9 | **Suricata** | IDS — monitorea el tráfico de red del lab | — |
-| 10 | **Portal** | Panel de inicio con acceso a todos los servicios | 4080 |
-| 11 | **Docs** | Documentación y escenarios guiados | 4000 |
+| 3 | **WebGoat** | Plataforma de aprendizaje guiado OWASP | 8081 |
+| 4 | **API Vulnerable** | API REST con OWASP API Security Top 10 (Flask) | 8025 |
+| 5 | **GoPhish** | Framework de phishing con campaña pre-configurada | 3333, 80 |
+| 6 | **Desktop** | Escritorio XFCE con Thunderbird pre-configurado | 3100 |
+| 7 | **DNS** | Servidor DNS Technitium para la zona `opensec.lab` | 5380 |
+| 8 | **Mail** | Servidor de correo + Roundcube webmail | 8888 |
+| 9 | **Gitea** | Repos con código vulnerable para análisis estático | 3002, 2222 |
+| 10 | **Wazuh + Suricata** | SIEM + IDS (Blue Team) — detecta los ataques del lab en tiempo real. Suricata (IDS pasivo) se instala junto con Wazuh. | 5601 |
+| 11 | **Portal** | Panel de inicio con acceso a todos los servicios | 8443 |
+| 12 | **Docs** | Documentación y escenarios guiados (MkDocs) | 4000 |
 
-> GoPhish requiere DNS y Mail. Wazuh requiere DNS. Desktop y Mail requieren DNS.
+> GoPhish requiere DNS y Mail. Wazuh requiere DNS. Desktop y Mail requieren DNS. Gitea, DVWA, Juice Shop y WebGoat son independientes.
 
 ---
 
@@ -106,6 +107,11 @@ openseclab (172.18.0.0/16)
 ├── 172.18.0.10 opsn-suricata     Suricata IDS (pasivo)
 └── (dinámica)  opsn-docs         MkDocs :4000
 ```
+
+> **Nota sobre las IPs:** son ilustrativas. El `docker-compose.yml` actual **no asigna IPs
+> estáticas** — Docker las asigna dinámicamente dentro de la subred `172.18.0.0/16`. Los
+> servicios se localizan entre sí por nombre DNS (`*.opensec.lab`), no por IP fija. El diagrama
+> tampoco incluye WebGoat (8081) ni Gitea (3002), que también forman parte del catálogo.
 
 Zona DNS `opensec.lab` configurada automáticamente:
 

@@ -9,6 +9,23 @@
 
 ---
 
+> ⚠️ **ADVERTENCIA DE ESTADO REAL (verificado 2026-06-15):** Este documento describe la
+> visión histórica de "Expansión v2". Varios ítems marcados `[x] Completado` **NO existen**
+> en el `docker-compose.yml` ni en el catálogo de servicios actuales (`SERVICES_CATALOG`):
+>
+> - **CTFd** (Fase 2) — no presente
+> - **BookStack / wiki** (Fase 2) — no presente
+> - **crAPI** (Fase 1) — no presente
+> - **Portainer** (Fase 1) — no presente
+>
+> El producto **realmente instalable hoy** son 12 servicios:
+> `dns, mail, gophish, desktop, dvwa, juice-shop, webgoat, api, gitea, docs, portal, wazuh(+suricata)`.
+> La dirección de producto vigente está en `docs/product-direction/` (flagship
+> "API Breach to Detection"). No tratar los checkboxes `[x]` de este documento como estado
+> real sin verificar contra el código.
+
+---
+
 ## Vision
 
 Transformar OpenSec Lab de un simulador de phishing + apps vulnerables en una

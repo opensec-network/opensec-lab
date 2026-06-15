@@ -190,14 +190,14 @@ assert_file_contains \
     'PORT_DOCS='
 
 assert_file_contains \
-    "portal tiene seccion ATAQUE" \
+    "portal tiene seccion de ataque (targets vulnerables)" \
     "services/portal/generate_portal.sh" \
-    "ATAQUE"
+    "targets vulnerables"
 
 assert_file_contains \
-    "portal tiene seccion Blue Team - Defensa y Aprendizaje" \
+    "portal tiene seccion Blue team" \
     "services/portal/generate_portal.sh" \
-    "Blue Team"
+    "Blue team"
 
 assert_file_contains \
     "portal muestra exploracion libre" \
@@ -205,14 +205,14 @@ assert_file_contains \
     "Explorar libremente"
 
 assert_file_contains \
-    "portal muestra talleres guiados" \
+    "portal muestra taller guiado" \
     "services/portal/generate_portal.sh" \
-    "Talleres guiados"
+    "Taller guiado"
 
 assert_file_contains \
     "portal enlaza taller de APIs" \
     "services/portal/generate_portal.sh" \
-    "Taller: Ataque y deteccion en APIs"
+    "Empezar el taller de API"
 
 assert_file_contains \
     "portal conserva acceso directo a servicios" \
