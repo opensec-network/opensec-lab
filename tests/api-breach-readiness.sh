@@ -126,12 +126,33 @@ for event in bola_attempt mass_assignment_attempt broken_function_auth; do
     fi
 done
 
-section "Wazuh"
+section "Wazuh — indexacion de alertas"
 
-if container_running "opsn-wazuh-manager"; then
-    pass "Wazuh manager esta corriendo; busca rule.groups: openseclab_api en el dashboard"
+WAZUH_PASS="${OPSN_WAZUH_PASSWORD:-admin}"
+
+if container_running "opsn-wazuh-indexer"; then
+    # Da tiempo a Wazuh para indexar los eventos recien generados.
+    indexed=0
+    for _ in 1 2 3 4 5 6; do
+        agg="$(docker exec opsn-wazuh-indexer curl -sk -u "admin:${WAZUH_PASS}" \
+            'https://localhost:9200/wazuh-alerts-*/_search' \
+            -H 'Content-Type: application/json' \
+            -d '{"query":{"terms":{"rule.id":["100061","100063","100064"]}},"size":0,"aggs":{"by_rule":{"terms":{"field":"rule.id"}}}}' 2>/dev/null)"
+        for rid in 100061 100063 100064; do
+            printf '%s' "$agg" | grep -q "\"key\":\"${rid}\"" || { indexed=0; break; }
+            indexed=1
+        done
+        [ "$indexed" = "1" ] && break
+        sleep 20
+    done
+
+    if [ "$indexed" = "1" ]; then
+        pass "Wazuh indexo las alertas 100061/100063/100064 (camino azul completo)"
+    else
+        fail "Wazuh no indexo las 3 alertas tras ~2 min. Revisa filebeat: docker exec opsn-wazuh-manager filebeat test output"
+    fi
 else
-    warn "Wazuh manager no esta corriendo; la parte de dashboard queda como verificacion manual"
+    warn "opsn-wazuh-indexer no esta corriendo; verificacion de indexacion omitida (camino solo-ofensivo)"
 fi
 
 print_summary
