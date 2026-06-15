@@ -269,6 +269,16 @@ assert_file_contains \
     "services/docs/mkdocs.yml" \
     "workshops/api-breach-instructor.md"
 
+assert_file_contains \
+    "script ofrece modo taller API Breach" \
+    "opensec-lab.sh" \
+    "taller_api_breach"
+
+assert_file_contains \
+    "script expone doctor del taller" \
+    "opensec-lab.sh" \
+    "api-breach-readiness.sh"
+
 # ─────────────────────────────────────────────────────────────────────────────
 section "Docker Compose — estructura"
 # ─────────────────────────────────────────────────────────────────────────────

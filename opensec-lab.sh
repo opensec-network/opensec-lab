@@ -986,6 +986,49 @@ menu_instalacion() {
 }
 
 # ─────────────────────────────────────────────────────────────────
+# MODO TALLER — API Breach to Detection
+# ─────────────────────────────────────────────────────────────────
+taller_api_breach() {
+    log_step "Modo taller: API Breach to Detection"
+    echo ""
+    echo "  Este taller instala el camino ataque-deteccion de APIs."
+    echo "  Perfil ofensivo (ligero):   api + docs + portal      (~6 GB RAM)"
+    echo "  Camino azul completo:       + wazuh + suricata + dns  (~12 GB RAM)"
+    echo ""
+    read -r -p "  Incluir el lado azul (Wazuh)? Requiere ~12 GB [s/N]: " incluir_azul
+
+    local perfiles=(--profile api --profile docs --profile portal)
+    if [[ "$incluir_azul" =~ ^[sSyY]$ ]]; then
+        advertir_ram_si_necesario opsn-wazuh opsn-dns || true
+        perfiles+=(--profile dns --profile wazuh --profile suricata)
+    fi
+
+    $SUDO_CMD docker compose -f "$DC_FILE" --env-file "$ENV_FILE" "${perfiles[@]}" up -d || {
+        log_error "Fallo el arranque del taller."
+        return 1
+    }
+
+    echo ""
+    log_info "Taller instalado. Proximos pasos:"
+    local docs_port portal_port wazuh_port
+    docs_port=$(grep "^OPSN_DOCS_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "4000")
+    portal_port=$(grep "^OPSN_PORTAL_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "8443")
+    wazuh_port=$(grep "^OPSN_WAZUH_DASH_PORT=" "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "5601")
+    echo "  1. Guia del estudiante:  http://localhost:${docs_port}/workshops/api-breach/"
+    echo "  2. Verifica el camino:   bash tests/api-breach-readiness.sh"
+    echo "  3. Portal del lab:       http://localhost:${portal_port}"
+    if [[ "$incluir_azul" =~ ^[sSyY]$ ]]; then
+        echo "  4. Wazuh Dashboard:      https://localhost:${wazuh_port} (admin/admin)"
+        echo "     (Wazuh tarda 1-3 min en indexar tras los primeros ataques)"
+    fi
+}
+
+doctor_taller() {
+    log_step "Doctor: verificando el camino del taller API Breach"
+    bash "${LAB_DIR}/tests/api-breach-readiness.sh"
+}
+
+# ─────────────────────────────────────────────────────────────────
 # MENÚ PRINCIPAL — GESTIÓN (instalación existente)
 # ─────────────────────────────────────────────────────────────────
 menu_gestion() {
@@ -1006,6 +1049,9 @@ menu_gestion() {
         echo "  9) Ver credenciales"
         echo " 10) Borrar todo (desinstalar)"
         echo " 11) Salir"
+        echo ""
+        echo " 12) Modo taller — API Breach to Detection"
+        echo " 13) Doctor — verificar el camino del taller"
         echo ""
         echo -n "  Opción: "
         read -r option
@@ -1083,6 +1129,12 @@ menu_gestion() {
                 echo ""
                 log_info "Hasta pronto."
                 exit 0
+                ;;
+            12)
+                taller_api_breach
+                ;;
+            13)
+                doctor_taller
                 ;;
             *)
                 log_warn "Opción inválida."
