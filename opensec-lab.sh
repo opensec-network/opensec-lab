@@ -148,6 +148,15 @@ check_prerequisites() {
         log_warn "RAM disponible: ${ram_mb}MB. Se recomiendan mínimo 6GB para el lab completo."
     fi
 
+    # Disco libre (el lab necesita ~20GB). Wazuh es el que más consume: si el
+    # disco se llena, sus índices pasan a read-only y deja de indexar alertas.
+    local disk_gb
+    disk_gb=$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2 {printf "%d", $4/1024/1024}')
+    if [[ -n "$disk_gb" && "$disk_gb" -gt 0 && "$disk_gb" -lt 20 ]]; then
+        log_warn "Disco libre en \$HOME: ${disk_gb}GB. Se recomiendan 20GB."
+        echo "  Wazuh consume varios GB; con poco disco sus índices se bloquean (read-only)."
+    fi
+
     return $errors
 }
 

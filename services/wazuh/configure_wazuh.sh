@@ -140,4 +140,14 @@ else
     log_error "Reintenta luego con: docker restart opsn-wazuh-init"
 fi
 
+# ─── Higiene: liberar read-only block si el disco lo activó ──────────────────
+# Si un arranque previo llenó el disco, los índices quedan en read-only-allow-delete
+# y Wazuh deja de indexar alertas. Lo liberamos al inicializar (idempotente; tras
+# liberar espacio en disco, basta reiniciar opsn-wazuh-init para recuperar).
+docker exec "$INDEXER_HOST" curl -sk -u "admin:${WAZUH_PASSWORD}" -X PUT \
+    "https://localhost:${INDEXER_PORT}/wazuh-alerts-*/_settings?ignore_unavailable=true&allow_no_indices=true" \
+    -H 'Content-Type: application/json' \
+    -d '{"index.blocks.read_only_allow_delete":null}' >/dev/null 2>&1 || true
+log_info "Read-only block del indexer liberado (si existía)."
+
 log_info "Wazuh configurado correctamente."

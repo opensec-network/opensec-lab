@@ -300,6 +300,16 @@ assert_file_contains \
     "reset_taller"
 
 assert_file_contains \
+    "prerequisitos verifican disco libre" \
+    "opensec-lab.sh" \
+    "Disco libre"
+
+assert_file_contains \
+    "wazuh init libera read-only block" \
+    "services/wazuh/configure_wazuh.sh" \
+    "read_only_allow_delete"
+
+assert_file_contains \
     "compose bindea puertos via OPSN_BIND_ADDR" \
     "docker-compose.yml" \
     "OPSN_BIND_ADDR"
