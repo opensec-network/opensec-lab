@@ -117,23 +117,42 @@ mass_assignment_attempt
 broken_function_auth
 ```
 
-## 7. Relacionar eventos con Wazuh
+## 7. Investigar la detección en Wazuh
 
-Las reglas del lab usan estos eventos:
+Cada ataque que disparaste dejó una alerta. Abre **Wazuh Dashboard** (`https://localhost:5601`, `admin`/`admin`) → **Discover**, selecciona el index pattern `wazuh-alerts-*`.
 
-| Evento API | Regla Wazuh | Significado |
-| --- | --- | --- |
-| `bola_attempt` | `100061` | Un usuario accedio a recursos de otro usuario. |
-| `mass_assignment_attempt` | `100063` | El request intento modificar campos protegidos. |
-| `broken_function_auth` | `100064` | Un usuario no administrador llamo un endpoint administrativo. |
+### 7.1 Encontrar tus alertas
 
-En Wazuh Dashboard busca eventos recientes con:
+Filtra por el grupo de reglas del lab:
 
 ```text
 rule.groups: openseclab_api
 ```
 
-Si Wazuh sigue iniciando, espera unos minutos y repite la busqueda.
+Deberías ver tres alertas correspondientes a tus tres ataques:
+
+| Regla | Nivel | Evento API | Qué significa la detección |
+| --- | --- | --- | --- |
+| `100061` | 10 | `bola_attempt` | Un usuario accedió a un objeto de otro usuario (IDOR). |
+| `100063` | 12 | `mass_assignment_attempt` | Se intentó modificar un campo protegido (`role`). Nivel 12 = mayor severidad: implica posible escalada. |
+| `100064` | 10 | `broken_function_auth` | Un usuario sin rol admin llamó un endpoint administrativo. |
+
+### 7.2 Leer una alerta como analista
+
+Abre la alerta `100063` (mass assignment) y observa estos campos:
+
+- `rule.description` — qué detectó la regla y por qué importa.
+- `data.user_id` y `data.attempted_fields` — quién y qué intentó modificar.
+- `data.remote_ip`, `data.method`, `data.path` — el contexto del request.
+- `rule.level` — la severidad asignada (12 aquí, vs 10 en BOLA: el lab prioriza la escalada de privilegios).
+
+### 7.3 Preguntas de analista
+
+- ¿Por qué `100063` tiene nivel 12 y `100061` nivel 10? ¿Estás de acuerdo con esa priorización?
+- Si fueras el defensor, ¿qué campo te diría más rápido que esto es un ataque y no un usuario legítimo?
+- ¿Qué *no* aparece en la alerta que te gustaría tener para investigar? (pista: la API no registra el user-agent.)
+
+> Si las alertas no aparecen: Wazuh puede tardar 1–3 minutos en indexar tras generar los eventos. Confirma primero el log crudo (paso 6) y luego repite la búsqueda.
 
 ## Mitigaciones
 
