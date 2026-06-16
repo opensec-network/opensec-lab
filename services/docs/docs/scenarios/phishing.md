@@ -30,7 +30,7 @@ docker logs opsn-gophish 2>&1 | grep "Please login"
 
 El sidecar `opsn-gophish-init` ya configuro:
 
-- **Sending Profile** — SMTP apuntando a `opsn-mail` (172.18.0.7:25)
+- **Sending Profile** — SMTP apuntando a `opsn-mail:25` (nombre interno; la IP es dinámica)
 - **Email Template** — "Tu contrasena ha expirado"
 - **Landing Page** — Portal corporativo falso con captura de credenciales
 - **Users & Groups** — `admin@opensec.lab`, `user@opensec.lab`

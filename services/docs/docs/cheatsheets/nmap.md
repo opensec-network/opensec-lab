@@ -2,6 +2,10 @@
 
 Comandos esenciales para reconocimiento de red y descubrimiento de servicios.
 
+> **Subred del lab:** Docker la asigna dinámicamente (no es fija). Obtén la real con
+> `docker network inspect openseclab -f '{{range .IPAM.Config}}{{.Subnet}}{{end}}'` y
+> reemplaza `172.18.0.0/24` en los ejemplos por esa subred.
+
 ---
 
 ## Escaneo basico de puertos
