@@ -23,6 +23,8 @@ nav:
     - Guia de instructor (APIs): workshops/api-breach-instructor.md
     - Hacking Web y Deteccion: workshops/web-hacking.md
     - Guia de instructor (Web): workshops/web-hacking-instructor.md
+    - Phishing y Robo de Credenciales: workshops/phishing.md
+    - Guia de instructor (Phishing): workshops/phishing-instructor.md
   - Servicios:
     - DVWA: services/dvwa.md
     - Juice Shop: services/juiceshop.md
