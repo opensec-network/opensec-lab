@@ -31,8 +31,6 @@ flowchart TB
     direction LR
     DNS["DNS\nTechnitium\n:5380 · :53"]
     MAIL["Mail Server\nPostfix/Dovecot/RC\n:25 · :143 · :587 · :8888"]
-    DVWA["DVWA\n:8080"]
-    JUICE["Juice Shop\n:3000"]
     DESKTOP["Desktop\nXFCE/Thunderbird\n:3100"]
     subgraph GPHSH["  GoPhish  "]
       direction TB
@@ -49,15 +47,15 @@ flowchart TB
   %% ══════════════════════════════════════════════════════════
   subgraph T1["  TIER 1 — Vulnerable Targets  "]
     direction LR
-    WEBGOAT["WebGoat\n:8081"]
-    PORTAINER["Portainer\n:9443"]
-    subgraph CRAPI_GRP["  crAPI  ×7 containers  "]
+    subgraph DVWA_GRP["  DVWA  "]
       direction TB
-      CRAPI_DB[("mongo\npostgres\nmailhog")]:::db
-      CRAPI_SVC["identity\ncommunity\nworkshop"]
-      CRAPI["Gateway\n:8025"]
-      CRAPI_DB --> CRAPI_SVC --> CRAPI
+      DVWA_DB[("MariaDB")]:::db
+      DVWA["DVWA\n:8080"]
+      DVWA_DB --> DVWA
     end
+    JUICE["Juice Shop\n:3000"]
+    WEBGOAT["WebGoat\n:8081"]
+    API["API Vulnerable\nFlask/OWASP\n:8025"]
   end
 
   %% ══════════════════════════════════════════════════════════
@@ -65,24 +63,6 @@ flowchart TB
   %% ══════════════════════════════════════════════════════════
   subgraph T2["  TIER 2 — Aprendizaje  "]
     direction LR
-
-    subgraph CTFD_GRP["  CTFd  "]
-      direction TB
-      CTFD_DB[("MariaDB")]:::db
-      CTFD["CTFd\n:8000"]
-      CTFD_INIT["ctfd-init"]:::init
-      CTFD_DB --> CTFD
-      CTFD_INIT -->|"seed"| CTFD
-    end
-
-    subgraph WIKI_GRP["  BookStack  "]
-      direction TB
-      WIKI_DB[("MariaDB")]:::db
-      WIKI["BookStack\n:6875"]
-      WIKI_INIT["wiki-init"]:::init
-      WIKI_DB --> WIKI
-      WIKI_INIT -->|"seed"| WIKI
-    end
 
     subgraph GITEA_GRP["  Gitea  "]
       direction TB
@@ -96,6 +76,13 @@ flowchart TB
       PORTAL_INIT["portal-init"]:::init
       PORTAL["Portal nginx\n:8443"]
       PORTAL_INIT -->|"gen HTML"| PORTAL
+    end
+
+    subgraph DOCS_GRP["  Docs  "]
+      direction TB
+      DOCS_BUILD["docs-build\nMkDocs"]:::init
+      DOCS["Docs nginx\n:4000"]
+      DOCS_BUILD -->|"HTML"| DOCS
     end
   end
 
@@ -151,13 +138,16 @@ flowchart TB
   %% GoPhish envía correos de phishing via Mail (SMTP)
   GOPHISH -->|"SMTP :25\nphishing"| MAIL
 
+  %% API escribe logs → Wazuh Manager los lee vía volumen
+  API -.->|"api.log\n(vol compartido)"| WAZUH_MGR
+
   %% Suricata captura tráfico → escribe eve.json → Wazuh Manager lo lee
   SURICATA -.->|"eve.json\n(vol compartido)"| WAZUH_MGR
 
   %% docker.sock: inspección de contenedores
   DOCKER_SOCK -.->|":ro"| DESKTOP
-  DOCKER_SOCK -.->|":ro"| PORTAINER
   DOCKER_SOCK -.->|":rw docker-listener"| WAZUH_MGR
+  DOCKER_SOCK -.->|":ro"| WAZUH_INIT
 
   %% ══════════════════════════════════════════════════════════
   %%  ESTILOS
@@ -172,14 +162,13 @@ flowchart TB
 
   %% Tier 1 — naranja
   style T1        fill:#3d1208,stroke:#f97316,color:#fed7aa
-  style CRAPI_GRP fill:#351008,stroke:#ea580c,color:#fdba74
+  style DVWA_GRP  fill:#351008,stroke:#ea580c,color:#fdba74
 
   %% Tier 2 — verde
   style T2        fill:#0a2e18,stroke:#22c55e,color:#bbf7d0
-  style CTFD_GRP  fill:#082714,stroke:#16a34a,color:#86efac
-  style WIKI_GRP  fill:#082714,stroke:#16a34a,color:#86efac
   style GITEA_GRP fill:#082714,stroke:#16a34a,color:#86efac
   style PORTAL_GRP fill:#082714,stroke:#16a34a,color:#86efac
+  style DOCS_GRP  fill:#082714,stroke:#16a34a,color:#86efac
 
   %% Tier 3 — morado
   style T3        fill:#2e1065,stroke:#a855f7,color:#e9d5ff
@@ -188,20 +177,17 @@ flowchart TB
   %% Nodos específicos: tier0=azul, tier1=naranja, tier2=verde, tier3=morado
   style DNS     fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
   style MAIL    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
-  style DVWA    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
-  style JUICE   fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
   style DESKTOP fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
   style GOPHISH fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
 
-  style WEBGOAT  fill:#7c2d12,stroke:#f97316,color:#fed7aa
-  style PORTAINER fill:#7c2d12,stroke:#f97316,color:#fed7aa
-  style CRAPI_SVC fill:#7c2d12,stroke:#f97316,color:#fed7aa
-  style CRAPI    fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style DVWA    fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style JUICE   fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style WEBGOAT fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style API     fill:#7c2d12,stroke:#f97316,color:#fed7aa
 
-  style CTFD    fill:#14532d,stroke:#22c55e,color:#bbf7d0
-  style WIKI    fill:#14532d,stroke:#22c55e,color:#bbf7d0
-  style GITEA   fill:#14532d,stroke:#22c55e,color:#bbf7d0
-  style PORTAL  fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style GITEA  fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style PORTAL fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style DOCS   fill:#14532d,stroke:#22c55e,color:#bbf7d0
 
   style WAZUH_IDX  fill:#4a1d96,stroke:#a855f7,color:#e9d5ff
   style WAZUH_MGR  fill:#4a1d96,stroke:#a855f7,color:#e9d5ff

@@ -26,24 +26,22 @@ flowchart TB
     MAIL["✉️ Mail Server\nPostfix · Dovecot\nRoundcube"]
     GOPHISH["🎣 GoPhish\nPhishing Framework"]
     DESKTOP["🖥️ Desktop\nXFCE · Thunderbird"]
-    DVWA["💀 DVWA"]
-    JUICE["🧃 Juice Shop"]
-    DNS ~~~ MAIL ~~~ GOPHISH ~~~ DESKTOP ~~~ DVWA ~~~ JUICE
+    DNS ~~~ MAIL ~~~ GOPHISH ~~~ DESKTOP
   end
 
   subgraph T1["🟠  TIER 1  —  Vulnerable Targets"]
+    DVWA["💀 DVWA\n+ MariaDB"]
+    JUICE["🧃 Juice Shop"]
     WEBGOAT["🐐 WebGoat\nOWASP Guided Learning"]
-    CRAPI["🚗 crAPI\n×7 containers"]
-    PORTAINER["🐳 Portainer\nDocker UI"]
-    WEBGOAT ~~~ CRAPI ~~~ PORTAINER
+    API["🔌 API Vulnerable\nOWASP API Top 10"]
+    DVWA ~~~ JUICE ~~~ WEBGOAT ~~~ API
   end
 
   subgraph T2["🟢  TIER 2  —  Aprendizaje"]
-    CTFD["🏁 CTFd\nCapture The Flag"]
-    WIKI["📚 BookStack\nWiki · Guias"]
     GITEA["🐙 Gitea\nGit Repos"]
+    DOCS["📖 Docs\nMkDocs Material"]
     PORTAL["🏠 Portal\nDashboard"]
-    CTFD ~~~ WIKI ~~~ GITEA ~~~ PORTAL
+    GITEA ~~~ DOCS ~~~ PORTAL
   end
 
   subgraph T3["🟣  TIER 3  —  Blue Team  ⚠ 12+ GB RAM"]
@@ -65,18 +63,16 @@ flowchart TB
   style MAIL    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
   style GOPHISH fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
   style DESKTOP fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
-  style DVWA    fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
-  style JUICE   fill:#1e3a5f,stroke:#3b82f6,color:#dbeafe
 
-  style T1        fill:#3d1208,stroke:#f97316,color:#fdba74
-  style WEBGOAT   fill:#7c2d12,stroke:#f97316,color:#fed7aa
-  style CRAPI     fill:#7c2d12,stroke:#f97316,color:#fed7aa
-  style PORTAINER fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style T1      fill:#3d1208,stroke:#f97316,color:#fdba74
+  style DVWA    fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style JUICE   fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style WEBGOAT fill:#7c2d12,stroke:#f97316,color:#fed7aa
+  style API     fill:#7c2d12,stroke:#f97316,color:#fed7aa
 
   style T2     fill:#0a2e18,stroke:#22c55e,color:#86efac
-  style CTFD   fill:#14532d,stroke:#22c55e,color:#bbf7d0
-  style WIKI   fill:#14532d,stroke:#22c55e,color:#bbf7d0
   style GITEA  fill:#14532d,stroke:#22c55e,color:#bbf7d0
+  style DOCS   fill:#14532d,stroke:#22c55e,color:#bbf7d0
   style PORTAL fill:#14532d,stroke:#22c55e,color:#bbf7d0
 
   style T3       fill:#2e1065,stroke:#a855f7,color:#c4b5fd
