@@ -13,8 +13,6 @@ Elige un camino:
 | [Taller: Ataque y deteccion en APIs](workshops/api-breach.md) | Practica guiada completa — API Top 10 + Wazuh | Confirmar que la API responde en :8025 |
 | [Taller: Hacking Web y Deteccion](workshops/web-hacking.md) | Practica guiada completa — SQLi, XSS, CMDi + Suricata | Preparar DVWA en :8080 |
 | [Escenario: Phishing](scenarios/phishing.md) | Ciclo completo de un ataque de phishing | Lanzar campana en GoPhish :3333 |
-| [Escenario: API Security](scenarios/api.md) | Introduccion rapida a OWASP API Top 10 | Explorar la API vulnerable en :8025 |
-| [Escenario: Hacking Web](scenarios/web.md) | Introduccion rapida a SQLi, XSS, Command Injection | Abrir DVWA en :8080 |
 
 ---
 

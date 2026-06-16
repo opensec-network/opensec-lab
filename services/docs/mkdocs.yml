@@ -18,8 +18,6 @@ nav:
   - Inicio: index.md
   - Escenarios:
     - Phishing: scenarios/phishing.md
-    - Seguridad de APIs: scenarios/api.md
-    - Hacking Web: scenarios/web.md
   - Talleres:
     - Ataque y deteccion en APIs: workshops/api-breach.md
     - Guia de instructor (APIs): workshops/api-breach-instructor.md

@@ -50,10 +50,8 @@ assert_file_exists "services/docs/nginx.conf"                  "services/docs/ng
 assert_file_exists "services/docs/docs/index.md"               "services/docs/docs/index.md"
 assert_file_exists "api breach readiness helper"               "tests/api-breach-readiness.sh"
 
-# Docs — escenarios (Plan 3)
+# Docs — escenario de phishing (api/web migrados a talleres web-hacking/api-breach)
 assert_file_exists "docs scenarios/phishing.md"  "services/docs/docs/scenarios/phishing.md"
-assert_file_exists "docs scenarios/api.md"       "services/docs/docs/scenarios/api.md"
-assert_file_exists "docs scenarios/web.md"       "services/docs/docs/scenarios/web.md"
 
 # Docs - talleres guiados
 assert_file_exists "docs workshops/api-breach.md" "services/docs/docs/workshops/api-breach.md"
