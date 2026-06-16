@@ -62,6 +62,7 @@ assert_file_exists "docs workshops/phishing.md" "services/docs/docs/workshops/ph
 assert_file_exists "docs workshops/phishing-instructor.md" "services/docs/docs/workshops/phishing-instructor.md"
 assert_file_exists "docs workshops/kill-chain.md" "services/docs/docs/workshops/kill-chain.md"
 assert_file_exists "docs workshops/kill-chain-instructor.md" "services/docs/docs/workshops/kill-chain-instructor.md"
+assert_file_exists "docs workshops/index.md (ruta)" "services/docs/docs/workshops/index.md"
 
 # Docs — servicios (Plan 3)
 for svc in dvwa juiceshop api wazuh gophish mail; do

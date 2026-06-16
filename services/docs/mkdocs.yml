@@ -19,6 +19,7 @@ nav:
   - Escenarios:
     - Phishing: scenarios/phishing.md
   - Talleres:
+    - La ruta (vision general): workshops/index.md
     - Ataque y deteccion en APIs: workshops/api-breach.md
     - Guia de instructor (APIs): workshops/api-breach-instructor.md
     - Hacking Web y Deteccion: workshops/web-hacking.md

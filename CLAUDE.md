@@ -180,4 +180,15 @@ docker exec opsn-desktop nc -zv mail.opensec.lab 25
 - Publicar `opensecnetwork/api:multi-arch` para eliminar el `build:` local de `opsn-api`
 - Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install` → `opensec-lab.sh` del último release
 - Publicar release v3.0 en GitHub con todos los tarballs y el `docker-compose.yml`
-- Talleres en diseño: Phishing (GoPhish→Wazuh) y Kill Chain completo
+- Verificar la ruta en AMD64/Kali (todo se probó en macOS/ARM); confirmar la elevación de las reglas Wazuh custom
+
+## Ruta de talleres (completa)
+
+Ruta de 4 talleres ataque→detección, cada uno con una habilidad de detección distinta:
+
+1. **Web Hacking** (`workshops/web-hacking.md`) — firma de payload (Suricata)
+2. **API Breach** (`workshops/api-breach.md`) — eventos estructurados de app (flagship)
+3. **Phishing** (`workshops/phishing.md`) — comportamiento (credential harvesting, regla Suricata `9000070`)
+4. **Kill Chain** (`workshops/kill-chain.md`) — correlación multi-señal (regla `9000050`)
+
+Cada taller tiene guía de estudiante + instructor + `tests/<taller>-readiness.sh`.
