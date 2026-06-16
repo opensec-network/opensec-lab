@@ -114,3 +114,19 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:web-application-attack; \
     sid:9000063; rev:1;)
 
+# ══ Phishing / Credential Harvesting ════════════════════════════════
+# Detecta el envio de credenciales (usuario + password) por HTTP sin
+# cifrar. Un login corporativo legitimo viaja por HTTPS; capturar
+# credenciales en claro es el comportamiento de una landing de phishing.
+# Senal de alta sensibilidad para investigacion, no certeza: el analista
+# pivota al trafico HTTP de contexto del mismo origen para reconstruir
+# la cadena (acceso a la landing -> envio de credenciales).
+
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
+    msg:"OpenSecLab - Envio de credenciales en claro (posible credential harvesting)"; \
+    flow:established,to_server; \
+    http.method; content:"POST"; \
+    http.request_body; content:"password="; nocase; \
+    pcre:"/(user(name)?|email|login)=/i"; \
+    classtype:credential-theft; \
+    sid:9000070; rev:1;)

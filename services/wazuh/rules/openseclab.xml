@@ -77,13 +77,18 @@
 
   <!-- ══ GoPhish ═══════════════════════════════════════════════════ -->
 
-  <rule id="100020" level="7">
-    <if_sid>31108</if_sid>
-    <url>/track</url>
-    <description>OpenSecLab: Click en landing page de GoPhish registrado</description>
-    <group>openseclab_gophish,phishing,</group>
+  <!-- Eleva la alerta Suricata de credential harvesting (sid 9000070) a
+       contexto de phishing. La deteccion ocurre en la red (IDS), no en
+       logs de GoPhish: el envio de credenciales en claro a una landing es
+       el indicador. El analista correlaciona por src_ip el trafico previo. -->
+  <rule id="100020" level="10">
+    <field name="event_type">alert</field>
+    <field name="alert.category">Successful Credential Theft Detected</field>
+    <description>OpenSecLab: Phishing — Envio de credenciales en claro detectado por IDS (posible credential harvesting)</description>
+    <group>ids,suricata,openseclab_gophish,phishing,credential_access,</group>
     <mitre>
       <id>T1566</id>
+      <id>T1056</id>
     </mitre>
   </rule>
 
