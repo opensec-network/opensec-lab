@@ -1,7 +1,10 @@
 # API Breach to Detection Workshop Plan
 
 Date: 2026-05-24
-Status: Proposed MVP plan
+Status: CUMPLIDO — plan de planificación histórico. El taller está implementado y verificado
+end-to-end (2026-06-15). Ver `docs/product-direction/README.md` para el estado actual.
+Este archivo se conserva como registro de decisiones de diseño (por qué se eligió este
+escenario como flagship, qué fases se planificaron). NO refleja trabajo pendiente.
 
 ## Goal
 

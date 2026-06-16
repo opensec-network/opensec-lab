@@ -92,14 +92,11 @@ For a selected workshop, the lab should provide:
 - Clear service requirements: profiles, RAM, ports, credentials, and expected
   runtime.
 
-Example future command shape:
+Implemented as interactive menu options (no subcommand args required):
 
-```bash
-./opensec-lab.sh workshop api-breach
-./opensec-lab.sh doctor api-breach
-```
-
-The exact CLI shape still needs design before implementation.
+- **Option 12** — Modo taller: instala los servicios requeridos y muestra URLs del taller.
+- **Option 13** — Doctor: verifica el camino ataque→detección (API health, log write, Wazuh ping).
+- **Option 15** — Reset del taller: borra alertas acumuladas y reinicia la API para re-correr el ejercicio.
 
 ## Product Principles
 
