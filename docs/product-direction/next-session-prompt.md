@@ -1,6 +1,6 @@
 # Próxima sesión — Estado y cómo continuar
 
-Última actualización: 2026-06-15
+Última actualización: 2026-06-16
 
 ## Dónde estamos
 
@@ -22,8 +22,11 @@ Diseño aprobado y completo en:
 |---|--------|---------|------------------------|--------|
 | 1 | Web Hacking | DVWA | Firma/IDS de red (Suricata) | ✅ **Completo** (2026-06-15) |
 | 2 | API Security | API | Eventos estructurados de app | ✅ Existía (flagship) |
-| 3 | Phishing | GoPhish | Comportamiento + correlación email→web | ⏳ **Pendiente — el siguiente** |
-| 4 | Kill Chain | Red/multi-señal | Correlación tipo analista SOC | ⏳ Pendiente (avanzado) |
+| 3 | Phishing | GoPhish | Comportamiento (credential harvesting) | ✅ **Completo** (2026-06-16) |
+| 4 | Kill Chain | Red/multi-señal | Correlación tipo analista SOC | ✅ **Completo** (2026-06-16) |
+
+**La ruta de 4 talleres está COMPLETA.** Ver [project_taller3_phishing_spike] en memoria
+para los detalles de la sesión 2026-06-16 (hallazgos, fixes y gotchas).
 
 ## El patrón PROBADO de implementación (seguir igual para Phishing y Kill Chain)
 
@@ -46,26 +49,36 @@ Orden por taller:
 Ejecutamos con subagentes (subagent-driven-development): un subagente por tarea + review.
 El plan del Taller 1 es la plantilla exacta: `docs/superpowers/plans/2026-06-15-taller-1-web-hacking-deteccion.md`.
 
-## Próximo: Taller 3 — Phishing → Detección
+## Cómo se cerraron los Talleres 3 y 4 (2026-06-16)
 
-- **Servicios:** `gophish` (requiere `dns` + `mail`), `desktop` (víctima con Thunderbird), `wazuh`.
-- **Ataque:** lanzar la campaña GoPhish ya pre-configurada → la víctima (Desktop) abre el correo,
-  hace click en la landing, envía credenciales.
-- **Spike a verificar PRIMERO:** la regla Wazuh "Click en landing page registrado" existe
-  (`services/wazuh/rules/openseclab.xml`, grupo `openseclab_gophish,phishing`), pero NO está
-  verificado de dónde lee (logs de GoPhish vs Suricata viendo el GET a la landing). Levantar
-  gophish+mail+dns+desktop, disparar la campaña, y confirmar qué evento/alerta se genera y si
-  llega a Wazuh. La habilidad azul es correlación email→web (mismo usuario recibió, abrió, picó).
-- **Posible trabajo de motor:** si el click no genera alerta en Wazuh, conectar la fuente
-  (logs de GoPhish → Wazuh, o regla nueva). Verificar antes de escribir la guía.
+- **Taller 3 — Phishing:** el motor estaba doblemente roto. (1) `configure_gophish.sh` creaba
+  la campaña por `id` en vez de `name` → nunca se creaba (fix `d3e853a`). (2) La regla Wazuh
+  `100020` (`/track`) nunca disparaba: no hay fuente de logs de GoPhish (el docker-listener está
+  muerto). Decisión del usuario: **solo Suricata por comportamiento**, sin threat-intel ni logs de
+  GoPhish. Nueva regla Suricata `9000070` (credential harvesting: POST con password en claro),
+  verificada en vivo.
+- **Taller 4 — Kill Chain:** la regla de port scan `9000050` usaba `$EXTERNAL_NET` → no detectaba
+  scans internos (el atacante del lab está en HOME_NET). Fix a `any any ->` (también cubre lateral
+  movement). Cadena recon→explotación verificada y correlacionada en Wazuh por `src_ip`.
 
-## Después: Taller 4 — Kill Chain → Correlación (avanzado)
+## Próximos pasos (la ruta ya está completa)
 
-- **Ataque (cadena):** recon (port scan → Suricata "Escaneo de puertos SYN detectado") →
-  explotación del servicio hallado (web o API) → observar la cadena.
-- **Decisión abierta:** el Desktop no trae `nmap`/`sqlmap` (solo `curl`). Para el scan: `nc -z`
-  en bucle (cero dependencias) como camino por defecto, o añadir `nmap` al `custom-init.sh`.
-- **Habilidad azul:** correlacionar en Wazuh "scan + ataque al servicio escaneado".
+- **Verificar en AMD64 (Kali):** todo se probó en macOS/ARM. La elevación de nivel de las reglas
+  Wazuh custom (`100020`, `100050-59`) no encadena en este ARM por listas rotas del ruleset base;
+  la detección sí funciona (alertas indexadas y buscables). Confirmar la elevación en AMD64.
+- **Bug latente (fuera de alcance hasta ahora):** las firmas Suricata de la API (`9000060-63`)
+  usan `$EXTERNAL_NET` → no disparan para ataques internos. El flagship no las necesita (detecta
+  por `api.log`). Mismo fix de una línea que `9000050` si se quiere detección Suricata interna.
+- **Índice de ruta + portal:** opcionalmente, una página índice de la ruta (`workshops/index.md`)
+  que presente los 4 talleres con su habilidad y orden sugerido. El portal ya enlaza los 4.
+- **Release v3.0 + AMD64 + dominio:** ver pendientes mayores abajo.
+
+### Gotcha de entorno crítico (no re-descubrir)
+
+El disco de la VM Docker Desktop se llena (llegó a 100% esta sesión → Suricata no escribe
+`eve.json`, Wazuh pasa a read-only y no indexa). Disfraza reglas y pipeline como "rotos" sin
+estarlo. **Antes de debuggear una regla que "no dispara", revisar disco** (`docker run --rm
+alpine df -h /`); liberar con `docker builder prune -af`.
 
 ## Gotchas verificados esta sesión (no re-descubrir)
 
