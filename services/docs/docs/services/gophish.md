@@ -1,6 +1,7 @@
 # GoPhish
 
 **URL:** https://localhost:3333
+**Credenciales:** `admin` / `Password`
 **Proposito:** Framework de simulacion de phishing. Campana pre-configurada.
 
 ---
@@ -9,22 +10,27 @@
 
 | Elemento | Detalle |
 |----------|---------|
-| Sending Profile | SMTP a opsn-mail (172.18.0.7:25) |
+| Sending Profile | SMTP a opsn-mail:25 (hostname de red interna) |
 | Email Template | "Tu contrasena ha expirado" |
 | Landing Page | Portal corporativo falso |
-| Users & Groups | admin@opensec.lab, user@opensec.lab |
+| Users & Groups | user@opensec.lab (victima simulada) |
 | Campaign | Pre-armada, lista para lanzar |
 
-## Obtener la contrasena de admin
+## Credenciales de admin
+
+**Usuario:** `admin`  
+**Password:** la definida en `OPSN_GOPHISH_PASSWORD` (valor por defecto: `Password`)
+
+Si cambiaste la variable en `.env`, usa ese valor. Para confirmar la password configurada:
 
 ```bash
-docker logs opsn-gophish 2>&1 | grep "Please login"
+docker exec opsn-gophish-init env | grep OPSN_GOPHISH_PASSWORD
 ```
 
 ## Lanzar la campana
 
 1. Abre https://localhost:3333 (acepta el cert autofirmado)
-2. Inicia sesion con la password obtenida
+2. Inicia sesion con `admin` / `Password`
 3. Ve a **Campaigns**
 4. Haz clic en **Launch Campaign**
 

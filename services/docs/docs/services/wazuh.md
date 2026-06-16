@@ -1,7 +1,7 @@
 # Wazuh SIEM
 
 **URL:** https://localhost:5601
-**Credenciales:** `admin` / `SecretPassword`
+**Credenciales:** `admin` / `admin`
 **Proposito:** Ver y analizar las alertas generadas por los ataques del lab.
 
 ---
