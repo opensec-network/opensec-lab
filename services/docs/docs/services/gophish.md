@@ -13,7 +13,7 @@
 | Sending Profile | SMTP a opsn-mail:25 (hostname de red interna) |
 | Email Template | "Tu contrasena ha expirado" |
 | Landing Page | Portal corporativo falso |
-| Users & Groups | user@opensec.lab (victima simulada) |
+| Users & Groups | admin@opensec.lab y user@opensec.lab (victimas simuladas) |
 | Campaign | Pre-armada, lista para lanzar |
 
 ## Credenciales de admin

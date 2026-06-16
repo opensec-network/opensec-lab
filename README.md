@@ -47,17 +47,15 @@ El script detecta si ya tienes una instalación y muestra el menú de gestión e
 | Juice Shop | — | (es un reto) | http://localhost:3000 |
 | API — alice | `alice` | `alice123` | http://localhost:8025 |
 | API — admin | `admin` | `admin_secret` | http://localhost:8025 |
-| GoPhish | `admin` | *(auto-generada — ver logs)* | https://localhost:3333 |
+| GoPhish | `admin` | `Password` | https://localhost:3333 |
 | Desktop | `abc` | `abc` | http://localhost:3100 |
 | DNS | `admin` | `Password` | http://localhost:5380 |
 | Mail / Roundcube | `admin` | `Password` | http://localhost:8888 |
 | Wazuh | `admin` | `admin` | https://localhost:5601 |
 | Docs | — | — | http://localhost:4000 |
 
-Para ver la contraseña de GoPhish después de instalar:
-```bash
-docker logs opsn-gophish 2>&1 | grep "Please login"
-```
+La contraseña de GoPhish la fija el sidecar `configure_gophish.sh` a partir de
+`OPSN_GOPHISH_PASSWORD` (por defecto `Password`). Cámbiala en `.env` antes de instalar si lo deseas.
 
 ---
 

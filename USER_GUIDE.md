@@ -71,7 +71,7 @@ Después de la instalación, el lab queda en `~/OpenSec_Lab/`.
 
 | Servicio | URL | Usuario | Contraseña |
 |----------|-----|---------|------------|
-| GoPhish (admin) | https://localhost:3333 | `admin` | *(auto-generada — ver abajo)* |
+| GoPhish (admin) | https://localhost:3333 | `admin` | `Password` |
 | Desktop (Webtop) | http://localhost:3100 | `abc` | `abc` |
 | Roundcube (webmail) | http://localhost:8888 | `admin` | `Password` |
 | DVWA | http://localhost:8080 | `admin` | `password` |
@@ -80,15 +80,10 @@ Después de la instalación, el lab queda en `~/OpenSec_Lab/`.
 
 > Esta tabla cubre los servicios del ejercicio de phishing. El lab incluye 12 servicios en total (WebGoat, API Vulnerable, Wazuh, Suricata, Gitea, Portal, Docs). Consulta la tabla completa en el [README](README.md).
 
-### Obtener la contraseña de GoPhish
+### Contraseña de GoPhish
 
-GoPhish genera una contraseña aleatoria al primer arranque. Para verla:
-
-```bash
-docker logs opsn-gophish 2>&1 | grep "Please login"
-```
-
-El script de instalación también la muestra al finalizar.
+El sidecar `opsn-gophish-init` fija la contraseña del admin a partir de `OPSN_GOPHISH_PASSWORD`
+(por defecto `Password`). Para cambiarla, ajusta esa variable en `.env` antes de instalar GoPhish.
 
 ---
 
@@ -109,7 +104,7 @@ Los destinatarios del grupo son `admin@opensec.lab` y `user@opensec.lab`.
 
 1. Abre https://localhost:3333 en tu navegador
 2. Acepta el certificado autofirmado (es esperado)
-3. Inicia sesión con `admin` y la contraseña obtenida en el paso anterior
+3. Inicia sesión con `admin` y la contraseña `Password`
 
 ### 4.2 Crear la campaña
 
@@ -153,7 +148,7 @@ El Desktop es un escritorio XFCE accesible desde el navegador. Simula el equipo 
 
 ### Qué tiene preconfigurado
 
-- **Thunderbird** listo para usar con la cuenta `admin@opensec.lab`
+- **Thunderbird** listo para usar con la cuenta `user@opensec.lab`
   - IMAP: `mail.opensec.lab:143`
   - SMTP: `mail.opensec.lab:587`
 - **DNS interno** apuntando al servidor `opsn-dns` (resuelve `*.opensec.lab`)
@@ -343,11 +338,8 @@ docker compose --profile gophish restart opsn-gophish-init
 
 ### GoPhish muestra "Invalid username/password" al iniciar sesión
 
-La contraseña se genera aleatoriamente. Recupérala con:
-
-```bash
-docker logs opsn-gophish 2>&1 | grep "Please login"
-```
+La contraseña del admin es `Password` (variable `OPSN_GOPHISH_PASSWORD`). Si la cambiaste en
+`.env`, usa ese valor. Si el sidecar de configuración no corrió, revisa `docker logs opsn-gophish-init`.
 
 ### Puerto 53 ocupado (systemd-resolved en Ubuntu)
 
@@ -363,7 +355,7 @@ Luego vuelve a ejecutar el instalador.
 ## Flujo completo del ejercicio de phishing
 
 1. **Levanta el lab** con DNS, Mail, GoPhish y Desktop
-2. **Accede a GoPhish** en https://localhost:3333 y obtén la contraseña de los logs
+2. **Accede a GoPhish** en https://localhost:3333 (usuario `admin`, contraseña `Password`)
 3. **Crea la campaña** con los recursos pre-configurados (URL: `http://gophish.opensec.lab`)
 4. **Lanza la campaña** haciendo clic en **Launch Campaign**
 5. **Abre el Desktop** en http://localhost:3100 (contraseña: `abc`)
