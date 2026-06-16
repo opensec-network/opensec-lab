@@ -39,14 +39,14 @@ alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
 
 # ══ OWASP Juice Shop ════════════════════════════════════════════════
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab - Acceso al Score Board de Juice Shop (descubrimiento de ruta oculta)"; \
     flow:established,to_server; \
     http.uri; content:"/score-board"; \
     classtype:policy-violation; \
     sid:9000010; rev:1;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab - SQL Injection en Juice Shop login"; \
     flow:established,to_server; \
     http.uri; content:"/rest/user/login"; \
@@ -54,7 +54,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:web-application-attack; \
     sid:9000011; rev:1;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab - Intento de acceso a admin en Juice Shop"; \
     flow:established,to_server; \
     http.uri; content:"/rest/user/whoami"; \
@@ -70,7 +70,7 @@ alert tcp any any -> $HOME_NET any ( \
     classtype:attempted-recon; \
     sid:9000050; rev:2;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab - Posible fuerza bruta HTTP"; \
     flow:established,to_server; \
     threshold:type threshold, track by_src, count 30, seconds 10; \
@@ -79,7 +79,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
 
 # ══ OPSN API Vulnerable ═════════════════════════════════════════════
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab API1 BOLA - Enumeracion de perfiles de usuario en la API"; \
     flow:established,to_server; \
     http.method; content:"GET"; \
@@ -88,7 +88,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:web-application-attack; \
     sid:9000060; rev:1;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab API2 Broken Auth - Fuerza bruta en /api/auth/login"; \
     flow:established,to_server; \
     http.method; content:"POST"; \
@@ -97,7 +97,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:attempted-user; \
     sid:9000061; rev:1;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab API5 Broken Function Auth - Acceso a endpoint admin"; \
     flow:established,to_server; \
     http.method; content:"GET"; \
@@ -105,7 +105,7 @@ alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
     classtype:policy-violation; \
     sid:9000062; rev:1;)
 
-alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS ( \
+alert http any any -> $HTTP_SERVERS $HTTP_PORTS ( \
     msg:"OpenSecLab API3 Mass Assignment - PUT a /profile con campo role"; \
     flow:established,to_server; \
     http.method; content:"PUT"; \

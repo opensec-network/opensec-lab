@@ -17,7 +17,7 @@ vars:
 
   port-groups:
     # Puertos de los servicios del lab
-    HTTP_PORTS: "[80, 3000, 3002, 5380, 6875, 8000, 8025, 8080, 8081, 8443, 9000, 9443]"
+    HTTP_PORTS: "[80, 3000, 3002, 5000, 5380, 6875, 8000, 8025, 8080, 8081, 8443, 9000, 9443]"
     SHELLCODE_PORTS: "!80"
     ORACLE_PORTS: 1521
     SSH_PORTS: "[22, 2222]"
