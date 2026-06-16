@@ -218,18 +218,25 @@ EXISTING_CAMP=$(api_get "${GOPHISH_URL}/api/campaigns/" | grep -o "\"name\":\"${
 
 if [ -z "$EXISTING_CAMP" ]; then
     LOG "Creando Campaign '${CAMPAIGN_NAME}'..."
-    # launch_date en el pasado para que quede en estado "Created" pero lista para lanzar
-    # desde la interfaz con un clic. No envía correos hasta que el usuario haga Launch.
-    PHISH_URL="http://localhost:${OPSN_GOPHISH_PHISH_PORT:-80}"
-    api_post "${GOPHISH_URL}/api/campaigns/" -d "{
+    # La API de GoPhish referencia template/page/smtp/groups por NOMBRE, no por id
+    # (pasar {"id": N} falla con "No email template specified"). Sin launch_date la
+    # campaña se lanza al crearse y envia los correos a los targets del lab.
+    # La URL es el dominio DNS del phish server (gophish.opensec.lab:80), resoluble
+    # por la victima (Desktop/Thunderbird); "localhost" apuntaria al propio Desktop.
+    PHISH_URL="http://gophish.${OPSN_DOMAIN}"
+    CAMP_RESP=$(api_post "${GOPHISH_URL}/api/campaigns/" -d "{
         \"name\": \"${CAMPAIGN_NAME}\",
-        \"template\": {\"id\": ${ET_ID}},
+        \"template\": {\"name\": \"${EMAIL_TEMPLATE_NAME}\"},
         \"url\": \"${PHISH_URL}\",
-        \"page\": {\"id\": ${LP_ID}},
-        \"smtp\": {\"id\": ${SP_ID}},
-        \"groups\": [{\"id\": ${UG_ID}}]
-    }" > /dev/null
-    LOG "Campaign creada."
+        \"page\": {\"name\": \"${LANDING_PAGE_NAME}\"},
+        \"smtp\": {\"name\": \"${SENDING_PROFILE_NAME}\"},
+        \"groups\": [{\"name\": \"${USER_GROUP_NAME}\"}]
+    }")
+    if echo "$CAMP_RESP" | grep -q '"success":false'; then
+        LOG "ERROR al crear la Campaign: $(echo "$CAMP_RESP" | grep -o '"message":"[^"]*"')"
+    else
+        LOG "Campaign creada y lanzada (correos enviados a los targets)."
+    fi
 else
     LOG "Campaign ya existe. Sin cambios."
 fi
@@ -243,6 +250,7 @@ LOG "  Landing Page   : ${LANDING_PAGE_NAME}"
 LOG "  User Group     : ${USER_GROUP_NAME}"
 LOG "  Campaign       : ${CAMPAIGN_NAME}"
 LOG "---------------------------------------------------"
-LOG "  Para iniciar el ejercicio:"
-LOG "  1. Acceder a https://localhost:3333"
-LOG "  2. Campaigns -> '${CAMPAIGN_NAME}' -> Launch Campaign"
+LOG "  La campaña ya esta lanzada. Para el ejercicio:"
+LOG "  1. Panel GoPhish: https://localhost:3333 (Campaigns -> '${CAMPAIGN_NAME}')"
+LOG "  2. Victima (Desktop/Thunderbird): abrir el correo de ${OPSN_GOPHISH_FROM_NAME},"
+LOG "     hacer click en el enlace y enviar credenciales en la landing."
