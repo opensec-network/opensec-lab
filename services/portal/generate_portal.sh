@@ -186,6 +186,7 @@ cat > "$OUT_DIR/index.html" << HTMLEOF
         <a class="btn primary" href="http://localhost:${PORT_DOCS}/workshops/web-hacking/" target="_blank">Web Hacking</a>
         <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/api-breach/" target="_blank">API Breach</a>
         <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/phishing/" target="_blank">Phishing</a>
+        <a class="btn" href="http://localhost:${PORT_DOCS}/workshops/kill-chain/" target="_blank">Kill Chain</a>
       </div>
     </div>
   </section>

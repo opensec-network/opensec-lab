@@ -60,6 +60,8 @@ assert_file_exists "docs workshops/web-hacking.md" "services/docs/docs/workshops
 assert_file_exists "docs workshops/web-hacking-instructor.md" "services/docs/docs/workshops/web-hacking-instructor.md"
 assert_file_exists "docs workshops/phishing.md" "services/docs/docs/workshops/phishing.md"
 assert_file_exists "docs workshops/phishing-instructor.md" "services/docs/docs/workshops/phishing-instructor.md"
+assert_file_exists "docs workshops/kill-chain.md" "services/docs/docs/workshops/kill-chain.md"
+assert_file_exists "docs workshops/kill-chain-instructor.md" "services/docs/docs/workshops/kill-chain-instructor.md"
 
 # Docs — servicios (Plan 3)
 for svc in dvwa juiceshop api wazuh gophish mail; do
@@ -85,6 +87,7 @@ for script in \
     tests/api-breach-readiness.sh \
     tests/web-hacking-readiness.sh \
     tests/phishing-readiness.sh \
+    tests/kill-chain-readiness.sh \
     services/mail/entrypoint.sh \
     services/desktop/custom-init.sh \
     services/desktop/init.sh
@@ -229,6 +232,11 @@ assert_file_contains \
     "workshops/phishing/"
 
 assert_file_contains \
+    "portal enlaza taller Kill Chain" \
+    "services/portal/generate_portal.sh" \
+    "workshops/kill-chain/"
+
+assert_file_contains \
     "portal conserva acceso directo a servicios" \
     "services/portal/generate_portal.sh" \
     "Acceso directo a servicios"
@@ -293,6 +301,11 @@ assert_file_contains \
     "services/docs/mkdocs.yml" \
     "workshops/phishing.md"
 
+assert_file_contains \
+    "mkdocs nav incluye kill-chain" \
+    "services/docs/mkdocs.yml" \
+    "workshops/kill-chain.md"
+
 assert_file_exists \
     "readiness web-hacking" \
     "tests/web-hacking-readiness.sh"
@@ -300,6 +313,10 @@ assert_file_exists \
 assert_file_exists \
     "readiness phishing" \
     "tests/phishing-readiness.sh"
+
+assert_file_exists \
+    "readiness kill-chain" \
+    "tests/kill-chain-readiness.sh"
 
 assert_file_contains \
     "script ofrece modo taller API Breach" \

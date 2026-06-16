@@ -25,6 +25,8 @@ nav:
     - Guia de instructor (Web): workshops/web-hacking-instructor.md
     - Phishing y Robo de Credenciales: workshops/phishing.md
     - Guia de instructor (Phishing): workshops/phishing-instructor.md
+    - Kill Chain y Correlacion: workshops/kill-chain.md
+    - Guia de instructor (Kill Chain): workshops/kill-chain-instructor.md
   - Servicios:
     - DVWA: services/dvwa.md
     - Juice Shop: services/juiceshop.md
