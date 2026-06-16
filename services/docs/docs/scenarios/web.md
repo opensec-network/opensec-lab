@@ -15,7 +15,7 @@ Explotar 3 vulnerabilidades web en DVWA y ver como Wazuh las detecta.
 ## Configuracion inicial de DVWA
 
 1. Abre http://localhost:8080
-2. Inicia sesion: `admin` / `admin`
+2. Inicia sesion: `admin` / `password`
 3. Ve a **DVWA Security** y selecciona nivel **Low**
 4. Ve a **Setup/Reset DB** y haz clic en **Create / Reset Database**
 

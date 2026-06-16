@@ -70,7 +70,7 @@ GoPhish captura las credenciales. En el dashboard aparecera el evento como "Subm
 
 ## Paso 6 — Ver las alertas en Wazuh
 
-Abre https://localhost:5601 (Wazuh Dashboards). Credenciales: `admin` / `SecretPassword`.
+Abre https://localhost:5601 (Wazuh Dashboards). Credenciales: `admin` / `admin`.
 
 Ve a **Security Events** y busca:
 

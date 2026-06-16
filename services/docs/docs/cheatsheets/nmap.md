@@ -43,13 +43,20 @@ nmap -sV 172.18.0.0/24 -oA resultado       # los 3 formatos
 
 ## Escaneo del lab
 
+La red Docker del lab usa la subred `172.18.0.0/16`. Las IPs de los contenedores son
+asignadas dinamicamente — no asumir valores fijos.
+
 ```bash
 # Descubrir todos los contenedores activos
 nmap -sn 172.18.0.0/24
 
-# Ver puertos de un contenedor especifico
-nmap -sV 172.18.0.3   # DVWA
-nmap -sV 172.18.0.8   # API vulnerable
+# Obtener la IP de un contenedor especifico
+docker inspect opsn-dvwa --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+docker inspect opsn-api  --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'
+
+# Escanear un contenedor usando su IP
+DVWA_IP=$(docker inspect opsn-dvwa --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+nmap -sV "$DVWA_IP"
 ```
 
 > Nota: Suricata detecta escaneos de puertos SYN con la regla SID 9000050.

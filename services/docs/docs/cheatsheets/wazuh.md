@@ -10,7 +10,7 @@ Comandos y filtros para analizar alertas del OpenSec Lab.
 |----------|-------|
 | URL | https://localhost:5601 |
 | Usuario | admin |
-| Contrasena | SecretPassword |
+| Contrasena | admin |
 
 ## Filtros en Security Events
 
