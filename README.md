@@ -94,35 +94,37 @@ Opciones disponibles:
 
 ## Arquitectura
 
-```
-openseclab (172.18.0.0/16)
-├── 172.18.0.2  opsn-dns          Technitium DNS (resuelve *.opensec.lab)
-├── 172.18.0.3  opsn-dvwa         DVWA :8080
-├── 172.18.0.4  opsn-juice-shop   Juice Shop :3000
-├── 172.18.0.5  opsn-gophish      GoPhish :3333/:80
-├── 172.18.0.6  opsn-desktop      XFCE con Thunderbird :3100
-├── 172.18.0.7  opsn-mail         Postfix + Roundcube :8888
-├── 172.18.0.8  opsn-api          API vulnerable (Flask) :8025
-├── 172.18.0.9  opsn-wazuh        Wazuh SIEM :5601
-├── 172.18.0.10 opsn-suricata     Suricata IDS (pasivo)
-└── (dinámica)  opsn-docs         MkDocs :4000
-```
+Red Docker: `openseclab` — subred `172.18.0.0/16`. Las IPs son dinámicas (Docker las asigna
+automáticamente); los servicios se localizan entre sí por nombre DNS (`*.opensec.lab`), no por IP fija.
 
-> **Nota sobre las IPs:** son ilustrativas. El `docker-compose.yml` actual **no asigna IPs
-> estáticas** — Docker las asigna dinámicamente dentro de la subred `172.18.0.0/16`. Los
-> servicios se localizan entre sí por nombre DNS (`*.opensec.lab`), no por IP fija. El diagrama
-> tampoco incluye WebGoat (8081) ni Gitea (3002), que también forman parte del catálogo.
+| Contenedor | Puerto(s) host | Propósito |
+|---|---|---|
+| `opsn-dns` | 5380, 53/udp, 53/tcp | Technitium DNS — zona `opensec.lab` |
+| `opsn-dvwa` | 8080 | DVWA |
+| `opsn-juice-shop` | 3000 | Juice Shop |
+| `opsn-webgoat` | 8081 | WebGoat |
+| `opsn-api` | 8025 | API vulnerable (Flask) |
+| `opsn-gophish` | 3333, 80 | GoPhish |
+| `opsn-desktop` | 3100, 3101 | Escritorio XFCE con Thunderbird |
+| `opsn-mail` | 25, 143, 587, 8888→80 | Postfix + Roundcube webmail |
+| `opsn-gitea` | 3002, 2222 | Gitea — repos con código vulnerable |
+| `opsn-wazuh` | 5601, 55000 | Wazuh SIEM |
+| `opsn-suricata` | — | Suricata IDS (pasivo, junto a Wazuh) |
+| `opsn-portal` | 8443 | Portal central |
+| `opsn-docs` | 4000 | MkDocs — escenarios y talleres |
 
 Zona DNS `opensec.lab` configurada automáticamente:
 
 | Registro | Nombre | Valor |
 |----------|--------|-------|
-| A | `mail.opensec.lab` | 172.18.0.7 |
-| A | `webmail.opensec.lab` | 172.18.0.7 |
-| A | `gophish.opensec.lab` | 172.18.0.5 |
-| A | `api.opensec.lab` | 172.18.0.8 |
-| A | `docs.opensec.lab` | (resuelta dinámicamente por Docker) |
+| A | `mail.opensec.lab` | IP dinámica de `opsn-mail` |
+| A | `webmail.opensec.lab` | IP dinámica de `opsn-mail` |
+| A | `gophish.opensec.lab` | IP dinámica de `opsn-gophish` |
+| A | `api.opensec.lab` | IP dinámica de `opsn-api` |
+| A | `docs.opensec.lab` | IP dinámica de `opsn-docs` |
 | MX | `opensec.lab` | `mail.opensec.lab` |
+
+> `configure_dns.sh` resuelve la IP de cada contenedor en tiempo de ejecución via la API de Technitium.
 
 ---
 

@@ -190,7 +190,7 @@ DVWA (Damn Vulnerable Web Application) es una aplicación PHP diseñada intencio
 
 **Acceso:** http://localhost:8080
 **Usuario:** `admin`
-**Contraseña:** `admin`
+**Contraseña:** `password`
 
 ### Primer uso
 
@@ -226,10 +226,12 @@ Technitium DNS Server gestiona la zona `opensec.lab` dentro de la red Docker.
 
 | Tipo | Nombre | Valor |
 |------|--------|-------|
-| A | `mail.opensec.lab` | 172.18.0.7 |
-| A | `webmail.opensec.lab` | 172.18.0.7 |
-| A | `gophish.opensec.lab` | 172.18.0.5 |
+| A | `mail.opensec.lab` | IP dinámica del contenedor `opsn-mail` |
+| A | `webmail.opensec.lab` | IP dinámica del contenedor `opsn-mail` |
+| A | `gophish.opensec.lab` | IP dinámica del contenedor `opsn-gophish` |
 | MX | `opensec.lab` | `mail.opensec.lab` |
+
+> Las IPs son asignadas dinámicamente por Docker dentro de la subred `172.18.0.0/16`. El script `configure_dns.sh` obtiene la IP de cada contenedor en tiempo de ejecución.
 
 Puedes agregar registros adicionales desde la interfaz si necesitas simular más dominios internos.
 

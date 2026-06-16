@@ -166,10 +166,10 @@ make release
 docker logs opsn-gophish-init
 
 # Probar DNS desde el desktop
-docker exec opsn-desktop nslookup gophish.opensec.lab 172.18.0.2
+docker exec opsn-desktop nslookup gophish.opensec.lab
 
 # Probar SMTP interno
-docker exec opsn-desktop nc -zv 172.18.0.7 25
+docker exec opsn-desktop nc -zv mail.opensec.lab 25
 ```
 
 ---
@@ -177,6 +177,7 @@ docker exec opsn-desktop nc -zv 172.18.0.7 25
 ## Pendiente
 
 - Publicar `opensecnetwork/mail:multi-arch` → cambiar `build:` por `image:` en compose
-- Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install` → `opensec-lab.sh` del último release
-- Comprimir `services/desktop/opsn-background.jpg` a < 1 MB (actualmente ~15 MB) o usar Git LFS
 - Publicar `opensecnetwork/api:multi-arch` para eliminar el `build:` local de `opsn-api`
+- Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install` → `opensec-lab.sh` del último release
+- Publicar release v3.0 en GitHub con todos los tarballs y el `docker-compose.yml`
+- Talleres en diseño: Phishing (GoPhish→Wazuh) y Kill Chain completo
