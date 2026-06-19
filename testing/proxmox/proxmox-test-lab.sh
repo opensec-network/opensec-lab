@@ -6,9 +6,12 @@
 #   create          — Crea y arranca la VM de prueba (linked clone del template)
 #   destroy         — Detiene y elimina la VM de prueba
 #   ssh             — Abre sesión SSH al guest (passthrough)
+#   provision       — Instala Docker + deps en el guest (idempotente, con fallback)
+#   snapshot        — Crea snapshot limpio (Kali+Docker, lab sin instalar)
+#   reset           — Rollback al snapshot limpio, arranca VM y espera SSH
 #   help            — Muestra este mensaje
 #
-# Subcomandos futuros (próximas tareas): provision, snapshot, reset, test, health, urls, hosts
+# Subcomandos futuros (próximas tareas): test, health, urls, hosts
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -119,6 +122,91 @@ destroy_vm() {
 }
 
 # ---------------------------------------------------------------------------
+# provision_vm — Instala Docker + deps en el guest (SSH). Idempotente.
+# Intenta primero el convenience script oficial; si Docker no queda disponible
+# (Kali rolling a veces no está en la lista de distros reconocidas), cae a
+# docker.io + docker-compose-plugin del repositorio de Kali.
+# ---------------------------------------------------------------------------
+provision_vm() {
+    echo "[*] Provisionando VM (Docker + deps)..."
+    guest_ssh "sudo bash -s" <<'REMOTE'
+set -uo pipefail
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq ca-certificates curl git jq rsync
+
+# --- Intento 1: convenience script oficial de Docker ---
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[provision] Intentando get.docker.com..."
+  curl -fsSL https://get.docker.com | sh || true
+fi
+
+# --- Intento 2: docker.io del repo de Kali ---
+# Kali rolling no está reconocida por get.docker.com (no tiene Release file).
+# docker.io en Kali ya incluye el daemon completo; docker compose se provee
+# por docker-compose-plugin (si existe) o por el paquete standalone docker-compose.
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[provision] get.docker.com falló; usando docker.io de Kali"
+  apt-get install -y -qq docker.io || true
+  # docker-compose-plugin (v2 integrado) — puede no existir en todas las versiones
+  apt-get install -y -qq docker-compose-plugin 2>/dev/null || true
+  # Fallback a docker-compose standalone (v1 compatible con 'docker compose' via alias)
+  if ! docker compose version >/dev/null 2>&1; then
+    apt-get install -y -qq docker-compose 2>/dev/null || true
+  fi
+fi
+
+systemctl enable --now docker
+usermod -aG docker kali || true
+docker --version
+# 'docker compose version' (plugin v2) o 'docker-compose version' (standalone)
+docker compose version 2>/dev/null || docker-compose version
+REMOTE
+    echo "[*] Provisionado. (El grupo docker aplica en la próxima sesión SSH.)"
+}
+
+# ---------------------------------------------------------------------------
+# snapshot_vm — Crea snapshot limpio vía API (vmstate=0 — sin RAM).
+# Baseline: Kali + Docker instalado, lab aún sin instalar.
+# ---------------------------------------------------------------------------
+snapshot_vm() {
+    echo "[*] Creando snapshot $CLEAN_SNAPSHOT..."
+    local upid
+    upid=$(pve_call POST "/nodes/${PVE_NODE}/qemu/${VM_ID}/snapshot" \
+        snapname="$CLEAN_SNAPSHOT" description="Kali+Docker, lab sin instalar" vmstate=0 | jq -r '.data')
+    [[ "$(pve_wait_task "$upid")" == "OK" ]] || { echo "snapshot falló" >&2; return 1; }
+    echo "[*] Snapshot $CLEAN_SNAPSHOT listo."
+}
+
+# ---------------------------------------------------------------------------
+# reset_vm — Rollback al snapshot limpio, arranca la VM y espera SSH.
+# Proxmox exige que la VM esté detenida antes del rollback cuando vmstate=0;
+# se detiene y espera antes de llamar al rollback.
+# ---------------------------------------------------------------------------
+reset_vm() {
+    echo "[*] Deteniendo VM antes del rollback..."
+    pve_call POST "/nodes/${PVE_NODE}/qemu/${VM_ID}/status/stop" >/dev/null 2>&1 || true
+    local i
+    for i in $(seq 1 20); do
+        [[ "$(pve_get "/nodes/${PVE_NODE}/qemu/${VM_ID}/status/current" \
+            | jq -r '.data.status // empty')" != "running" ]] && break
+        sleep 3
+    done
+
+    echo "[*] Rollback a $CLEAN_SNAPSHOT..."
+    local upid
+    upid=$(pve_call POST "/nodes/${PVE_NODE}/qemu/${VM_ID}/snapshot/${CLEAN_SNAPSHOT}/rollback" | jq -r '.data')
+    [[ "$(pve_wait_task "$upid")" == "OK" ]] || { echo "rollback falló" >&2; return 1; }
+
+    local resp; resp=$(pve_call POST "/nodes/${PVE_NODE}/qemu/${VM_ID}/status/start"); pve_ok "$resp" || return 1
+    echo "[*] Esperando SSH..."
+    ssh-keygen -R "$VM_IP" >/dev/null 2>&1 || true
+    local ok=0; for i in $(seq 1 40); do guest_ssh 'true' 2>/dev/null && { ok=1; break; }; sleep 5; done
+    [[ "$ok" == 1 ]] || { echo "reset: SSH no respondió tras 40 intentos" >&2; return 1; }
+    echo "[*] VM revertida y arriba."
+}
+
+# ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
 cmd="${1:-help}"; shift || true
@@ -127,18 +215,24 @@ case "$cmd" in
     create)         create_vm ;;
     destroy)        destroy_vm ;;
     ssh)            guest_ssh "$@" ;;
+    provision)      provision_vm ;;
+    snapshot)       snapshot_vm ;;
+    reset)          reset_vm ;;
     help|--help|-h)
-        echo "Uso: $0 {build-template|create|destroy|ssh}"
+        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset}"
         echo ""
         echo "  build-template  Prepara template Kali en el host (una vez, idempotente)"
         echo "  create          Crea VM de prueba como linked clone del template"
         echo "  destroy         Detiene y elimina la VM de prueba"
         echo "  ssh [cmd]       SSH al guest (con o sin comando)"
+        echo "  provision       Instala Docker + deps en el guest (idempotente, con fallback)"
+        echo "  snapshot        Crea snapshot limpio (Kali+Docker, lab sin instalar)"
+        echo "  reset           Rollback al snapshot limpio, arranca VM y espera SSH"
         echo ""
-        echo "  Más subcomandos en próximas tareas: provision snapshot reset test health urls hosts"
+        echo "  Más subcomandos en próximas tareas: test health urls hosts"
         ;;
     *)
-        echo "Uso: $0 {build-template|create|destroy|ssh}  (más subcomandos en próximas tareas)"
+        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset}  (más subcomandos en próximas tareas)"
         exit 1
         ;;
 esac
