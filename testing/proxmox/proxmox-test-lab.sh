@@ -283,6 +283,55 @@ SAMP
 }
 
 # ---------------------------------------------------------------------------
+# health_vm — Ejecuta los scripts de readiness del repo dentro de la VM.
+# Requiere que el repo ya esté copiado (corre 'test' primero).
+# ---------------------------------------------------------------------------
+health_vm() {
+    if ! guest_ssh "test -d /home/${CI_USER}/opensec-lab"; then
+        echo "health: el repo no está en la VM. Corre 'test' primero." >&2; return 1
+    fi
+    local t
+    for t in web-hacking api-breach phishing kill-chain; do
+        echo "=== readiness: $t ==="
+        guest_ssh "cd /home/${CI_USER}/opensec-lab && bash tests/${t}-readiness.sh" || true
+    done
+}
+
+# ---------------------------------------------------------------------------
+# print_urls — Imprime las URLs de acceso a los servicios del lab por VM_IP.
+# ---------------------------------------------------------------------------
+print_urls() {
+    cat <<EOF
+Portal:     https://${VM_IP}:8443
+DVWA:       http://${VM_IP}:8080
+Juice Shop: http://${VM_IP}:3000
+WebGoat:    http://${VM_IP}:8081
+API:        http://${VM_IP}:8025
+GoPhish:    https://${VM_IP}:3333
+Wazuh:      https://${VM_IP}:5601
+Gitea:      http://${VM_IP}:3002
+Docs:       http://${VM_IP}:4000
+Roundcube:  http://${VM_IP}:8888
+Webtop:     http://${VM_IP}:3100
+EOF
+}
+
+# ---------------------------------------------------------------------------
+# update_hosts — Mapea *.opensec.lab -> VM_IP en /etc/hosts del Mac.
+# Idempotente: borra líneas previas del harness antes de agregar las nuevas.
+# Sintaxis macOS: sed -i '' (sin backup en línea).
+# ---------------------------------------------------------------------------
+update_hosts() {
+    local marker="# opsn-harness"
+    sudo sed -i '' "/${marker}/d" /etc/hosts 2>/dev/null || true
+    local n
+    for n in portal dvwa api gophish wazuh gitea docs mail webmail desktop juice-shop webgoat; do
+        echo "${VM_IP} ${n}.opensec.lab ${marker}" | sudo tee -a /etc/hosts >/dev/null
+    done
+    echo "[*] /etc/hosts actualizado para ${VM_IP}. (Edita /etc/hosts y borra las líneas '${marker}' para revertir.)"
+}
+
+# ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
 cmd="${1:-help}"; shift || true
@@ -295,23 +344,27 @@ case "$cmd" in
     snapshot)       snapshot_vm ;;
     reset)          reset_vm ;;
     test)           test_lab "$@" ;;
+    health)         health_vm ;;
+    urls)           print_urls ;;
+    hosts)          update_hosts ;;
     help|--help|-h)
-        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset|test}"
+        echo "Uso: $0 {build-template|create|provision|snapshot|test [profiles]|reset|health|urls|hosts|ssh|destroy}"
         echo ""
         echo "  build-template  Prepara template Kali en el host (una vez, idempotente)"
         echo "  create          Crea VM de prueba como linked clone del template"
-        echo "  destroy         Detiene y elimina la VM de prueba"
-        echo "  ssh [cmd]       SSH al guest (con o sin comando)"
         echo "  provision       Instala Docker + deps en el guest (idempotente, con fallback)"
         echo "  snapshot        Crea snapshot limpio (Kali+Docker, lab sin instalar)"
-        echo "  reset           Rollback al snapshot limpio, arranca VM y espera SSH"
         echo "  test [profiles] Rollback + rsync + instalación headless + reporte de métricas"
         echo "                  profiles: lista entre comillas (e.g. \"dvwa api docs\") o 'all'"
-        echo ""
-        echo "  Más subcomandos: health urls hosts"
+        echo "  reset           Rollback al snapshot limpio, arranca VM y espera SSH"
+        echo "  health          Ejecuta los 4 scripts de readiness del repo en la VM"
+        echo "  urls            Imprime las URLs de los servicios del lab por VM_IP"
+        echo "  hosts           Mapea *.opensec.lab -> VM_IP en /etc/hosts del Mac (idempotente)"
+        echo "  ssh [cmd]       SSH al guest (con o sin comando)"
+        echo "  destroy         Detiene y elimina la VM de prueba"
         ;;
     *)
-        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset|test}  (más subcomandos: health urls hosts)"
+        echo "Uso: $0 {build-template|create|provision|snapshot|test [profiles]|reset|health|urls|hosts|ssh|destroy}"
         exit 1
         ;;
 esac
