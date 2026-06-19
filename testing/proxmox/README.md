@@ -131,7 +131,6 @@ testing/proxmox/
 | `PVE_TOKEN_ID` | `root@pam!cicd` | ID del token API |
 | `PVE_TOKEN_SECRET` | *(vacío)* | Secreto del token — rellenar en config.env |
 | `PVE_STORAGE` | `local-lvm` | Storage lvmthin para el disco de la VM |
-| `IMAGE_STORAGE` | `local` | Storage tipo dir para el disk.raw durante el build |
 | `TEMPLATE_ID` | `9000` | VMID del template dorado de Kali |
 | `VM_ID` | `9001` | VMID de la VM de prueba |
 | `VM_IP` | `10.0.0.50` | IP estática del invitado (ajustar a tu red) |

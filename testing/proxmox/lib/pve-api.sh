@@ -59,7 +59,7 @@ pve_call() {
 # ---------------------------------------------------------------------------
 pve_wait_task() {
     local upid="$1"
-    [[ -z "$upid" ]] && { echo "pve_wait_task: UPID vacío" >&2; return 2; }
+    [[ -z "$upid" || "$upid" == "null" ]] && { echo "pve_wait_task: UPID inválido ('$upid')" >&2; return 2; }
     local st payload deadline=$(( SECONDS + ${PVE_TASK_TIMEOUT:-600} ))
     while :; do
         payload=$(pve_get "/nodes/${PVE_NODE}/tasks/${upid}/status")
