@@ -67,6 +67,18 @@ log_warn()    { echo -e "${YELLOW}[!]${NC} $*"; echo "$(date +'%F %T') WARN: $*"
 log_error()   { echo -e "${RED}[✗]${NC} $*"; echo "$(date +'%F %T') ERROR: $*"    >> "$LOG_FILE" 2>/dev/null || true; }
 log_step()    { echo -e "${BLUE}[→]${NC} $*"; }
 
+# Devuelve 0 (sí) automáticamente en modo no interactivo; si no, pregunta.
+# Uso: confirmar "  ¿Continuar? [s/N]: " || return 1
+confirmar() {
+    local prompt="$1" answer
+    if [[ "${OPSN_NONINTERACTIVE:-0}" == "1" ]]; then
+        return 0
+    fi
+    echo -n "$prompt"
+    read -r answer
+    [[ "$answer" =~ ^[sS]$ ]]
+}
+
 # ─────────────────────────────────────────────────────────────────
 # SUDO
 # ─────────────────────────────────────────────────────────────────
@@ -119,9 +131,7 @@ check_prerequisites() {
     # Docker
     if ! command -v docker &>/dev/null; then
         log_warn "Docker no está instalado."
-        echo -n "  ¿Instalar Docker ahora? [s/N]: "
-        read -r answer
-        if [[ "$answer" =~ ^[sS]$ ]]; then
+        if confirmar "  ¿Instalar Docker ahora? [s/N]: "; then
             instalar_docker
         else
             log_error "Docker es requerido. Instálalo y vuelve a ejecutar el script."
@@ -179,11 +189,7 @@ verificar_puerto_53() {
             echo "  sudo systemctl stop systemd-resolved"
             echo "  sudo systemctl disable systemd-resolved"
             echo ""
-            echo -n "  ¿Continuar de todas formas? [s/N]: "
-            read -r answer
-            if [[ ! "$answer" =~ ^[sS]$ ]]; then
-                return 1
-            fi
+            confirmar "  ¿Continuar de todas formas? [s/N]: " || return 1
         fi
     fi
     return 0
@@ -229,9 +235,7 @@ verificar_puertos_host() {
         echo "    1. Libera el puerto (detén el proceso o contenedor que lo ocupa)."
         echo "    2. Cámbialo en ${ENV_FILE} (variables OPSN_*_PORT) y reintenta."
         echo ""
-        echo -n "  ¿Continuar de todas formas? [s/N]: "
-        read -r answer
-        [[ "$answer" =~ ^[sS]$ ]] || return 1
+        confirmar "  ¿Continuar de todas formas? [s/N]: " || return 1
     fi
     return 0
 }
@@ -251,9 +255,7 @@ advertir_exposicion_red() {
     echo "  quedarán accesibles desde otras máquinas de la red. Úsalo SOLO en una"
     echo "  red aislada o de laboratorio controlada, nunca en redes no confiables."
     echo ""
-    echo -n "  ¿Continuar con la exposición a ${bind_addr}? [s/N]: "
-    read -r answer
-    [[ "$answer" =~ ^[sS]$ ]] || return 1
+    confirmar "  ¿Continuar con la exposición a ${bind_addr}? [s/N]: " || return 1
 }
 
 # ─────────────────────────────────────────────────────────────────
@@ -302,9 +304,7 @@ advertir_ram_si_necesario() {
             log_warn "  RAM disponible en el sistema:                  ${disponible} MB"
             log_warn "  Umbral recomendado (80%%):                     ${umbral} MB"
             echo ""
-            echo -n "  ¿Continuar de todas formas? [s/N]: "
-            read -r answer
-            if [[ ! "$answer" =~ ^[sS]$ ]]; then
+            if ! confirmar "  ¿Continuar de todas formas? [s/N]: "; then
                 log_warn "Instalación cancelada. Considera seleccionar menos servicios."
                 return 1
             fi
@@ -488,6 +488,14 @@ descargar_paquete_servicio() {
         return 0
     fi
 
+    if [[ -n "${OPSN_SOURCE_DIR:-}" ]]; then
+        log_step "Copiando servicio $service desde repo local..."
+        mkdir -p "$dest"
+        cp -a "$OPSN_SOURCE_DIR/services/$short/." "$dest/"
+        log_info "Servicio $short copiado del repo local."
+        return 0
+    fi
+
     log_step "Descargando archivos de $service..."
     mkdir -p "$dest"
 
@@ -515,6 +523,15 @@ servicio_necesita_archivos() {
 # DESCARGA INICIAL (docker-compose.yml + .env + script)
 # ─────────────────────────────────────────────────────────────────
 descargar_archivos_base() {
+    if [[ -n "${OPSN_SOURCE_DIR:-}" ]]; then
+        log_step "Copiando archivos base desde repo local: $OPSN_SOURCE_DIR"
+        cp "$OPSN_SOURCE_DIR/docker-compose.yml" "$DC_FILE"
+        [[ -f "$ENV_FILE" ]] || cp "$OPSN_SOURCE_DIR/config/defaults.env" "$ENV_FILE"
+        [[ -f "$LAB_DIR/opensec-lab.sh" ]] || cp "$OPSN_SOURCE_DIR/opensec-lab.sh" "$LAB_DIR/opensec-lab.sh"
+        log_info "Archivos base copiados del repo local."
+        return 0
+    fi
+
     log_step "Descargando archivos base del lab (v${VERSION})..."
 
     # docker-compose.yml
@@ -1407,10 +1424,37 @@ menu_gestion() {
 }
 
 # ─────────────────────────────────────────────────────────────────
+# INSTALACIÓN HEADLESS (no interactiva)
+# ─────────────────────────────────────────────────────────────────
+instalacion_headless() {
+    banner
+    log_step "Modo no interactivo (OPSN_PROFILES=${OPSN_PROFILES:-all})"
+    check_prerequisites
+    sudo_docker
+    mkdir -p "$LAB_DIR/services"; touch "$LOG_FILE" "$PROFILES_FILE"
+    descargar_archivos_base
+
+    local sel=()
+    if [[ "${OPSN_PROFILES:-all}" == "all" ]]; then
+        for entry in "${SERVICES_CATALOG[@]}"; do
+            sel+=("$(echo "$entry" | cut -d'|' -f1)")
+        done
+    else
+        for p in ${OPSN_PROFILES}; do
+            [[ "$p" == opsn-* ]] && sel+=("$p") || sel+=("opsn-$p")
+        done
+    fi
+    instalar_servicios "${sel[@]}"
+}
+
+# ─────────────────────────────────────────────────────────────────
 # PUNTO DE ENTRADA
 # ─────────────────────────────────────────────────────────────────
 main() {
-    # Si ya existe una instalación previa, ir al menú de gestión
+    if [[ "${OPSN_NONINTERACTIVE:-0}" == "1" ]]; then
+        instalacion_headless
+        return
+    fi
     if [[ -f "$PROFILES_FILE" && -f "$DC_FILE" ]]; then
         sudo_docker
         menu_gestion
