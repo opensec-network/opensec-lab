@@ -11,6 +11,11 @@
 #   CI_USER         — Usuario SSH en el guest
 #   SSH_KEY_PRIV    — Ruta a la clave privada SSH
 # shellcheck disable=SC2154
+#
+# CONTRATO: pve_get y pve_call devuelven el JSON crudo de la API y NO verifican
+# el código HTTP. Un 401/403/500 devuelve JSON de error con exit 0 — los callers
+# DEBEN inspeccionar .data / .errors (o el exitstatus vía pve_wait_task) para
+# detectar fallos. Un token vencido se ve como respuesta válida si no se revisa.
 
 # ---------------------------------------------------------------------------
 # Internos
@@ -48,19 +53,25 @@ pve_call() {
 # ---------------------------------------------------------------------------
 # Espera a que una tarea Proxmox (UPID) finalice.
 # Imprime el exitstatus de la tarea (e.g. "OK" o mensaje de error).
+# Falla (return 1) si excede PVE_TASK_TIMEOUT segundos (default 600) — evita
+# que un UPID inválido/colgado o un error de la API cuelguen el harness.
 # Uso: pve_wait_task <UPID>
 # ---------------------------------------------------------------------------
 pve_wait_task() {
     local upid="$1"
-    local st
+    [[ -z "$upid" ]] && { echo "pve_wait_task: UPID vacío" >&2; return 2; }
+    local st payload deadline=$(( SECONDS + ${PVE_TASK_TIMEOUT:-600} ))
     while :; do
-        st=$(pve_get "/nodes/${PVE_NODE}/tasks/${upid}/status" \
-            | jq -r '.data.status')
+        payload=$(pve_get "/nodes/${PVE_NODE}/tasks/${upid}/status")
+        st=$(echo "$payload" | jq -r '.data.status // empty')
         [[ "$st" == "stopped" ]] && break
+        if (( SECONDS >= deadline )); then
+            echo "pve_wait_task: timeout esperando UPID ${upid} (status='${st}')" >&2
+            return 1
+        fi
         sleep 3
     done
-    pve_get "/nodes/${PVE_NODE}/tasks/${upid}/status" \
-        | jq -r '.data.exitstatus'
+    echo "$payload" | jq -r '.data.exitstatus // empty'
 }
 
 # ---------------------------------------------------------------------------
