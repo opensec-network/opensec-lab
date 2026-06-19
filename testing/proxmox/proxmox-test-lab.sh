@@ -129,7 +129,7 @@ destroy_vm() {
 # ---------------------------------------------------------------------------
 provision_vm() {
     echo "[*] Provisionando VM (Docker + deps)..."
-    guest_ssh "sudo bash -s" <<'REMOTE'
+    if guest_ssh "sudo bash -s -- $CI_USER" <<'REMOTE'
 set -uo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -157,12 +157,17 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 systemctl enable --now docker
-usermod -aG docker kali || true
+usermod -aG docker "${1:-kali}" || true
 docker --version
 # 'docker compose version' (plugin v2) o 'docker-compose version' (standalone)
 docker compose version 2>/dev/null || docker-compose version
 REMOTE
-    echo "[*] Provisionado. (El grupo docker aplica en la próxima sesión SSH.)"
+    then
+        echo "[*] Provisionado. (El grupo docker aplica en la próxima sesión SSH.)"
+    else
+        echo "provision falló: Docker o compose no quedaron instalados" >&2
+        return 1
+    fi
 }
 
 # ---------------------------------------------------------------------------
