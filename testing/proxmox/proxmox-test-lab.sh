@@ -217,7 +217,8 @@ reset_vm() {
 # ---------------------------------------------------------------------------
 generar_reporte() {
     local out="$1" ts="$2" profiles="$3" dur="$4"
-    local rampeak ramavg
+    local rampeak ramavg nsamp
+    nsamp=$(guest_ssh 'wc -l < /tmp/metrics.log 2>/dev/null || echo 0' 2>/dev/null | tr -d "[:space:]"); nsamp=${nsamp:-0}
     rampeak=$(guest_ssh "awk 'BEGIN{m=0}{if(\$2>m)m=\$2}END{print m+0}' /tmp/metrics.log" 2>/dev/null || echo 0)
     ramavg=$(guest_ssh "awk '{s+=\$2;n++}END{if(n>0)printf \"%d\", s/n; else print 0}' /tmp/metrics.log" 2>/dev/null || echo 0)
     mkdir -p "$(dirname "$out")"
@@ -226,7 +227,11 @@ generar_reporte() {
         echo ""
         echo "- Profiles: \`${profiles}\`"
         echo "- Duración instalación: **${dur}s**"
-        echo "- RAM pico: **${rampeak} MB** · promedio: **${ramavg} MB**"
+        if [[ "$nsamp" -gt 0 ]]; then
+            echo "- RAM pico: **${rampeak} MB** · promedio: **${ramavg} MB** (${nsamp} muestras)"
+        else
+            echo "- ⚠️ Muestreador no produjo datos (0 muestras) — métricas de RAM no disponibles"
+        fi
         echo ""
         echo "## Disco (/)"
         echo '```'; guest_ssh 'df -h /' 2>/dev/null; echo '```'
@@ -259,7 +264,7 @@ for i in $(seq 1 720); do
   sleep 5
 done
 SAMP
-    guest_ssh 'pkill -f opsn-metrics.sh 2>/dev/null; nohup bash /tmp/opsn-metrics.sh < /dev/null > /tmp/metrics.log 2>&1 & disown; echo "sampler started (pid $!)"' || true
+    guest_ssh 'bash -c "nohup bash /tmp/opsn-metrics.sh >/tmp/metrics.log 2>&1 & echo \$! > /tmp/metrics.pid"; echo "sampler lanzado (pid=$(cat /tmp/metrics.pid))"' || true
 
     echo "[*] Instalando el lab (headless, profiles=$profiles)..."
     local start end
@@ -268,7 +273,7 @@ SAMP
     guest_ssh "cd /home/${CI_USER}/opensec-lab && OPSN_NONINTERACTIVE=1 OPSN_PROFILES='${profiles}' OPSN_SOURCE_DIR=\$PWD bash opensec-lab.sh" \
         || echo "[!] El instalador retornó no-cero — revisa el reporte y los logs."
     end=$(guest_ssh 'date +%s')
-    guest_ssh 'pkill -f opsn-metrics.sh 2>/dev/null' || true
+    guest_ssh 'kill $(cat /tmp/metrics.pid 2>/dev/null) 2>/dev/null; rm -f /tmp/metrics.pid; echo "sampler detenido"' || true
 
     local ts report
     ts=$(date +%Y-%m-%d_%H%M%S)
