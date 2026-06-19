@@ -180,7 +180,21 @@ docker exec opsn-desktop nc -zv mail.opensec.lab 25
 - Publicar `opensecnetwork/api:multi-arch` para eliminar el `build:` local de `opsn-api`
 - Registrar dominio `opensec.network` y apuntar `lab.opensec.network/install` → `opensec-lab.sh` del último release
 - Publicar release v3.0 en GitHub con todos los tarballs y el `docker-compose.yml`
-- Verificar la ruta en AMD64/Kali (todo se probó en macOS/ARM); confirmar la elevación de las reglas Wazuh custom
+- Verificar la ruta en AMD64/Kali: usar el **harness de Proxmox** (`testing/proxmox/`, ver abajo); confirmar la elevación de las reglas Wazuh custom
+
+## Harness de pruebas AMD64 (Proxmox)
+
+`testing/proxmox/proxmox-test-lab.sh` provisiona una VM Kali AMD64 limpia en un Proxmox
+existente y valida el instalador + el lab fuera de macOS/ARM. Patrón **template + clone**:
+una preparación única (`build-template`, vía SSH al host) crea el template dorado; el resto
+del ciclo (`create`/`provision`/`snapshot`/`test`/`reset`/`health`/`urls`/`hosts`/`destroy`)
+es 100% API REST. `test [profiles]` revierte a un snapshot limpio, copia el repo local,
+instala el lab **headless** y genera un reporte de consumo en `reports/`.
+
+El modo headless del instalador se activa con `OPSN_NONINTERACTIVE=1 OPSN_PROFILES=all
+OPSN_SOURCE_DIR=<repo>` (instala desde el repo local, sin depender del release).
+Config en `testing/proxmox/config.env` (gitignored, contiene el secreto del token).
+Diseño: `docs/superpowers/specs/2026-06-16-proxmox-amd64-test-harness-design.md`.
 
 ## Ruta de talleres (completa)
 
