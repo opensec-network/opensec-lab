@@ -212,6 +212,72 @@ reset_vm() {
 }
 
 # ---------------------------------------------------------------------------
+# generar_reporte — Genera un informe Markdown con métricas de instalación.
+# Escribe en $1; lee métricas de /tmp/metrics.log del guest vía SSH.
+# ---------------------------------------------------------------------------
+generar_reporte() {
+    local out="$1" ts="$2" profiles="$3" dur="$4"
+    local rampeak ramavg
+    rampeak=$(guest_ssh "awk 'BEGIN{m=0}{if(\$2>m)m=\$2}END{print m+0}' /tmp/metrics.log" 2>/dev/null || echo 0)
+    ramavg=$(guest_ssh "awk '{s+=\$2;n++}END{if(n>0)printf \"%d\", s/n; else print 0}' /tmp/metrics.log" 2>/dev/null || echo 0)
+    mkdir -p "$(dirname "$out")"
+    {
+        echo "# Reporte de instalación — ${ts}"
+        echo ""
+        echo "- Profiles: \`${profiles}\`"
+        echo "- Duración instalación: **${dur}s**"
+        echo "- RAM pico: **${rampeak} MB** · promedio: **${ramavg} MB**"
+        echo ""
+        echo "## Disco (/)"
+        echo '```'; guest_ssh 'df -h /' 2>/dev/null; echo '```'
+        echo "## Contenedores (docker ps)"
+        echo '```'; guest_ssh 'docker ps --format "{{.Names}}\t{{.Status}}" 2>/dev/null || sudo docker ps --format "{{.Names}}\t{{.Status}}"' 2>/dev/null; echo '```'
+        echo "## Uso por contenedor (docker stats)"
+        echo '```'; guest_ssh 'docker stats --no-stream --format "{{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}" 2>/dev/null || sudo docker stats --no-stream --format "{{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}"' 2>/dev/null; echo '```'
+    } > "$out"
+}
+
+# ---------------------------------------------------------------------------
+# test_lab — Rollback → rsync → instala headless → genera reporte de métricas.
+# Uso: test_lab [profiles]    (default: all)
+# ---------------------------------------------------------------------------
+test_lab() {
+    local profiles="${1:-all}"
+    reset_vm || { echo "test: reset falló" >&2; return 1; }
+    echo "[*] Copiando repo local a la VM..."
+    rsync -az --delete \
+        -e "ssh -i $SSH_KEY_PRIV -o StrictHostKeyChecking=accept-new -o BatchMode=yes" \
+        --exclude '.git' --exclude 'testing/proxmox/config.env' \
+        "$REPO_ROOT/" "${CI_USER}@${VM_IP}:/home/${CI_USER}/opensec-lab/" || { echo "test: rsync falló" >&2; return 1; }
+
+    echo "[*] Instalando muestreador de consumo en la VM..."
+    guest_ssh 'cat > /tmp/opsn-metrics.sh' <<'SAMP'
+#!/bin/bash
+# muestrea cada 5s: epoch, RAM usada (MB), nproc
+for i in $(seq 1 720); do
+  echo "$(date +%s) $(free -m | awk '/Mem:/{print $3}') $(nproc)"
+  sleep 5
+done
+SAMP
+    guest_ssh 'pkill -f opsn-metrics.sh 2>/dev/null; nohup bash /tmp/opsn-metrics.sh < /dev/null > /tmp/metrics.log 2>&1 & disown; echo "sampler started (pid $!)"' || true
+
+    echo "[*] Instalando el lab (headless, profiles=$profiles)..."
+    local start end
+    start=$(guest_ssh 'date +%s')
+    # SIN sudo explícito (el script auto-eleva); OPSN_SOURCE_DIR es el repo copiado
+    guest_ssh "cd /home/${CI_USER}/opensec-lab && OPSN_NONINTERACTIVE=1 OPSN_PROFILES='${profiles}' OPSN_SOURCE_DIR=\$PWD bash opensec-lab.sh" \
+        || echo "[!] El instalador retornó no-cero — revisa el reporte y los logs."
+    end=$(guest_ssh 'date +%s')
+    guest_ssh 'pkill -f opsn-metrics.sh 2>/dev/null' || true
+
+    local ts report
+    ts=$(date +%Y-%m-%d_%H%M%S)
+    report="$HERE/reports/${ts}.md"
+    generar_reporte "$report" "$ts" "$profiles" "$(( end - start ))"
+    echo "[*] Reporte: $report"
+}
+
+# ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
 cmd="${1:-help}"; shift || true
@@ -223,8 +289,9 @@ case "$cmd" in
     provision)      provision_vm ;;
     snapshot)       snapshot_vm ;;
     reset)          reset_vm ;;
+    test)           test_lab "$@" ;;
     help|--help|-h)
-        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset}"
+        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset|test}"
         echo ""
         echo "  build-template  Prepara template Kali en el host (una vez, idempotente)"
         echo "  create          Crea VM de prueba como linked clone del template"
@@ -233,11 +300,13 @@ case "$cmd" in
         echo "  provision       Instala Docker + deps en el guest (idempotente, con fallback)"
         echo "  snapshot        Crea snapshot limpio (Kali+Docker, lab sin instalar)"
         echo "  reset           Rollback al snapshot limpio, arranca VM y espera SSH"
+        echo "  test [profiles] Rollback + rsync + instalación headless + reporte de métricas"
+        echo "                  profiles: lista entre comillas (e.g. \"dvwa api docs\") o 'all'"
         echo ""
-        echo "  Más subcomandos en próximas tareas: test health urls hosts"
+        echo "  Más subcomandos: health urls hosts"
         ;;
     *)
-        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset}  (más subcomandos en próximas tareas)"
+        echo "Uso: $0 {build-template|create|destroy|ssh|provision|snapshot|reset|test}  (más subcomandos: health urls hosts)"
         exit 1
         ;;
 esac
