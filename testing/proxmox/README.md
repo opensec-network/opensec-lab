@@ -110,15 +110,13 @@ testing/proxmox/
 ├── config.env              # Valores reales — NUNCA commitear (en .gitignore)
 ├── .gitignore
 ├── README.md
-├── proxmox-test-lab.sh     # Script principal (implementado en tarea posterior)
-├── lib/                    # Helpers: api.sh, ssh.sh, report.sh (tarea posterior)
+├── proxmox-test-lab.sh     # Script principal (orquestador de subcomandos)
+├── lib/
+│   └── pve-api.sh          # Helpers de la API REST de Proxmox + SSH al invitado
 ├── reports/                # Reportes de métricas versionados (*.md)
 │   └── .gitkeep
-└── output/                 # Artefactos temporales en ejecución (gitignoreado)
-    └── .gitkeep
+└── output/                 # Artefactos en ejecución, p.ej. guía de usuario (gitignoreado)
 ```
-
-`proxmox-test-lab.sh` y `lib/` se implementan en tareas posteriores del harness. Este README describe la interfaz de uso prevista.
 
 ---
 
