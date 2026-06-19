@@ -491,7 +491,10 @@ descargar_paquete_servicio() {
     if [[ -n "${OPSN_SOURCE_DIR:-}" ]]; then
         log_step "Copiando servicio $service desde repo local..."
         mkdir -p "$dest"
-        cp -a "$OPSN_SOURCE_DIR/services/$short/." "$dest/"
+        if ! cp -a "$OPSN_SOURCE_DIR/services/$short/." "$dest/"; then
+            log_error "No se pudo copiar $short desde $OPSN_SOURCE_DIR/services/$short/"
+            return 1
+        fi
         log_info "Servicio $short copiado del repo local."
         return 0
     fi
@@ -525,9 +528,17 @@ servicio_necesita_archivos() {
 descargar_archivos_base() {
     if [[ -n "${OPSN_SOURCE_DIR:-}" ]]; then
         log_step "Copiando archivos base desde repo local: $OPSN_SOURCE_DIR"
-        cp "$OPSN_SOURCE_DIR/docker-compose.yml" "$DC_FILE"
-        [[ -f "$ENV_FILE" ]] || cp "$OPSN_SOURCE_DIR/config/defaults.env" "$ENV_FILE"
-        [[ -f "$LAB_DIR/opensec-lab.sh" ]] || cp "$OPSN_SOURCE_DIR/opensec-lab.sh" "$LAB_DIR/opensec-lab.sh"
+        if ! cp "$OPSN_SOURCE_DIR/docker-compose.yml" "$DC_FILE"; then
+            log_error "No se pudo copiar docker-compose.yml desde $OPSN_SOURCE_DIR"
+            return 1
+        fi
+        if [[ ! -f "$ENV_FILE" ]] && ! cp "$OPSN_SOURCE_DIR/config/defaults.env" "$ENV_FILE"; then
+            log_error "No se pudo copiar defaults.env desde $OPSN_SOURCE_DIR/config/"
+            return 1
+        fi
+        if [[ ! -f "$LAB_DIR/opensec-lab.sh" ]]; then
+            cp "$OPSN_SOURCE_DIR/opensec-lab.sh" "$LAB_DIR/opensec-lab.sh" && chmod +x "$LAB_DIR/opensec-lab.sh"
+        fi
         log_info "Archivos base copiados del repo local."
         return 0
     fi
@@ -1429,6 +1440,10 @@ menu_gestion() {
 instalacion_headless() {
     banner
     log_step "Modo no interactivo (OPSN_PROFILES=${OPSN_PROFILES:-all})"
+    if [[ -n "${OPSN_SOURCE_DIR:-}" && ! -d "$OPSN_SOURCE_DIR" ]]; then
+        log_error "OPSN_SOURCE_DIR no es un directorio: $OPSN_SOURCE_DIR"
+        exit 1
+    fi
     check_prerequisites
     sudo_docker
     mkdir -p "$LAB_DIR/services"; touch "$LOG_FILE" "$PROFILES_FILE"
@@ -1440,8 +1455,14 @@ instalacion_headless() {
             sel+=("$(echo "$entry" | cut -d'|' -f1)")
         done
     else
+        # split intencional: OPSN_PROFILES es una lista separada por espacios
         for p in ${OPSN_PROFILES}; do
-            [[ "$p" == opsn-* ]] && sel+=("$p") || sel+=("opsn-$p")
+            local svc; [[ "$p" == opsn-* ]] && svc="$p" || svc="opsn-$p"
+            if ! printf '%s\n' "${SERVICES_CATALOG[@]}" | cut -d'|' -f1 | grep -qx "$svc"; then
+                log_warn "Profile desconocido: '$p' ($svc no está en el catálogo) — se ignora."
+                continue
+            fi
+            sel+=("$svc")
         done
     fi
     instalar_servicios "${sel[@]}"
